@@ -5,6 +5,12 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
+// Define motor states
+enum MotorState {
+  MOVING,
+  CHANGING_DIRECTION
+};
+
 // Define pin connections
 #define STEP_PIN 13
 #define DIR_PIN 12
@@ -28,6 +34,11 @@ volatile bool relayState = false;
 
 // Initialize stepper
 AccelStepper stepper(AccelStepper::DRIVER, STEP_PIN, DIR_PIN);
+
+// Variables for state machine
+MotorState currentState = MOVING;
+unsigned long stateStartTime = 0;
+const unsigned long DIRECTION_CHANGE_DELAY = 500; // 500ms delay when changing direction
 
 // Function to update LCD display
 void updateLCD(float distance) {
@@ -100,13 +111,25 @@ void setup() {
 }
 
 void loop() {
-  // Motor control logic
-  if (stepper.distanceToGo() == 0) {
-    // Change direction when reaching either end
-    stepper.moveTo(stepper.currentPosition() == 0 ? TOTAL_STEPS : 0);
-    digitalWrite(LED_PIN, !digitalRead(LED_PIN));  // Toggle LED when changing direction
-    delay(500);  // Small delay when changing direction
-  }
+  unsigned long currentTime = millis();
 
-  stepper.run();
+  switch (currentState) {
+    case MOVING:
+      if (stepper.distanceToGo() == 0) {
+        // Change direction when reaching either end
+        stepper.moveTo(stepper.currentPosition() == 0 ? TOTAL_STEPS : 0);
+        digitalWrite(LED_PIN, !digitalRead(LED_PIN));  // Toggle LED when changing direction
+        currentState = CHANGING_DIRECTION;
+        stateStartTime = currentTime;
+      } else {
+        stepper.run();
+      }
+      break;
+
+    case CHANGING_DIRECTION:
+      if (currentTime - stateStartTime >= DIRECTION_CHANGE_DELAY) {
+        currentState = MOVING;
+      }
+      break;
+  }
 }
