@@ -4,18 +4,18 @@ This document outlines the pin connections between the ESP32, the stepper motor 
 
 ## Stepper Motor Driver Connections
 
-| ESP32 Pin | Stepper Driver Pin |
-|-----------|-------------------|
-| GPIO 13   | STEP              |
-| GPIO 12   | DIR               |
-| 3.3V      | VCC (if the driver accepts 3.3V logic, otherwise use 5V) |
-| GND       | GND               |
+| ESP32 Pin | Board Label | Stepper Driver Pin |
+|-----------|-------------|-------------------|
+| GPIO 13   | D13         | STEP              |
+| GPIO 12   | D12         | DIR               |
+| 3.3V      | 3V3         | VCC (if the driver accepts 3.3V logic, otherwise use 5V) |
+| GND       | GND         | GND               |
 
 ## Built-in LED Connection
 
-| ESP32 Pin | Connection |
-|-----------|------------|
-| GPIO 2    | Built-in LED |
+| ESP32 Pin | Board Label | Connection |
+|-----------|-------------|------------|
+| GPIO 2    | D2          | Built-in LED |
 
 ## Notes
 
