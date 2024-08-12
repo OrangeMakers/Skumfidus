@@ -9,6 +9,7 @@
 #define STEP_PIN 13
 #define DIR_PIN 12
 #define LED_PIN 2  // Built-in LED pin for ESP32
+#define RELAY_PIN 14  // Relay control pin
 
 // Define stepper motor parameters
 const int STEPS_PER_REV = 1600;  // 200 * 8 (for 8 microstepping)
@@ -44,9 +45,20 @@ void lcdUpdateTask(void * parameter) {
   }
 }
 
+// Task to control relay
+void relayControlTask(void * parameter) {
+  for(;;) {
+    digitalWrite(RELAY_PIN, HIGH);  // Turn on relay
+    vTaskDelay(10000 / portTICK_PERIOD_MS);  // Wait for 10 seconds
+    digitalWrite(RELAY_PIN, LOW);   // Turn off relay
+    vTaskDelay(10000 / portTICK_PERIOD_MS);  // Wait for 10 seconds
+  }
+}
+
 void setup() {
   // Initialize pins
   pinMode(LED_PIN, OUTPUT);
+  pinMode(RELAY_PIN, OUTPUT);
 
   // Initialize LCD
   lcd.init();
@@ -63,6 +75,16 @@ void setup() {
     lcdUpdateTask,    // Function that should be called
     "LCD Update",     // Name of the task (for debugging)
     2048,             // Stack size (bytes)
+    NULL,             // Parameter to pass
+    1,                // Task priority
+    NULL              // Task handle
+  );
+
+  // Create relay control task
+  xTaskCreate(
+    relayControlTask, // Function that should be called
+    "Relay Control",  // Name of the task (for debugging)
+    1024,             // Stack size (bytes)
     NULL,             // Parameter to pass
     1,                // Task priority
     NULL              // Task handle
