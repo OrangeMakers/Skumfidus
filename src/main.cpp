@@ -24,6 +24,16 @@ bool movingForward = true;
 // Initialize LCD
 LiquidCrystal_I2C lcd(0x27, 16, 2);  // Set the LCD address to 0x27 for a 16 chars and 2 line display
 
+// Function to update LCD display
+void updateLCD(float distance) {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Distance:");
+  lcd.setCursor(0, 1);
+  lcd.print(distance, 1);
+  lcd.print(" mm");
+}
+
 void setup() {
   // Initialize pins as outputs
   pinMode(STEP_PIN, OUTPUT);
@@ -36,8 +46,7 @@ void setup() {
   // Initialize LCD
   lcd.init();
   lcd.backlight();
-  lcd.setCursor(0, 0);
-  lcd.print("Hello World");
+  updateLCD(0);
 }
 
 void loop() {
@@ -57,6 +66,10 @@ void loop() {
       digitalWrite(LED_PIN, !digitalRead(LED_PIN));
 
       currentStep++;
+
+      // Calculate and update distance on LCD
+      float distance = (movingForward ? currentStep : TOTAL_STEPS - currentStep) * DISTANCE_PER_REV / STEPS_PER_REV;
+      updateLCD(distance);
     } else {
       // Change direction
       movingForward = !movingForward;
@@ -65,6 +78,9 @@ void loop() {
       
       // Add a small delay when changing direction
       delay(500);
+
+      // Update LCD for direction change
+      updateLCD(movingForward ? 0 : TOTAL_DISTANCE);
     }
   }
 }
