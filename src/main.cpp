@@ -2,6 +2,8 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <AccelStepper.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 
 // Define pin connections
 #define STEP_PIN 13
@@ -33,6 +35,15 @@ void updateLCD(float distance) {
   lcd.print(" mm");
 }
 
+// Task to update LCD
+void lcdUpdateTask(void * parameter) {
+  for(;;) {
+    float distance = stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV;
+    updateLCD(distance);
+    vTaskDelay(LCD_UPDATE_INTERVAL / portTICK_PERIOD_MS);
+  }
+}
+
 void setup() {
   // Initialize pins
   pinMode(LED_PIN, OUTPUT);
@@ -46,12 +57,19 @@ void setup() {
   stepper.setMaxSpeed(3200);  // 2 revolutions per second
   stepper.setAcceleration(1600);  // Adjust for smooth acceleration
   stepper.moveTo(TOTAL_STEPS);
+
+  // Create LCD update task
+  xTaskCreate(
+    lcdUpdateTask,    // Function that should be called
+    "LCD Update",     // Name of the task (for debugging)
+    2048,             // Stack size (bytes)
+    NULL,             // Parameter to pass
+    1,                // Task priority
+    NULL              // Task handle
+  );
 }
 
 void loop() {
-  static unsigned long lastLCDUpdate = 0;
-  unsigned long currentMillis = millis();
-
   // Motor control logic
   if (stepper.distanceToGo() == 0) {
     // Change direction when reaching either end
@@ -61,11 +79,4 @@ void loop() {
   }
 
   stepper.run();
-
-  // LCD update logic
-  if (currentMillis - lastLCDUpdate >= LCD_UPDATE_INTERVAL) {
-    lastLCDUpdate = currentMillis;
-    float distance = stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV;
-    updateLCD(distance);
-  }
 }
