@@ -13,7 +13,7 @@ const int STEPS_PER_REV = 1600; // 200 * 8 (for 8 microstepping)
 
 // Define movement parameters
 const float DISTANCE_PER_REV = 4.0; // 4mm per revolution
-const float TOTAL_DISTANCE = 100.0; // 100mm (10cm) in each direction
+const float TOTAL_DISTANCE = 30.0; // 100mm (10cm) in each direction
 const int TOTAL_STEPS = (TOTAL_DISTANCE / DISTANCE_PER_REV) * STEPS_PER_REV;
 
 // Define timing variables
