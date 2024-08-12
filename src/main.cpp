@@ -82,6 +82,17 @@ void setup() {
   // Initialize LCD
   lcd.init();
   lcd.backlight();
+
+  // Display welcome message
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("OrangeMakers");
+  lcd.setCursor(0, 1);
+  lcd.print("MarshMellow2.0");
+  delay(5000);  // Display for 5 seconds
+
+  // Clear LCD and initialize display
+  lcd.clear();
   updateLCD(0);
 
   // Configure stepper
