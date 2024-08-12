@@ -11,6 +11,8 @@ const int STEPS_PER_REV = 1600; // 200 * 8 (for 8 microstepping)
 // Define timing variables
 unsigned long previousMicros = 0;
 const unsigned long stepInterval = 625; // 625 microseconds between steps (1 rev/sec)
+unsigned long directionChangeTime = 0;
+const unsigned long directionChangeDuration = 5000000; // 5 seconds in microseconds
 
 void setup() {
   // Initialize pins as outputs
@@ -24,6 +26,12 @@ void setup() {
 
 void loop() {
   unsigned long currentMicros = micros();
+
+  // Check if it's time to change direction
+  if (currentMicros - directionChangeTime >= directionChangeDuration) {
+    directionChangeTime = currentMicros;
+    digitalWrite(DIR_PIN, !digitalRead(DIR_PIN)); // Toggle direction
+  }
 
   // Check if it's time to take a step
   if (currentMicros - previousMicros >= stepInterval) {
