@@ -88,7 +88,7 @@ void setup() {
   lcd.setCursor(0, 0);
   lcd.print("OrangeMakers");
   lcd.setCursor(0, 1);
-  lcd.print("MarshMellow2.0");
+  lcd.print("Marsh Mellow 2.0");
   delay(5000);  // Display for 5 seconds
 
   // Clear LCD and initialize display
