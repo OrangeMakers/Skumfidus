@@ -6,8 +6,8 @@ This document outlines the pin connections between the ESP32, the stepper motor 
 
 | ESP32 Pin | Board Label | Stepper Driver Pin |
 |-----------|-------------|-------------------|
-| GPIO 13   | D13         | STEP              |
-| GPIO 12   | D12         | DIR               |
+| PIN 13    | D13         | STEP              |
+| PIN 12    | D12         | DIR               |
 | 3.3V      | 3V3         | VCC (if the driver accepts 3.3V logic, otherwise use 5V) |
 | GND       | GND         | GND               |
 
@@ -15,14 +15,14 @@ This document outlines the pin connections between the ESP32, the stepper motor 
 
 | ESP32 Pin | Board Label | Connection |
 |-----------|-------------|------------|
-| GPIO 2    | D2          | Built-in LED |
+| PIN 2     | D2          | Built-in LED |
 
 ## LCD Display Connections
 
 | ESP32 Pin | Board Label | LCD Pin |
 |-----------|-------------|---------|
-| GPIO 21   | SDA         | SDA     |
-| GPIO 22   | SCL         | SCL     |
+| PIN 21    | SDA         | SDA     |
+| PIN 22    | SCL         | SCL     |
 | 5V        | 5V          | VCC     |
 | GND       | GND         | GND     |
 
