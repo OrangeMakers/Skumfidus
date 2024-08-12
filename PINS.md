@@ -19,11 +19,12 @@ This document outlines the pin connections between the ESP32, the stepper motor 
 
 ## Notes
 
-1. Make sure to connect the stepper motor to the driver according to the driver's specifications.
-2. The stepper driver is set to 1/2 microstepping mode. Ensure that MS1 is connected to VCC and MS2, MS3 (if present) are connected to GND on your stepper driver to achieve 1/2 microstepping.
-3. Ensure that the stepper driver is powered appropriately. The power for the motor should come from a separate power supply, not from the ESP32.
-4. Always double-check the voltage requirements of your specific stepper driver before making connections.
-5. The built-in LED on most ESP32 development boards is connected to GPIO 2 and is active-low (it turns on when the pin is set to LOW).
+1. The stepper motor used is a 42hs3417 model.
+2. Make sure to connect the stepper motor to the driver according to the driver's specifications.
+3. The stepper driver is set to 8 microstepping mode. Ensure that MS1, MS2, and MS3 are set correctly on your stepper driver to achieve 8 microstepping.
+4. Ensure that the stepper driver is powered appropriately. The power for the motor should come from a separate power supply, not from the ESP32.
+5. Always double-check the voltage requirements of your specific stepper driver before making connections.
+6. The built-in LED on most ESP32 development boards is connected to GPIO 2 and is active-low (it turns on when the pin is set to LOW).
 
 ## Code Configuration
 
@@ -37,11 +38,11 @@ In the `src/main.cpp` file, the following pins are defined:
 
 These definitions correspond to the physical connections described in the tables above.
 
-The stepper motor is configured to run at 1 revolution per second with 1/2 microstepping:
+The stepper motor (42hs3417) is configured to run at 1 revolution per second with 8 microstepping:
 
 ```cpp
-const int STEPS_PER_REV = 400; // 200 * 2 (for 1/2 microstepping)
-const unsigned long stepInterval = 2500; // 2500 microseconds between steps (1 rev/sec)
+const int STEPS_PER_REV = 1600; // 200 * 8 (for 8 microstepping)
+const unsigned long stepInterval = 625; // 625 microseconds between steps (1 rev/sec)
 ```
 
 The motor is controlled by toggling the STEP_PIN at precise intervals using the `micros()` function for timing.

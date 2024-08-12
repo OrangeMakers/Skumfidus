@@ -5,12 +5,12 @@
 #define DIR_PIN 12
 #define LED_PIN 2  // Built-in LED pin for ESP32
 
-// Define steps per revolution for 1/2 microstepping
-const int STEPS_PER_REV = 800; // 200 * 2 (for 1/2 microstepping)
+// Define steps per revolution for 8 microstepping
+const int STEPS_PER_REV = 1600; // 200 * 8 (for 8 microstepping)
 
 // Define timing variables
 unsigned long previousMicros = 0;
-const unsigned long stepInterval = 250; // 2500 microseconds between steps (1 rev/sec)
+const unsigned long stepInterval = 625; // 625 microseconds between steps (1 rev/sec)
 
 void setup() {
   // Initialize pins as outputs
