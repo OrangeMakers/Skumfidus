@@ -23,6 +23,9 @@ const unsigned long LCD_UPDATE_INTERVAL = 1000;  // 1 second in milliseconds
 // Initialize LCD
 LiquidCrystal_I2C lcd(0x27, 16, 2);  // Set the LCD address to 0x27 for a 16 chars and 2 line display
 
+// Global variable to track relay state
+volatile bool relayState = false;
+
 // Initialize stepper
 AccelStepper stepper(AccelStepper::DRIVER, STEP_PIN, DIR_PIN);
 
@@ -34,6 +37,8 @@ void updateLCD(float distance) {
   lcd.setCursor(0, 1);
   lcd.print(distance, 1);
   lcd.print(" mm");
+  lcd.setCursor(11, 1);
+  lcd.print(relayState ? "On" : "Off");
 }
 
 // Task to update LCD
@@ -49,8 +54,10 @@ void lcdUpdateTask(void * parameter) {
 void relayControlTask(void * parameter) {
   for(;;) {
     digitalWrite(RELAY_PIN, HIGH);  // Turn on relay
+    relayState = true;
     vTaskDelay(10000 / portTICK_PERIOD_MS);  // Wait for 10 seconds
     digitalWrite(RELAY_PIN, LOW);   // Turn off relay
+    relayState = false;
     vTaskDelay(10000 / portTICK_PERIOD_MS);  // Wait for 10 seconds
   }
 }
