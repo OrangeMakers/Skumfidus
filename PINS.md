@@ -17,6 +17,15 @@ This document outlines the pin connections between the ESP32, the stepper motor 
 |-----------|-------------|------------|
 | GPIO 2    | D2          | Built-in LED |
 
+## LCD Display Connections
+
+| ESP32 Pin | Board Label | LCD Pin |
+|-----------|-------------|---------|
+| GPIO 21   | SDA         | SDA     |
+| GPIO 22   | SCL         | SCL     |
+| 5V        | 5V          | VCC     |
+| GND       | GND         | GND     |
+
 ## Notes
 
 1. The stepper motor used is a 42hs3417 model.
@@ -25,6 +34,8 @@ This document outlines the pin connections between the ESP32, the stepper motor 
 4. Ensure that the stepper driver is powered appropriately. The power for the motor should come from a separate power supply, not from the ESP32.
 5. Always double-check the voltage requirements of your specific stepper driver before making connections.
 6. The built-in LED on most ESP32 development boards is connected to GPIO 2 and is active-low (it turns on when the pin is set to LOW).
+7. The LCD display is connected via I2C. Make sure to connect it to the correct I2C pins (SDA and SCL) on the ESP32.
+8. The LCD display used is a 16x2 character LCD with I2C interface. The I2C address is set to 0x27 in the code. If your display uses a different address, you may need to adjust this in the `src/main.cpp` file.
 
 ## Code Configuration
 
