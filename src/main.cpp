@@ -8,11 +8,16 @@
 // Define steps per revolution for 8 microstepping
 const int STEPS_PER_REV = 1600; // 200 * 8 (for 8 microstepping)
 
+// Define movement parameters
+const float DISTANCE_PER_REV = 4.0; // 4mm per revolution
+const float TOTAL_DISTANCE = 100.0; // 100mm (10cm) in each direction
+const int TOTAL_STEPS = (TOTAL_DISTANCE / DISTANCE_PER_REV) * STEPS_PER_REV;
+
 // Define timing variables
 unsigned long previousMicros = 0;
 const unsigned long stepInterval = 625; // 625 microseconds between steps (1 rev/sec)
-unsigned long directionChangeTime = 0;
-const unsigned long directionChangeDuration = 5000000; // 5 seconds in microseconds
+int currentStep = 0;
+bool movingForward = true;
 
 void setup() {
   // Initialize pins as outputs
@@ -27,22 +32,28 @@ void setup() {
 void loop() {
   unsigned long currentMicros = micros();
 
-  // Check if it's time to change direction
-  if (currentMicros - directionChangeTime >= directionChangeDuration) {
-    directionChangeTime = currentMicros;
-    digitalWrite(DIR_PIN, !digitalRead(DIR_PIN)); // Toggle direction
-  }
-
   // Check if it's time to take a step
   if (currentMicros - previousMicros >= stepInterval) {
     previousMicros = currentMicros;
 
-    // Toggle the step pin
-    digitalWrite(STEP_PIN, HIGH);
-    delayMicroseconds(10); // Short delay for the step pulse
-    digitalWrite(STEP_PIN, LOW);
+    if (currentStep < TOTAL_STEPS) {
+      // Toggle the step pin
+      digitalWrite(STEP_PIN, HIGH);
+      delayMicroseconds(10); // Short delay for the step pulse
+      digitalWrite(STEP_PIN, LOW);
 
-    // Toggle the LED state
-    digitalWrite(LED_PIN, !digitalRead(LED_PIN));
+      // Toggle the LED state
+      digitalWrite(LED_PIN, !digitalRead(LED_PIN));
+
+      currentStep++;
+    } else {
+      // Change direction
+      movingForward = !movingForward;
+      digitalWrite(DIR_PIN, movingForward ? LOW : HIGH);
+      currentStep = 0;
+      
+      // Add a small delay when changing direction
+      delay(500);
+    }
   }
 }
