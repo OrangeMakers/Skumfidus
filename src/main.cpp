@@ -31,12 +31,13 @@ AccelStepper stepper(AccelStepper::DRIVER, STEP_PIN, DIR_PIN);
 
 // Function to update LCD display
 void updateLCD(float distance) {
-  lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("Distance:");
   lcd.setCursor(0, 1);
   lcd.print(distance, 1);
   lcd.print(" mm");
+  lcd.setCursor(11, 1);
+  lcd.print("   ");  // Clear the previous state
   lcd.setCursor(11, 1);
   lcd.print(relayState ? "On" : "Off");
 }
