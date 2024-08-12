@@ -16,7 +16,7 @@ void setup() {
   
   // Set the speed (steps per second)
   // 200 steps per revolution, 1 revolution per 10 seconds
-  stepper.setSpeed(20);
+  stepper.setSpeed(200);
 
   // Initialize the LED pin as an output
   pinMode(LED_PIN, OUTPUT);
