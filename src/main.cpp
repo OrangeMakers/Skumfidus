@@ -77,7 +77,12 @@ void loop() {
 
   // Motor control logic
   if (stepper.distanceToGo() == 0) {
-    stepper.moveTo(-stepper.currentPosition());
+    // Change direction
+    if (stepper.currentPosition() == TOTAL_STEPS) {
+      stepper.moveTo(0);
+    } else if (stepper.currentPosition() == 0) {
+      stepper.moveTo(TOTAL_STEPS);
+    }
     digitalWrite(LED_PIN, !digitalRead(LED_PIN)); // Toggle LED when changing direction
     delay(500); // Small delay when changing direction
   }
@@ -89,7 +94,7 @@ void loop() {
     if (!isUpdatingLCD) {
       lastLCDUpdate = currentMicros;
     }
-    float distance = abs(stepper.currentPosition()) * DISTANCE_PER_REV / STEPS_PER_REV;
+    float distance = stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV;
     updateLCD(distance);
   }
 }
