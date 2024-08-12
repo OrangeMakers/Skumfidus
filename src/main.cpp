@@ -24,7 +24,7 @@ const float TOTAL_DISTANCE = 30.0;  // 30mm in each direction
 const int TOTAL_STEPS = (TOTAL_DISTANCE / DISTANCE_PER_REV) * STEPS_PER_REV;
 
 // Define LCD update interval
-const unsigned long LCD_UPDATE_INTERVAL = 1000;  // 1 second in milliseconds
+const unsigned long LCD_UPDATE_INTERVAL = 250;  // 0,25 second in milliseconds
 
 // Initialize LCD
 LiquidCrystal_I2C lcd(0x27, 16, 2);  // Set the LCD address to 0x27 for a 16 chars and 2 line display
