@@ -18,6 +18,8 @@ const int TOTAL_STEPS = (TOTAL_DISTANCE / DISTANCE_PER_REV) * STEPS_PER_REV;
 // Define timing variables
 unsigned long previousMicros = 0;
 const unsigned long stepInterval = 625; // 625 microseconds between steps (1 rev/sec)
+unsigned long lastLCDUpdate = 0;
+const unsigned long lcdUpdateInterval = 1000000; // 1 second in microseconds
 int currentStep = 0;
 bool movingForward = true;
 
@@ -66,10 +68,6 @@ void loop() {
       digitalWrite(LED_PIN, !digitalRead(LED_PIN));
 
       currentStep++;
-
-      // Calculate and update distance on LCD
-      float distance = (movingForward ? currentStep : TOTAL_STEPS - currentStep) * DISTANCE_PER_REV / STEPS_PER_REV;
-      updateLCD(distance);
     } else {
       // Change direction
       movingForward = !movingForward;
@@ -78,9 +76,13 @@ void loop() {
       
       // Add a small delay when changing direction
       delay(500);
-
-      // Update LCD for direction change
-      updateLCD(movingForward ? 0 : TOTAL_DISTANCE);
     }
+  }
+
+  // Update LCD once per second
+  if (currentMicros - lastLCDUpdate >= lcdUpdateInterval) {
+    lastLCDUpdate = currentMicros;
+    float distance = (movingForward ? currentStep : TOTAL_STEPS - currentStep) * DISTANCE_PER_REV / STEPS_PER_REV;
+    updateLCD(distance);
   }
 }
