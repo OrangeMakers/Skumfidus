@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
+#include <AccelStepper.h>
 
 // Define stepper motor connections
 #define STEP_PIN 13
@@ -16,12 +17,8 @@ const float TOTAL_DISTANCE = 100.0; // 100mm (10cm) in each direction
 const int TOTAL_STEPS = (TOTAL_DISTANCE / DISTANCE_PER_REV) * STEPS_PER_REV;
 
 // Define timing variables
-unsigned long previousMicros = 0;
-const unsigned long stepInterval = 625; // 625 microseconds between steps (1 rev/sec)
 unsigned long lastLCDUpdate = 0;
 const unsigned long lcdUpdateInterval = 1000000; // 1 second in microseconds
-int currentStep = 0;
-bool movingForward = true;
 
 // LCD update variables
 bool isUpdatingLCD = false;
@@ -29,6 +26,9 @@ int lcdUpdateStep = 0;
 
 // Initialize LCD
 LiquidCrystal_I2C lcd(0x27, 16, 2);  // Set the LCD address to 0x27 for a 16 chars and 2 line display
+
+// Initialize stepper
+AccelStepper stepper(AccelStepper::DRIVER, STEP_PIN, DIR_PIN);
 
 // Function to update LCD display (non-blocking)
 void updateLCD(float distance) {
@@ -59,53 +59,37 @@ void updateLCD(float distance) {
 
 void setup() {
   // Initialize pins as outputs
-  pinMode(STEP_PIN, OUTPUT);
-  pinMode(DIR_PIN, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
-
-  // Set initial direction (clockwise)
-  digitalWrite(DIR_PIN, LOW);
 
   // Initialize LCD
   lcd.init();
   lcd.backlight();
   updateLCD(0);
+
+  // Configure stepper
+  stepper.setMaxSpeed(1600); // 1 revolution per second
+  stepper.setAcceleration(800); // Adjust this value for smooth acceleration
+  stepper.moveTo(TOTAL_STEPS);
 }
 
 void loop() {
   unsigned long currentMicros = micros();
 
   // Motor control logic
-  if (currentMicros - previousMicros >= stepInterval) {
-    previousMicros = currentMicros;
-
-    if (currentStep < TOTAL_STEPS) {
-      // Toggle the step pin
-      digitalWrite(STEP_PIN, HIGH);
-      delayMicroseconds(10); // Short delay for the step pulse
-      digitalWrite(STEP_PIN, LOW);
-
-      // Toggle the LED state
-      digitalWrite(LED_PIN, !digitalRead(LED_PIN));
-
-      currentStep++;
-    } else {
-      // Change direction
-      movingForward = !movingForward;
-      digitalWrite(DIR_PIN, movingForward ? LOW : HIGH);
-      currentStep = 0;
-      
-      // Add a small delay when changing direction
-      delay(500);
-    }
+  if (stepper.distanceToGo() == 0) {
+    stepper.moveTo(-stepper.currentPosition());
+    digitalWrite(LED_PIN, !digitalRead(LED_PIN)); // Toggle LED when changing direction
+    delay(500); // Small delay when changing direction
   }
+
+  stepper.run();
 
   // LCD update logic
   if (currentMicros - lastLCDUpdate >= lcdUpdateInterval || isUpdatingLCD) {
     if (!isUpdatingLCD) {
       lastLCDUpdate = currentMicros;
     }
-    float distance = (movingForward ? currentStep : TOTAL_STEPS - currentStep) * DISTANCE_PER_REV / STEPS_PER_REV;
+    float distance = abs(stepper.currentPosition()) * DISTANCE_PER_REV / STEPS_PER_REV;
     updateLCD(distance);
   }
 }
