@@ -1,4 +1,6 @@
 #include <Arduino.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
 
 // Define stepper motor connections
 #define STEP_PIN 13
@@ -19,6 +21,9 @@ const unsigned long stepInterval = 625; // 625 microseconds between steps (1 rev
 int currentStep = 0;
 bool movingForward = true;
 
+// Initialize LCD
+LiquidCrystal_I2C lcd(0x27, 16, 2);  // Set the LCD address to 0x27 for a 16 chars and 2 line display
+
 void setup() {
   // Initialize pins as outputs
   pinMode(STEP_PIN, OUTPUT);
@@ -27,6 +32,12 @@ void setup() {
 
   // Set initial direction (clockwise)
   digitalWrite(DIR_PIN, LOW);
+
+  // Initialize LCD
+  lcd.init();
+  lcd.backlight();
+  lcd.setCursor(0, 0);
+  lcd.print("Hello World");
 }
 
 void loop() {
