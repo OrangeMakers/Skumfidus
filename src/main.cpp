@@ -1,18 +1,24 @@
 #include <Arduino.h>
+#include <AccelStepper.h>
 
-// put function declarations here:
-int myFunction(int, int);
+// Define stepper motor connections
+#define STEP_PIN 13
+#define DIR_PIN 12
+
+// Create a new instance of the AccelStepper class
+AccelStepper stepper(AccelStepper::DRIVER, STEP_PIN, DIR_PIN);
 
 void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+  // Set the maximum speed and acceleration
+  stepper.setMaxSpeed(200);
+  stepper.setAcceleration(50);
+  
+  // Set the speed (steps per second)
+  // 200 steps per revolution, 1 revolution per 10 seconds
+  stepper.setSpeed(20);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-}
-
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+  // Move the motor one step
+  stepper.runSpeed();
 }
