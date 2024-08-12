@@ -39,21 +39,19 @@ void updateLCD(float distance) {
 
   switch (lcdUpdateStep) {
     case 0:
-      lcd.clear();
-      lcdUpdateStep++;
-      break;
-    case 1:
       lcd.setCursor(0, 0);
       lcd.print("Distance:");
       lcdUpdateStep++;
       break;
-    case 2:
+    case 1:
+      lcd.setCursor(0, 1);
+      lcd.print("                "); // Clear the second line
       lcd.setCursor(0, 1);
       lcd.print(distance, 1);
       lcd.print(" mm");
       lcdUpdateStep++;
       break;
-    case 3:
+    case 2:
       isUpdatingLCD = false;
       break;
   }
