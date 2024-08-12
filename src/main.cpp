@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include <AccelStepper.h>
 
 // Define stepper motor connections
 #define STEP_PIN 13
@@ -9,26 +8,33 @@
 // Define steps per revolution for 1/2 microstepping
 const int STEPS_PER_REV = 400; // 200 * 2 (for 1/2 microstepping)
 
-// Create a new instance of the AccelStepper class
-AccelStepper stepper(AccelStepper::DRIVER, STEP_PIN, DIR_PIN);
+// Define timing variables
+unsigned long previousMicros = 0;
+const unsigned long stepInterval = 2500; // 2500 microseconds between steps (1 rev/sec)
 
 void setup() {
-  // Set the maximum speed and acceleration
-  stepper.setMaxSpeed(1000); // Increased to allow for higher speeds
-  stepper.setAcceleration(500); // Increased for faster acceleration
-  
-  // Set the speed (steps per second)
-  // 400 steps per revolution (with 1/2 microstepping), 1 revolution per second
-  stepper.setSpeed(STEPS_PER_REV);
-
-  // Initialize the LED pin as an output
+  // Initialize pins as outputs
+  pinMode(STEP_PIN, OUTPUT);
+  pinMode(DIR_PIN, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
+
+  // Set initial direction (clockwise)
+  digitalWrite(DIR_PIN, HIGH);
 }
 
 void loop() {
-  // Move the motor one step
-  stepper.runSpeed();
+  unsigned long currentMicros = micros();
 
-  // Toggle the LED state
-  digitalWrite(LED_PIN, !digitalRead(LED_PIN));
+  // Check if it's time to take a step
+  if (currentMicros - previousMicros >= stepInterval) {
+    previousMicros = currentMicros;
+
+    // Toggle the step pin
+    digitalWrite(STEP_PIN, HIGH);
+    delayMicroseconds(10); // Short delay for the step pulse
+    digitalWrite(STEP_PIN, LOW);
+
+    // Toggle the LED state
+    digitalWrite(LED_PIN, !digitalRead(LED_PIN));
+  }
 }

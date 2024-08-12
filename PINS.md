@@ -41,5 +41,7 @@ The stepper motor is configured to run at 1 revolution per second with 1/2 micro
 
 ```cpp
 const int STEPS_PER_REV = 400; // 200 * 2 (for 1/2 microstepping)
-stepper.setSpeed(STEPS_PER_REV); // Set speed to 400 steps per second
+const unsigned long stepInterval = 2500; // 2500 microseconds between steps (1 rev/sec)
 ```
+
+The motor is controlled by toggling the STEP_PIN at precise intervals using the `micros()` function for timing.
