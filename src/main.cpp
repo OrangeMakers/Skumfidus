@@ -31,14 +31,16 @@ volatile SystemState currentSystemState = IDLE;
 // Variable to store the last button state
 volatile bool lastButtonState = HIGH;
 
-// Define stepper motor parameters
+// Movement and stepper motor parameters
 const int STEPS_PER_REV = 1600;  // 200 * 8 (for 8 microstepping)
-const float DISTANCE_PER_REV = 8.0;  // 4mm per revolution
+const float DISTANCE_PER_REV = 8.0;  // 8mm per revolution (lead of ACME rod)
 const float TOTAL_DISTANCE = 30.0;  // 30mm in each direction
 const int TOTAL_STEPS = (TOTAL_DISTANCE / DISTANCE_PER_REV) * STEPS_PER_REV;
+const float MAX_SPEED = 3200;  // Maintains 2 revolutions per second (16 mm/second)
+const float ACCELERATION = 1600;  // Adjust for smooth acceleration
 
 // Define LCD update interval
-const unsigned long LCD_UPDATE_INTERVAL = 250;  // 0,25 second in milliseconds
+const unsigned long LCD_UPDATE_INTERVAL = 250;  // 0.25 second in milliseconds
 
 // Initialize LCD
 LiquidCrystal_I2C lcd(0x27, 16, 2);  // Set the LCD address to 0x27 for a 16 chars and 2 line display
@@ -111,8 +113,8 @@ void setup() {
   updateLCD(0);
 
   // Configure stepper
-  stepper.setMaxSpeed(3200);  // Maintains 2 revolutions per second (16 mm/second)
-  stepper.setAcceleration(1600);  // Adjust for smooth acceleration
+  stepper.setMaxSpeed(MAX_SPEED);
+  stepper.setAcceleration(ACCELERATION);
   stepper.moveTo(TOTAL_STEPS);
 
   // Create LCD update task
