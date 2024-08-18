@@ -12,12 +12,6 @@
 #define ROTARY_DT_PIN 18      // Rotary encoder DT pin
 #define ROTARY_SW_PIN 19      // Rotary encoder switch pin
 
-// Define motor states
-enum MotorState {
-  MOVING,
-  CHANGING_DIRECTION
-};
-
 // Define pin connections
 #define STEP_PIN 13
 #define DIR_PIN 12
@@ -26,15 +20,23 @@ enum MotorState {
 
 // Define system states
 enum SystemState {
+  STARTUP,
+  HOMING,
   IDLE,
   RUNNING
 };
 
 // Global variable to track system state
-volatile SystemState currentSystemState = IDLE;
+volatile SystemState currentSystemState = STARTUP;
 
 // Variable to store the last button state
 volatile bool lastButtonState = HIGH;
+
+// Define motor states
+enum MotorState {
+  MOVING,
+  CHANGING_DIRECTION
+};
 
 // Movement and stepper motor parameters
 const int STEPS_PER_REV = 1600;  // 200 * 8 (for 8 microstepping)
@@ -83,9 +85,10 @@ void lcdUpdateTask(void * parameter) {
 }
 
 
-// Global variables for welcome message timing
-unsigned long welcomeStartTime = 0;
+// Global variables for timing
+unsigned long stateStartTime = 0;
 const unsigned long WELCOME_DURATION = 5000;  // 5 seconds
+const unsigned long HOMING_TIMEOUT = 30000;   // 30 seconds
 
 void setup() {
   // Initialize pins
@@ -128,71 +131,114 @@ void setup() {
     NULL                     // Task handle
   );
 
-  // Display welcome message
-  display.writeDisplay("OrangeMakers", 0, 0);
-  display.writeDisplay("Marshmallow 2.0", 1, 0);
-  welcomeStartTime = millis();  // Start the welcome message timer
+  // Initialize state
+  currentSystemState = STARTUP;
+  stateStartTime = millis();
 }
 
 void loop() {
   unsigned long currentTime = millis();
 
-  // Handle welcome message timing
-  if (currentTime - welcomeStartTime < WELCOME_DURATION) {
-    // Welcome message is still being displayed
-    return;  // Skip the rest of the loop
-  } else if (currentTime - welcomeStartTime == WELCOME_DURATION) {
-    // Welcome message duration has just ended
-    display.clearDisplay();
-    updateLCD(0);
+  switch (currentSystemState) {
+    case STARTUP:
+      handleStartup(currentTime);
+      break;
+    case HOMING:
+      handleHoming(currentTime);
+      break;
+    case IDLE:
+      handleIdle();
+      break;
+    case RUNNING:
+      handleRunning(currentTime);
+      break;
   }
+}
 
+void handleStartup(unsigned long currentTime) {
+  if (currentTime - stateStartTime < WELCOME_DURATION) {
+    // Display welcome message
+    display.writeDisplay("OrangeMakers", 0, 0);
+    display.writeDisplay("Marshmallow 2.0", 1, 0);
+  } else {
+    // Transition to HOMING state
+    currentSystemState = HOMING;
+    stateStartTime = currentTime;
+    display.writeDisplay("Homing...", 0, 0);
+    display.writeDisplay("", 1, 0);
+  }
+}
+
+void handleHoming(unsigned long currentTime) {
+  if (digitalRead(HOMING_SWITCH_PIN) == LOW) {
+    // Homing switch triggered
+    stepper.setCurrentPosition(0);
+    currentSystemState = IDLE;
+    display.writeAlert("Homed", "", 2000);
+  } else if (currentTime - stateStartTime > HOMING_TIMEOUT) {
+    // Homing timeout
+    currentSystemState = IDLE;
+    display.writeAlert("Homing failed", "", 2000);
+  } else {
+    // Move towards home
+    stepper.moveTo(-1000000);  // Large negative number to ensure continuous movement
+    stepper.run();
+  }
+}
+
+void handleIdle() {
   bool currentButtonState = digitalRead(START_BUTTON_PIN);
 
-  // Check for button press (transition from HIGH to LOW)
   if (lastButtonState == HIGH && currentButtonState == LOW) {
     delay(50);  // Simple debounce
     if (digitalRead(START_BUTTON_PIN) == LOW) {
-      if (currentSystemState == IDLE) {
-        currentSystemState = RUNNING;
-        display.writeAlert("System Started", "", 2000);
-        updateLCD(0);
-      } else {
-        currentSystemState = IDLE;
-        display.writeAlert("System Idle", "", 2000);
-        updateLCD(0);
-        // Reset stepper position
-        stepper.setCurrentPosition(0);
-        stepper.moveTo(0);
-      }
+      currentSystemState = RUNNING;
+      display.writeAlert("System Started", "", 2000);
+      updateLCD(0);
     }
   }
 
-  // Update last button state
+  lastButtonState = currentButtonState;
+  stepper.stop();
+  updateLCD(0);
+}
+
+void handleRunning(unsigned long currentTime) {
+  bool currentButtonState = digitalRead(START_BUTTON_PIN);
+
+  if (lastButtonState == HIGH && currentButtonState == LOW) {
+    delay(50);  // Simple debounce
+    if (digitalRead(START_BUTTON_PIN) == LOW) {
+      currentSystemState = IDLE;
+      display.writeAlert("System Idle", "", 2000);
+      stepper.setCurrentPosition(0);
+      stepper.moveTo(0);
+      return;
+    }
+  }
+
   lastButtonState = currentButtonState;
 
-  if (currentSystemState == RUNNING) {
-    switch (currentState) {
-      case MOVING:
-        if (stepper.distanceToGo() == 0) {
-          // Change direction when reaching either end
-          stepper.moveTo(stepper.currentPosition() == 0 ? TOTAL_STEPS : 0);
-          digitalWrite(LED_PIN, !digitalRead(LED_PIN));  // Toggle LED when changing direction
-          currentState = CHANGING_DIRECTION;
-          stateStartTime = currentTime;
-        } else {
-          stepper.run();
-        }
-        break;
+  switch (currentState) {
+    case MOVING:
+      if (stepper.distanceToGo() == 0) {
+        // Change direction when reaching either end
+        stepper.moveTo(stepper.currentPosition() == 0 ? TOTAL_STEPS : 0);
+        digitalWrite(LED_PIN, !digitalRead(LED_PIN));  // Toggle LED when changing direction
+        currentState = CHANGING_DIRECTION;
+        stateStartTime = currentTime;
+      } else {
+        stepper.run();
+      }
+      break;
 
-      case CHANGING_DIRECTION:
-        if (currentTime - stateStartTime >= DIRECTION_CHANGE_DELAY) {
-          currentState = MOVING;
-        }
-        break;
-    }
-  } else {
-    // System is idle, ensure motor is stopped
-    stepper.stop();
+    case CHANGING_DIRECTION:
+      if (currentTime - stateStartTime >= DIRECTION_CHANGE_DELAY) {
+        currentState = MOVING;
+      }
+      break;
   }
+
+  float distance = abs(stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV);
+  updateLCD(distance);
 }
