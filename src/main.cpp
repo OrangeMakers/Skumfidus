@@ -130,7 +130,7 @@ void setup() {
 
   // Display welcome message
   display.writeDisplay("OrangeMakers", 0, 0);
-  display.writeDisplay("Marsh Mellow 2.0", 1, 0);
+  display.writeDisplay("Marshmallow 2.0", 1, 0);
   welcomeStartTime = millis();  // Start the welcome message timer
 }
 
