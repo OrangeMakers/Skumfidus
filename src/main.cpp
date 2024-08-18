@@ -254,6 +254,19 @@ void handleRunning(unsigned long currentTime) {
   updateLCD(distance);
 }
 
+void handleReturningToStart() {
+  if (stepper.distanceToGo() == 0) {
+    // We've reached the start position
+    currentSystemState = IDLE;
+    display.writeAlert("Returned to", "Start Position", 2000);
+  } else {
+    stepper.run();
+    float distance = abs(stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV);
+    updateLCD(distance);
+  }
+}
+
+
 void loop() {
   unsigned long currentTime = millis();
 
@@ -273,16 +286,5 @@ void loop() {
     case RETURNING_TO_START:
       handleReturningToStart();
       break;
-  }
-}
-void handleReturningToStart() {
-  if (stepper.distanceToGo() == 0) {
-    // We've reached the start position
-    currentSystemState = IDLE;
-    display.writeAlert("Returned to", "Start Position", 2000);
-  } else {
-    stepper.run();
-    float distance = abs(stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV);
-    updateLCD(distance);
   }
 }
