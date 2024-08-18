@@ -8,10 +8,10 @@
 | PIN 21    | SDA         | LCD SDA             |
 | PIN 22    | SCL         | LCD SCL             |
 | PIN 14    | D14         | Relæ Kontrol        |
-| PIN 15    | D15         | Start Knap          |
-| PIN 16    | D16         | Homing Kontakt      |
-| PIN 17    | D17         | Rotary Encoder CLK  |
-| PIN 18    | D18         | Rotary Encoder DT   |
-| PIN 19    | D19         | Rotary Encoder SW   |
+| PIN 15    | D15         | Start Knap (PULL UP)|
+| PIN 16    | D16         | Homing Kontakt (PULL UP)|
+| PIN 17    | D17         | Rotary Encoder CLK (PULL UP)|
+| PIN 18    | D18         | Rotary Encoder DT (PULL UP)|
+| PIN 19    | D19         | Rotary Encoder SW (PULL UP)|
 | 5V        | 5V          | Stepperdriver VCC, LCD VCC, Rotary Encoder VCC |
 | GND       | GND         | Fælles GND          |

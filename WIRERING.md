@@ -10,11 +10,11 @@
 | SDA (PIN 21) -----> LCD SDA
 | SCL (PIN 22) -----> LCD SCL
 | D14 (PIN 14) -----> Relay Control
-| D15 (PIN 15) <----- Start Button (see separate component below)
-| D16 (PIN 16) <----- Homing Switch
-| D17 (PIN 17) <----- Rotary Encoder CLK
-| D18 (PIN 18) <----- Rotary Encoder DT
-| D19 (PIN 19) <----- Rotary Encoder SW
+| D15 (PIN 15) <----- Start Button (PULL UP, see separate component below)
+| D16 (PIN 16) <----- Homing Switch (PULL UP)
+| D17 (PIN 17) <----- Rotary Encoder CLK (PULL UP)
+| D18 (PIN 18) <----- Rotary Encoder DT (PULL UP)
+| D19 (PIN 19) <----- Rotary Encoder SW (PULL UP)
 | 5V           -----> Common 5V (for LCD, TMC2209, Rotary Encoder, and other components)
 | GND          -----> Common GND
 |                     |
@@ -69,7 +69,7 @@ Note: The start button is a normally open (NO) momentary push button. When press
 
 Notes:
 1. Ensure all GND connections are properly connected to a common ground, including the relay module's GND.
-2. The Start Button should be connected between PIN 15 and GND, with the internal pull-up resistor enabled in software.
+2. The Start Button should be connected between PIN 15 and GND, with the internal pull-up resistor enabled in software (INPUT_PULLUP).
 3. The Relay Control (PIN 14) should be connected to the control pin of your relay module.
 4. The LCD and other components are powered from the common 5V supply.
 5. The Stepper Motor connections (A1, A2, B1, B2) go to the TMC2209 driver, not directly to the ESP32.

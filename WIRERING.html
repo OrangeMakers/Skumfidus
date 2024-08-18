@@ -25,11 +25,11 @@
         <tr><td>SDA (PIN 21)</td><td>LCD SDA</td></tr>
         <tr><td>SCL (PIN 22)</td><td>LCD SCL</td></tr>
         <tr><td>D14 (PIN 14)</td><td>Relæ-kontrol</td></tr>
-        <tr><td>D15 (PIN 15)</td><td>Startknap</td></tr>
-        <tr><td>D16 (PIN 16)</td><td>Homing-kontakt</td></tr>
-        <tr><td>D17 (PIN 17)</td><td>Rotary Encoder CLK</td></tr>
-        <tr><td>D18 (PIN 18)</td><td>Rotary Encoder DT</td></tr>
-        <tr><td>D19 (PIN 19)</td><td>Rotary Encoder SW</td></tr>
+        <tr><td>D15 (PIN 15)</td><td>Startknap (PULL UP)</td></tr>
+        <tr><td>D16 (PIN 16)</td><td>Homing-kontakt (PULL UP)</td></tr>
+        <tr><td>D17 (PIN 17)</td><td>Rotary Encoder CLK (PULL UP)</td></tr>
+        <tr><td>D18 (PIN 18)</td><td>Rotary Encoder DT (PULL UP)</td></tr>
+        <tr><td>D19 (PIN 19)</td><td>Rotary Encoder SW (PULL UP)</td></tr>
         <tr><td>5V</td><td>Fælles 5V (til LCD, TMC2209, Rotary Encoder og andre komponenter)</td></tr>
         <tr><td>GND</td><td>Fælles GND</td></tr>
     </table>
@@ -105,7 +105,7 @@
     <h2>Noter</h2>
     <ol>
         <li>Sørg for, at alle GND-forbindelser er korrekt tilsluttet til en fælles jord, inklusive relæmodulets GND.</li>
-        <li>Startknappen skal forbindes mellem PIN 15 og GND, med den interne pull-up modstand aktiveret i softwaren.</li>
+        <li>Startknappen skal forbindes mellem PIN 15 og GND, med den interne pull-up modstand aktiveret i softwaren (INPUT_PULLUP).</li>
         <li>Relæ-kontrollen (PIN 14) skal forbindes til kontrolpinnen på dit relæmodul.</li>
         <li>LCD'en og andre komponenter forsynes fra den fælles 5V-forsyning.</li>
         <li>Steppermotorforbindelserne (A1, A2, B1, B2) går til TMC2209-driveren, ikke direkte til ESP32.</li>
