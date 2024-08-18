@@ -225,10 +225,8 @@ void handleIdle() {
 
   lastButtonState = currentButtonState;
   stepper.stop();
-  float currentDistance = abs(stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV);
-  display.writeDisplay("Distance:", 0, 0);
-  display.writeDisplay(String(currentDistance, 1) + " mm", 1, 0, 10, Alignment::LEFT);
-  display.writeDisplay("Idle", 1, 11, 16, Alignment::RIGHT);
+  display.writeDisplay("Idle..", 0, 0);
+  display.writeDisplay("Press Start", 1, 0);
 }
 
 void handleRunning(unsigned long currentTime) {
