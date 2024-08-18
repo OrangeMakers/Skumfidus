@@ -203,13 +203,15 @@ void handleIdle() {
     if (digitalRead(START_BUTTON_PIN) == LOW) {
       currentSystemState = RUNNING;
       display.writeAlert("System Started", "", 2000);
-      updateLCD(0);
+      float currentDistance = abs(stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV);
+      updateLCD(currentDistance);
     }
   }
 
   lastButtonState = currentButtonState;
   stepper.stop();
-  updateLCD(0);
+  float currentDistance = abs(stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV);
+  updateLCD(currentDistance);
 }
 
 void handleRunning(unsigned long currentTime) {
@@ -220,8 +222,7 @@ void handleRunning(unsigned long currentTime) {
     if (digitalRead(START_BUTTON_PIN) == LOW) {
       currentSystemState = IDLE;
       display.writeAlert("System Idle", "", 2000);
-      stepper.setCurrentPosition(0);
-      stepper.moveTo(0);
+      stepper.stop();  // Stop the stepper without changing its position
       return;
     }
   }
