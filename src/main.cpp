@@ -26,7 +26,8 @@ enum SystemState {
   STARTUP,
   HOMING,
   IDLE,
-  RUNNING
+  RUNNING,
+  RETURNING_TO_START
 };
 
 // Global variable to track system state
@@ -220,9 +221,9 @@ void handleRunning(unsigned long currentTime) {
   if (lastButtonState == HIGH && currentButtonState == LOW) {
     delay(50);  // Simple debounce
     if (digitalRead(START_BUTTON_PIN) == LOW) {
-      currentSystemState = IDLE;
-      display.writeAlert("System Idle", "", 2000);
-      stepper.stop();  // Stop the stepper without changing its position
+      currentSystemState = RETURNING_TO_START;
+      display.writeAlert("Returning to", "Start Position", 2000);
+      stepper.moveTo(0);  // Set target to start position
       return;
     }
   }
@@ -269,5 +270,19 @@ void loop() {
     case RUNNING:
       handleRunning(currentTime);
       break;
+    case RETURNING_TO_START:
+      handleReturningToStart();
+      break;
+  }
+}
+void handleReturningToStart() {
+  if (stepper.distanceToGo() == 0) {
+    // We've reached the start position
+    currentSystemState = IDLE;
+    display.writeAlert("Returned to", "Start Position", 2000);
+  } else {
+    stepper.run();
+    float distance = abs(stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV);
+    updateLCD(distance);
   }
 }
