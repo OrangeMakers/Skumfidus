@@ -198,8 +198,6 @@ void handleHoming(unsigned long currentTime) {
       stepper.setCurrentPosition(0);
       display.writeAlert("Homing Done", "", 2000);
       delay(2000);  // Wait for 2 seconds
-      display.writeAlert("Homing", "Completed", 2000);
-      delay(2000);  // Wait for 2 more seconds
       currentSystemState = IDLE;
       waitingForConfirmation = true;  // Reset for next homing
       homingSwitchTriggered = false;
