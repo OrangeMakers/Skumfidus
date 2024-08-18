@@ -170,7 +170,7 @@ void handleHoming(unsigned long currentTime) {
       // Homing switch triggered
       stepper.setCurrentPosition(0);
       currentSystemState = IDLE;
-      display.writeAlert("Homed", "", 2000);
+      display.writeAlert("Homed..", "", 2000);
       waitingForConfirmation = true;  // Reset for next homing
     } else if (currentTime - stateStartTime > HOMING_TIMEOUT) {
       // Homing timeout
