@@ -130,3 +130,47 @@ Connect both MS1 and MS2 to GND for full-step mode.
    - Implement smooth acceleration and deceleration profiles to optimize performance and minimize wear.
 
 Remember to refer to the complete datasheet and consult with the manufacturer for any specific applications or concerns not covered in this summary.
+
+## 3. 8mm ACME Threaded Rod Specifications
+
+### Basic Specifications
+| Parameter | Value |
+|-----------|-------|
+| Nominal Diameter | 8mm |
+| Thread Type | ACME (trapezoidal) |
+| Lead | 8mm |
+| Pitch | 2mm |
+| Start | 4 (Multi-start thread) |
+
+### Thread Geometry
+| Parameter | Value |
+|-----------|-------|
+| Major Diameter | 8.00mm |
+| Minor Diameter | 6.50mm |
+| Pitch Diameter | 7.25mm |
+| Thread Angle | 29° |
+| Thread Depth | 0.75mm |
+
+### Material Properties
+| Parameter | Value |
+|-----------|-------|
+| Material | Stainless Steel (typical) |
+| Surface Finish | Ground and Polished |
+
+### Performance Characteristics
+| Parameter | Value |
+|-----------|-------|
+| Typical Backlash | 0.05mm - 0.1mm (depends on nut design) |
+| Efficiency | ~50% (typical for ACME threads) |
+
+### Notes for Developers:
+- Lead: The linear distance traveled for one complete revolution of the rod.
+- Pitch: The distance between adjacent thread peaks.
+- Start: The number of independent threads. In this case, 4 starts means there are four threads running in parallel.
+- The lead is equal to the pitch multiplied by the number of starts (2mm * 4 = 8mm).
+- For precise movement calculations, consider factors such as:
+  1. Stepper motor step angle and microstepping settings
+  2. Any gearing between the motor and the threaded rod
+  3. Backlash in the system
+  4. Potential thermal expansion of components
+- The efficiency affects the torque required to lift a given load and the back-drivability of the system.
