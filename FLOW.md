@@ -11,10 +11,10 @@
    - Reset display
    - Update display with text
 
-| Row / Column | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
-|--------------|---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----| 
-| 1            | O | r | a | n | g | e | M | a | k | e  | r  | s  |    |    |    |    |
-| 2            | M | a | r | s | h |   | M | e | l | l  | o  | w  |    | 2  | .  | 0  |
+| Row / Column | 1234567890123456 |
+| ------------ | ---------------- |
+| 1            | OrangeMakers     |
+| 2            | Marshmallow 2.0  |
 
    - Delay 5 seconds
 
@@ -31,10 +31,10 @@
 1. System waits for input
    - Display shows initial position (0.0 mm) and relay state (Off)
 
-| Row / Column | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
-|--------------|---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----| 
-| 1            | D | i | s | t | a | n | c | e | : |    |    |    |    |    |    |    |
-| 2            | 0 | . | 0 |   | m | m |   |   |   |    |    | O  | f  | f  |    |    |
+| Row / Column | 1234567890123456 |
+| ------------ | ---------------- |
+| 1            | Distance:        |
+| 2            | 0.0 mm      Off  |
 
 2. Stepper motor is stationary
 3. Relay cycles on and off every 10 seconds (controlled by background task)
@@ -48,10 +48,10 @@
 2. System state changes from IDLE to RUNNING
    - Display temporary "System Started" message
 
-| Row / Column | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
-|--------------|---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----| 
-| 1            | S | y | s | t | e | m |   | S | t | a  | r  | t  | e  | d  |    |    |
-| 2            |   |   |   |   |   |   |   |   |   |    |    |    |    |    |    |    |
+| Row / Column | 1234567890123456 |
+| ------------ | ---------------- |
+| 1            | System Started   |
+| 2            |                  |
 
    - Display this message for 2 seconds
 
@@ -71,10 +71,10 @@
    - Continuously update distance and relay state
    - Update every 250ms (controlled by background task)
 
-| Row / Column | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
-|--------------|---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----| 
-| 1            | D | i | s | t | a | n | c | e | : |    |    |    |    |    |    |    |
-| 2            | X | X | . | X |   | m | m |   |   |    |    | O  | n  |    |    |    |
+| Row / Column | 1234567890123456 |
+| ------------ | ---------------- |
+| 1            | Distance:        |
+| 2            | XX.X mm      On  |
 
    Note: XX.X represents the current distance (e.g., 15.2 mm)
 
@@ -90,10 +90,10 @@
 2. System state changes from RUNNING to IDLE
    - Display temporary "System Idle" message
 
-| Row / Column | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
-|--------------|---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----| 
-| 1            | S | y | s | t | e | m |   | I | d | l  | e  |    |    |    |    |    |
-| 2            |   |   |   |   |   |   |   |   |   |    |    |    |    |    |    |    |
+| Row / Column | 1234567890123456 |
+| ------------ | ---------------- |
+| 1            | System Idle      |
+| 2            |                  |
 
    - Display this message for 2 seconds
 
