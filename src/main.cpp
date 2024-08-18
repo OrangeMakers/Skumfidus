@@ -150,19 +150,38 @@ void handleStartup(unsigned long currentTime) {
 }
 
 void handleHoming(unsigned long currentTime) {
-  if (digitalRead(HOMING_SWITCH_PIN) == LOW) {
-    // Homing switch triggered
-    stepper.setCurrentPosition(0);
-    currentSystemState = IDLE;
-    display.writeAlert("Homed", "", 2000);
-  } else if (currentTime - stateStartTime > HOMING_TIMEOUT) {
-    // Homing timeout
-    currentSystemState = IDLE;
-    display.writeAlert("Homing failed", "", 2000);
+  static bool waitingForConfirmation = true;
+
+  if (waitingForConfirmation) {
+    display.writeDisplay("Start Homing", 0, 0);
+    display.writeDisplay("Press knob", 1, 0);
+
+    if (digitalRead(ROTARY_SW_PIN) == LOW) {
+      delay(50);  // Simple debounce
+      if (digitalRead(ROTARY_SW_PIN) == LOW) {
+        waitingForConfirmation = false;
+        stateStartTime = currentTime;  // Reset the start time for homing
+        display.writeDisplay("Homing...", 0, 0);
+        display.writeDisplay("", 1, 0);
+      }
+    }
   } else {
-    // Move towards home
-    stepper.moveTo(-1000000);  // Large negative number to ensure continuous movement
-    stepper.run();
+    if (digitalRead(HOMING_SWITCH_PIN) == LOW) {
+      // Homing switch triggered
+      stepper.setCurrentPosition(0);
+      currentSystemState = IDLE;
+      display.writeAlert("Homed", "", 2000);
+      waitingForConfirmation = true;  // Reset for next homing
+    } else if (currentTime - stateStartTime > HOMING_TIMEOUT) {
+      // Homing timeout
+      currentSystemState = IDLE;
+      display.writeAlert("Homing failed", "", 2000);
+      waitingForConfirmation = true;  // Reset for next homing
+    } else {
+      // Move towards home
+      stepper.moveTo(-1000000);  // Large negative number to ensure continuous movement
+      stepper.run();
+    }
   }
 }
 
