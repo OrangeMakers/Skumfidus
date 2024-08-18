@@ -1,8 +1,8 @@
-# Display Manager
+# OrangeMakers DisplayHandler (OMDisplay)
 
 ## Overview
 
-The Display Manager is a state machine designed to handle all display actions efficiently. It provides a non-blocking, optimized approach to managing LCD updates. The Display Manager is designed to run on a dedicated core of the ESP32, ensuring smooth and consistent display updates without interfering with other system operations.
+The OrangeMakers DisplayHandler (OMDisplay) is a state machine designed to handle all display actions efficiently. It provides a non-blocking, optimized approach to managing LCD updates. OMDisplay is designed to run on a dedicated core of the ESP32, ensuring smooth and consistent display updates without interfering with other system operations.
 
 ## Features
 
@@ -16,9 +16,9 @@ The Display Manager is a state machine designed to handle all display actions ef
 ## Class Structure
 
 ```cpp
-class LCDManager {
+class OMDisplay {
 public:
-    LCDManager(uint8_t lcd_addr, uint8_t lcd_cols, uint8_t lcd_rows);
+    OMDisplay(uint8_t lcd_addr, uint8_t lcd_cols, uint8_t lcd_rows);
     void begin();
     void writeDisplay(const String& text, uint8_t row, uint8_t startCol, uint8_t endCol = 0, Alignment alignment = Alignment::LEFT);
     void writeAlert(const String& row1, const String& row2, unsigned long duration);
@@ -32,20 +32,20 @@ private:
 
 ## Usage Examples
 
-### Initializing the Display Manager
+### Initializing OMDisplay
 
 ```cpp
-LCDManager lcdManager(0x27, 16, 2);
+OMDisplay display(0x27, 16, 2);
 
 void setup() {
-    lcdManager.begin();
+    display.begin();
     
-    // Create a task for the Display Manager on core 1
+    // Create a task for OMDisplay on core 1
     xTaskCreatePinnedToCore(
-        LCDManager::updateTask,  // Task function
-        "DisplayManager",        // Task name
+        OMDisplay::updateTask,   // Task function
+        "OMDisplay",             // Task name
         4096,                    // Stack size (bytes)
-        (void*)&lcdManager,      // Parameter to pass
+        (void*)&display,         // Parameter to pass
         1,                       // Task priority
         NULL,                    // Task handle
         1                        // Core where the task should run
@@ -57,23 +57,23 @@ void setup() {
 
 ```cpp
 // Write left-aligned text
-lcdManager.writeDisplay("Distance:", 1, 1);
+display.writeDisplay("Distance:", 1, 1);
 
 // Write right-aligned text
-lcdManager.writeDisplay("10.5 mm", 2, 1, 16, Alignment::RIGHT);
+display.writeDisplay("10.5 mm", 2, 1, 16, Alignment::RIGHT);
 ```
 
 ### Displaying an Alert
 
 ```cpp
-lcdManager.writeAlert("Warning", "Overheating", 3000);
+display.writeAlert("Warning", "Overheating", 3000);
 ```
 
 ## Implementation Details
 
-1. **Dedicated Core**: The Display Manager runs on a dedicated core (typically core 1) of the ESP32, ensuring consistent updates without interference from other tasks.
+1. **Dedicated Core**: OMDisplay runs on a dedicated core (typically core 1) of the ESP32, ensuring consistent updates without interference from other tasks.
 
-2. **State Machine**: The `LCDManager` class implements a state machine with states like IDLE, UPDATING, and ALERT.
+2. **State Machine**: The `OMDisplay` class implements a state machine with states like IDLE, UPDATING, and ALERT.
 
 3. **Display Buffer**: A 2D array stores the current content of the display, allowing for partial updates.
 
@@ -87,4 +87,4 @@ lcdManager.writeAlert("Warning", "Overheating", 3000);
 
 8. **Thread Safety**: Proper synchronization mechanisms (e.g., mutexes or semaphores) are implemented to ensure thread-safe access to shared resources between cores.
 
-This implementation provides an efficient and flexible way to manage LCD updates while maintaining responsiveness in the main program loop. By running on a dedicated core, the Display Manager ensures smooth and consistent display updates without affecting other system operations.
+This implementation provides an efficient and flexible way to manage LCD updates while maintaining responsiveness in the main program loop. By running on a dedicated core, OMDisplay ensures smooth and consistent display updates without affecting other system operations.
