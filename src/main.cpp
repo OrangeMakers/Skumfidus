@@ -111,7 +111,7 @@ void setup() {
   updateLCD(0);
 
   // Configure stepper
-  stepper.setMaxSpeed(3200);  // 2 revolutions per second
+  stepper.setMaxSpeed(3200);  // Maintains 2 revolutions per second (16 mm/second)
   stepper.setAcceleration(1600);  // Adjust for smooth acceleration
   stepper.moveTo(TOTAL_STEPS);
 
