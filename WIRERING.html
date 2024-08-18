@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wiring Diagram for ESP32 Project</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
+        h1 { color: #333; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        pre { background-color: #f4f4f4; border: 1px solid #ddd; padding: 10px; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>Wiring Diagram for ESP32, TMC2209 Stepper Driver, Stepper Motor, LCD, Relay, and Start Button</h1>
+
+    <h2>ESP32 Connections</h2>
+    <table>
+        <tr><th>ESP32 Pin</th><th>Connection</th></tr>
+        <tr><td>D13 (PIN 13)</td><td>TMC2209 STEP</td></tr>
+        <tr><td>D12 (PIN 12)</td><td>TMC2209 DIR</td></tr>
+        <tr><td>D2 (PIN 2)</td><td>Built-in LED</td></tr>
+        <tr><td>SDA (PIN 21)</td><td>LCD SDA</td></tr>
+        <tr><td>SCL (PIN 22)</td><td>LCD SCL</td></tr>
+        <tr><td>D14 (PIN 14)</td><td>Relay Control</td></tr>
+        <tr><td>D15 (PIN 15)</td><td>Start Button</td></tr>
+        <tr><td>5V</td><td>Common 5V (for LCD, TMC2209, and other components)</td></tr>
+        <tr><td>GND</td><td>Common GND</td></tr>
+    </table>
+
+    <h2>TMC2209 Connections</h2>
+    <table>
+        <tr><th>TMC2209 Pin</th><th>Connection</th></tr>
+        <tr><td>STEP</td><td>ESP32 D13</td></tr>
+        <tr><td>DIR</td><td>ESP32 D12</td></tr>
+        <tr><td>EN</td><td>GND</td></tr>
+        <tr><td>MS1</td><td>GND (for full-step mode)</td></tr>
+        <tr><td>MS2</td><td>GND (for full-step mode)</td></tr>
+        <tr><td>VCC_IO</td><td>Common 5V</td></tr>
+        <tr><td>VM</td><td>Common 5V</td></tr>
+        <tr><td>GND</td><td>Common GND</td></tr>
+        <tr><td>A1</td><td>Stepper Motor Coil A (Red)</td></tr>
+        <tr><td>A2</td><td>Stepper Motor Coil A (Blue)</td></tr>
+        <tr><td>B1</td><td>Stepper Motor Coil B (Black)</td></tr>
+        <tr><td>B2</td><td>Stepper Motor Coil B (Green)</td></tr>
+    </table>
+
+    <h2>Start Button Connections</h2>
+    <table>
+        <tr><th>Button Pin</th><th>Connection</th></tr>
+        <tr><td>Pin 1</td><td>ESP32 D15 (PIN 15)</td></tr>
+        <tr><td>Pin 2</td><td>Common GND</td></tr>
+    </table>
+
+    <h2>Simple Wiring Diagram</h2>
+    <pre>
+    ESP32          TMC2209         Stepper Motor
+    +--------+     +--------+     +-------------+
+    |    D13 |---->| STEP   |     |             |
+    |    D12 |---->| DIR    |     |             |
+    |     5V |---->| VCC_IO |     |             |
+    |     5V |---->| VM     |     |             |
+    |    GND |---->| GND    |     |             |
+    |        |     | A1     |---->| Coil A (Red)|
+    |        |     | A2     |---->| Coil A (Blue)|
+    |        |     | B1     |---->| Coil B (Black)|
+    |        |     | B2     |---->| Coil B (Green)|
+    |        |     +--------+     +-------------+
+    |        |
+    |    SDA |---->| LCD SDA |
+    |    SCL |---->| LCD SCL |
+    |     5V |---->| LCD VCC |
+    |    GND |---->| LCD GND |
+    |        |
+    |    D14 |---->| Relay Control |
+    |        |
+    |    D15 |<----| Start Button |
+    |    GND |<----|      |
+    +--------+
+    </pre>
+
+    <h2>Notes</h2>
+    <ol>
+        <li>Ensure all GND connections are properly connected to a common ground, including the relay module's GND.</li>
+        <li>The Start Button should be connected between PIN 15 and GND, with the internal pull-up resistor enabled in software.</li>
+        <li>The Relay Control (PIN 14) should be connected to the control pin of your relay module.</li>
+        <li>The LCD and other components are powered from the common 5V supply.</li>
+        <li>The Stepper Motor connections (A1, A2, B1, B2) go to the TMC2209 driver, not directly to the ESP32.</li>
+        <li>Set the TMC2209 current using the onboard potentiometer. Current (RMS) = Vref * 1.77</li>
+        <li>For full-step mode (lowest resolution), connect both MS1 and MS2 to GND.</li>
+        <li>The motor power supply (VM) for the TMC2209 uses the common 5V supply, which should be sufficient for this stepper motor.</li>
+        <li>Double-check all connections before powering on the system.</li>
+        <li>Refer to the TMC2209 datasheet for additional features and configuration options.</li>
+        <li>Add a capacitor (typically 100μF to 470μF) between the power supply's GND and + terminals for noise reduction and power supply stabilization.</li>
+    </ol>
+
+    <p>This wiring diagram provides a visual representation of how to connect the various components to the ESP32 and the TMC2209 stepper driver. Always refer to the specific datasheets of your components for any additional connections or requirements not shown here. The added capacitor helps to reduce noise and stabilize the power supply, which can improve overall system performance and reliability.</p>
+</body>
+</html>
