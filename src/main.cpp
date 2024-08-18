@@ -46,8 +46,6 @@ const unsigned long LCD_UPDATE_INTERVAL = 250;  // 0.25 second in milliseconds
 // Initialize LCD
 // LiquidCrystal_I2C lcd(0x27, 16, 2);  // Set the LCD address to 0x27 for a 16 chars and 2 line display
 
-// Global variable to track relay state
-volatile bool relayState = false;
 
 // Initialize stepper
 AccelStepper stepper(AccelStepper::DRIVER, STEP_PIN, DIR_PIN);
