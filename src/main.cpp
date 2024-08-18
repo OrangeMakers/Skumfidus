@@ -35,10 +35,10 @@ volatile bool lastButtonState = HIGH;
 // Movement and stepper motor parameters
 const int STEPS_PER_REV = 1600;  // 200 * 8 (for 8 microstepping)
 const float DISTANCE_PER_REV = 8.0;  // 8mm per revolution (lead of ACME rod)
-const float TOTAL_DISTANCE = 30.0;  // 30mm in each direction
+const float TOTAL_DISTANCE = 40.0;  // 30mm in each direction
 const int TOTAL_STEPS = (TOTAL_DISTANCE / DISTANCE_PER_REV) * STEPS_PER_REV;
-const float MAX_SPEED = 3200;  // Maintains 2 revolutions per second (16 mm/second)
-const float ACCELERATION = 1600;  // Adjust for smooth acceleration
+const float MAX_SPEED = 1600;  // Maintains 2 revolutions per second (16 mm/second)
+const float ACCELERATION = 3200;  // Adjust for smooth acceleration
 
 // Define LCD update interval
 const unsigned long LCD_UPDATE_INTERVAL = 250;  // 0.25 second in milliseconds
