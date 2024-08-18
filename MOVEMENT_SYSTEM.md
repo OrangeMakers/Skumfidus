@@ -20,6 +20,7 @@
 - **Rotor Inertia**: 34 g·cm²
 - **Motor Weight**: 200g
 - **Motor Length**: 34mm
+- **Connector Wire Order**: Red, Blue, Green, Black
 
 ### Performance Specifications
 - **Temperature Rise**: 80°C Max. (rated current, 2 phase on)
