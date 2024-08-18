@@ -47,6 +47,7 @@ Notes:
 8. The motor power supply (VM) for the TMC2209 should be appropriate for your stepper motor (4.75V - 28V DC).
 9. Double-check all connections before powering on the system.
 10. Refer to the TMC2209 datasheet for additional features and configuration options.
+11. Add a capacitor (typically 100μF to 470μF) between the power supply's GND and + terminals for noise reduction and power supply stabilization.
 ```
 
-This wiring diagram provides a text-based representation of how to connect the various components to the ESP32 and the TMC2209 stepper driver. Always refer to the specific datasheets of your components for any additional connections or requirements not shown here.
+This wiring diagram provides a text-based representation of how to connect the various components to the ESP32 and the TMC2209 stepper driver. Always refer to the specific datasheets of your components for any additional connections or requirements not shown here. The added capacitor helps to reduce noise and stabilize the power supply, which can improve overall system performance and reliability.
