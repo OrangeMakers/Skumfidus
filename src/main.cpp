@@ -291,16 +291,23 @@ void handleRunning(unsigned long currentTime) {
 }
 
 void handleReturningToStart() {
+  static bool firstEntry = true;
+
+  if (firstEntry) {
+    display.clearDisplay();
+    firstEntry = false;
+  }
+
   if (stepper.distanceToGo() == 0) {
     // We've reached the start position
     currentSystemState = IDLE;
     display.writeAlert("Returned to", "Start Position", 2000);
+    firstEntry = true;  // Reset for next time
   } else {
     stepper.run();
     float distance = abs(stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV);
-    display.writeDisplay("Returning:", 0, 0);
-    display.writeDisplay(String(distance, 1) + " mm", 1, 0, 10, Alignment::LEFT);
-    display.writeDisplay("To Start", 1, 11, 16, Alignment::RIGHT);
+    display.writeDisplay("Returning", 0, 0);
+    display.writeDisplay("Dist: " + String(distance, 1) + "mm", 1, 0);
   }
 }
 
