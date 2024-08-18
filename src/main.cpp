@@ -211,6 +211,13 @@ void handleHoming(unsigned long currentTime) {
 }
 
 void handleIdle() {
+  static bool enteredIdle = true;
+
+  if (enteredIdle) {
+    display.clearDisplay();
+    enteredIdle = false;
+  }
+
   bool currentButtonState = digitalRead(START_BUTTON_PIN);
 
   if (lastButtonState == HIGH && currentButtonState == LOW) {
@@ -220,6 +227,7 @@ void handleIdle() {
       display.writeAlert("System Started", "", 2000);
       timerStartTime = millis();
       timerRunning = true;
+      enteredIdle = true;  // Reset for next time we enter idle
     }
   }
 
