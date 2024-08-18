@@ -17,12 +17,14 @@ public:
     void writeAlert(const String& row1, const String& row2, unsigned long duration);
     void clearDisplay();
     static void updateTask(void* pvParameters);
+    void update();
 
 private:
     LiquidCrystal_I2C _lcd;
     uint8_t _cols;
     uint8_t _rows;
     char _buffer[2][17];  // Assuming max 16 columns + null terminator
+    char _alertBuffer[2][17];  // Buffer for alert messages
     enum class State {
         IDLE,
         UPDATING,
@@ -31,8 +33,6 @@ private:
     State _state;
     unsigned long _alertStartTime;
     unsigned long _alertDuration;
-
-    void update();
 };
 
 #endif // OMDISPLAY_H

@@ -36,8 +36,10 @@ void OMDisplay::writeDisplay(const String& text, uint8_t row, uint8_t startCol, 
 }
 
 void OMDisplay::writeAlert(const String& row1, const String& row2, unsigned long duration) {
-    writeDisplay(row1, 0, 0);
-    writeDisplay(row2, 1, 0);
+    strncpy(_alertBuffer[0], row1.c_str(), _cols);
+    strncpy(_alertBuffer[1], row2.c_str(), _cols);
+    _alertBuffer[0][_cols] = '\0';
+    _alertBuffer[1][_cols] = '\0';
     _alertStartTime = millis();
     _alertDuration = duration;
     _state = State::ALERT;
@@ -63,6 +65,10 @@ void OMDisplay::update() {
             _state = State::IDLE;
             break;
         case State::ALERT:
+            for (int i = 0; i < _rows; i++) {
+                _lcd.setCursor(0, i);
+                _lcd.print(_alertBuffer[i]);
+            }
             if (millis() - _alertStartTime > _alertDuration) {
                 _state = State::UPDATING;
             }
