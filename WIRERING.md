@@ -13,7 +13,7 @@
 | D14 (PIN 14) -----> Relay Control
 | D15 (PIN 15) <----- Start Button
 | 3V3          -----> Stepper Driver VCC
-| 5V           -----> LCD VCC
+| 5V           -----> Common 5V (for LCD and other components)
 | GND          -----> Common GND
 |                     |
 +---------------------+
@@ -22,7 +22,7 @@ Notes:
 1. Ensure all GND connections are properly connected to a common ground.
 2. The Start Button should be connected between PIN 15 and GND, with the internal pull-up resistor enabled in software.
 3. The Relay Control (PIN 14) should be connected to the control pin of your relay module.
-4. For the LCD, make sure to connect its GND to the common GND as well.
+4. The LCD and other components are powered from the common 5V supply.
 5. The Stepper Motor connections (STEP and DIR) go to your stepper driver, not directly to the motor.
 6. Double-check all connections before powering on the system.
 ```
