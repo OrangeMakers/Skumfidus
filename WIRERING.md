@@ -12,8 +12,22 @@
 | D14 (PIN 14) -----> Relay Control
 | D15 (PIN 15) <----- Start Button (see separate component below)
 | D16 (PIN 16) <----- Homing Switch
-| 5V           -----> Common 5V (for LCD, TMC2209, and other components)
+| D17 (PIN 17) <----- Rotary Encoder CLK
+| D18 (PIN 18) <----- Rotary Encoder DT
+| D19 (PIN 19) <----- Rotary Encoder SW
+| 5V           -----> Common 5V (for LCD, TMC2209, Rotary Encoder, and other components)
 | GND          -----> Common GND
+|                     |
++---------------------+
+
++---------------------+
+| Rotary Encoder      |
++---------------------+
+| CLK <-------------> ESP32 D17 (PIN 17)
+| DT  <-------------> ESP32 D18 (PIN 18)
+| SW  <-------------> ESP32 D19 (PIN 19)
+| + (VCC) <---------> Common 5V
+| GND <-------------> Common GND
 |                     |
 +---------------------+
 

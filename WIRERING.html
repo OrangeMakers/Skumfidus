@@ -27,7 +27,20 @@
         <tr><td>D14 (PIN 14)</td><td>Relæ-kontrol</td></tr>
         <tr><td>D15 (PIN 15)</td><td>Startknap</td></tr>
         <tr><td>D16 (PIN 16)</td><td>Homing-kontakt</td></tr>
-        <tr><td>5V</td><td>Fælles 5V (til LCD, TMC2209 og andre komponenter)</td></tr>
+        <tr><td>D17 (PIN 17)</td><td>Rotary Encoder CLK</td></tr>
+        <tr><td>D18 (PIN 18)</td><td>Rotary Encoder DT</td></tr>
+        <tr><td>D19 (PIN 19)</td><td>Rotary Encoder SW</td></tr>
+        <tr><td>5V</td><td>Fælles 5V (til LCD, TMC2209, Rotary Encoder og andre komponenter)</td></tr>
+        <tr><td>GND</td><td>Fælles GND</td></tr>
+    </table>
+
+    <h2>Rotary Encoder-forbindelser</h2>
+    <table>
+        <tr><th>Encoder-pin</th><th>Forbindelse</th></tr>
+        <tr><td>CLK</td><td>ESP32 D17 (PIN 17)</td></tr>
+        <tr><td>DT</td><td>ESP32 D18 (PIN 18)</td></tr>
+        <tr><td>SW</td><td>ESP32 D19 (PIN 19)</td></tr>
+        <tr><td>+ (VCC)</td><td>Fælles 5V</td></tr>
         <tr><td>GND</td><td>Fælles GND</td></tr>
     </table>
 

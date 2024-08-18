@@ -6,8 +6,11 @@
 #include <freertos/task.h>
 #include "OMDisplay.h"
 
-#define START_BUTTON_PIN 15  // Start button pin
-#define HOMING_SWITCH_PIN 16 // Homing switch pin
+#define START_BUTTON_PIN 15   // Start button pin
+#define HOMING_SWITCH_PIN 16  // Homing switch pin
+#define ROTARY_CLK_PIN 17     // Rotary encoder CLK pin
+#define ROTARY_DT_PIN 18      // Rotary encoder DT pin
+#define ROTARY_SW_PIN 19      // Rotary encoder switch pin
 
 // Define motor states
 enum MotorState {
