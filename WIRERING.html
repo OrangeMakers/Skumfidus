@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="da">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wiring Diagram for ESP32 Project</title>
+    <title>Ledningsdiagram for ESP32-projekt</title>
     <style>
         body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
         h1 { color: #333; }
@@ -14,59 +14,59 @@
     </style>
 </head>
 <body>
-    <h1>Wiring Diagram for ESP32, TMC2209 Stepper Driver, Stepper Motor, LCD, Relay, and Start Button</h1>
+    <h1>Ledningsdiagram for ESP32, TMC2209 Stepperdriver, Steppermotor, LCD, Relæ og Startknap</h1>
 
-    <h2>ESP32 Connections</h2>
+    <h2>ESP32-forbindelser</h2>
     <table>
-        <tr><th>ESP32 Pin</th><th>Connection</th></tr>
+        <tr><th>ESP32-pin</th><th>Forbindelse</th></tr>
         <tr><td>D13 (PIN 13)</td><td>TMC2209 STEP</td></tr>
         <tr><td>D12 (PIN 12)</td><td>TMC2209 DIR</td></tr>
-        <tr><td>D2 (PIN 2)</td><td>Built-in LED</td></tr>
+        <tr><td>D2 (PIN 2)</td><td>Indbygget LED</td></tr>
         <tr><td>SDA (PIN 21)</td><td>LCD SDA</td></tr>
         <tr><td>SCL (PIN 22)</td><td>LCD SCL</td></tr>
-        <tr><td>D14 (PIN 14)</td><td>Relay Control</td></tr>
-        <tr><td>D15 (PIN 15)</td><td>Start Button</td></tr>
-        <tr><td>5V</td><td>Common 5V (for LCD, TMC2209, and other components)</td></tr>
-        <tr><td>GND</td><td>Common GND</td></tr>
+        <tr><td>D14 (PIN 14)</td><td>Relæ-kontrol</td></tr>
+        <tr><td>D15 (PIN 15)</td><td>Startknap</td></tr>
+        <tr><td>5V</td><td>Fælles 5V (til LCD, TMC2209 og andre komponenter)</td></tr>
+        <tr><td>GND</td><td>Fælles GND</td></tr>
     </table>
 
-    <h2>TMC2209 Connections</h2>
+    <h2>TMC2209-forbindelser</h2>
     <table>
-        <tr><th>TMC2209 Pin</th><th>Connection</th></tr>
+        <tr><th>TMC2209-pin</th><th>Forbindelse</th></tr>
         <tr><td>STEP</td><td>ESP32 D13</td></tr>
         <tr><td>DIR</td><td>ESP32 D12</td></tr>
         <tr><td>EN</td><td>GND</td></tr>
-        <tr><td>MS1</td><td>GND (for full-step mode)</td></tr>
-        <tr><td>MS2</td><td>GND (for full-step mode)</td></tr>
-        <tr><td>VCC_IO</td><td>Common 5V</td></tr>
-        <tr><td>VM</td><td>Common 5V</td></tr>
-        <tr><td>GND</td><td>Common GND</td></tr>
-        <tr><td>A1</td><td>Stepper Motor Coil A (Red)</td></tr>
-        <tr><td>A2</td><td>Stepper Motor Coil A (Blue)</td></tr>
-        <tr><td>B1</td><td>Stepper Motor Coil B (Black)</td></tr>
-        <tr><td>B2</td><td>Stepper Motor Coil B (Green)</td></tr>
+        <tr><td>MS1</td><td>GND (for fuld-step tilstand)</td></tr>
+        <tr><td>MS2</td><td>GND (for fuld-step tilstand)</td></tr>
+        <tr><td>VCC_IO</td><td>Fælles 5V</td></tr>
+        <tr><td>VM</td><td>Fælles 5V</td></tr>
+        <tr><td>GND</td><td>Fælles GND</td></tr>
+        <tr><td>A1</td><td>Steppermotor Spole A (Rød)</td></tr>
+        <tr><td>A2</td><td>Steppermotor Spole A (Blå)</td></tr>
+        <tr><td>B1</td><td>Steppermotor Spole B (Sort)</td></tr>
+        <tr><td>B2</td><td>Steppermotor Spole B (Grøn)</td></tr>
     </table>
 
-    <h2>Start Button Connections</h2>
+    <h2>Startknap-forbindelser</h2>
     <table>
-        <tr><th>Button Pin</th><th>Connection</th></tr>
+        <tr><th>Knap-pin</th><th>Forbindelse</th></tr>
         <tr><td>Pin 1</td><td>ESP32 D15 (PIN 15)</td></tr>
-        <tr><td>Pin 2</td><td>Common GND</td></tr>
+        <tr><td>Pin 2</td><td>Fælles GND</td></tr>
     </table>
 
-    <h2>Simple Wiring Diagram</h2>
+    <h2>Simpelt ledningsdiagram</h2>
     <pre>
-    ESP32          TMC2209         Stepper Motor
+    ESP32          TMC2209         Steppermotor
     +--------+     +--------+     +-------------+
     |    D13 |---->| STEP   |     |             |
     |    D12 |---->| DIR    |     |             |
     |     5V |---->| VCC_IO |     |             |
     |     5V |---->| VM     |     |             |
     |    GND |---->| GND    |     |             |
-    |        |     | A1     |---->| Coil A (Red)|
-    |        |     | A2     |---->| Coil A (Blue)|
-    |        |     | B1     |---->| Coil B (Black)|
-    |        |     | B2     |---->| Coil B (Green)|
+    |        |     | A1     |---->| Spole A (Rød)|
+    |        |     | A2     |---->| Spole A (Blå)|
+    |        |     | B1     |---->| Spole B (Sort)|
+    |        |     | B2     |---->| Spole B (Grøn)|
     |        |     +--------+     +-------------+
     |        |
     |    SDA |---->| LCD SDA |
@@ -74,28 +74,28 @@
     |     5V |---->| LCD VCC |
     |    GND |---->| LCD GND |
     |        |
-    |    D14 |---->| Relay Control |
+    |    D14 |---->| Relæ-kontrol |
     |        |
-    |    D15 |<----| Start Button |
-    |    GND |<----|      |
+    |    D15 |<----| Startknap |
+    |    GND |<----|     |
     +--------+
     </pre>
 
-    <h2>Notes</h2>
+    <h2>Noter</h2>
     <ol>
-        <li>Ensure all GND connections are properly connected to a common ground, including the relay module's GND.</li>
-        <li>The Start Button should be connected between PIN 15 and GND, with the internal pull-up resistor enabled in software.</li>
-        <li>The Relay Control (PIN 14) should be connected to the control pin of your relay module.</li>
-        <li>The LCD and other components are powered from the common 5V supply.</li>
-        <li>The Stepper Motor connections (A1, A2, B1, B2) go to the TMC2209 driver, not directly to the ESP32.</li>
-        <li>Set the TMC2209 current using the onboard potentiometer. Current (RMS) = Vref * 1.77</li>
-        <li>For full-step mode (lowest resolution), connect both MS1 and MS2 to GND.</li>
-        <li>The motor power supply (VM) for the TMC2209 uses the common 5V supply, which should be sufficient for this stepper motor.</li>
-        <li>Double-check all connections before powering on the system.</li>
-        <li>Refer to the TMC2209 datasheet for additional features and configuration options.</li>
-        <li>Add a capacitor (typically 100μF to 470μF) between the power supply's GND and + terminals for noise reduction and power supply stabilization.</li>
+        <li>Sørg for, at alle GND-forbindelser er korrekt tilsluttet til en fælles jord, inklusive relæmodulets GND.</li>
+        <li>Startknappen skal forbindes mellem PIN 15 og GND, med den interne pull-up modstand aktiveret i softwaren.</li>
+        <li>Relæ-kontrollen (PIN 14) skal forbindes til kontrolpinnen på dit relæmodul.</li>
+        <li>LCD'en og andre komponenter forsynes fra den fælles 5V-forsyning.</li>
+        <li>Steppermotorforbindelserne (A1, A2, B1, B2) går til TMC2209-driveren, ikke direkte til ESP32.</li>
+        <li>Indstil TMC2209-strømmen ved hjælp af det indbyggede potentiometer. Strøm (RMS) = Vref * 1,77</li>
+        <li>For fuld-step tilstand (laveste opløsning), forbind både MS1 og MS2 til GND.</li>
+        <li>Motorstrømforsyningen (VM) til TMC2209 bruger den fælles 5V-forsyning, hvilket burde være tilstrækkeligt til denne steppermotor.</li>
+        <li>Dobbelttjek alle forbindelser, før du tænder for systemet.</li>
+        <li>Se TMC2209-databladet for yderligere funktioner og konfigurationsmuligheder.</li>
+        <li>Tilføj en kondensator (typisk 100μF til 470μF) mellem strømforsyningens GND og + terminaler for støjreduktion og stabilisering af strømforsyningen.</li>
     </ol>
 
-    <p>This wiring diagram provides a visual representation of how to connect the various components to the ESP32 and the TMC2209 stepper driver. Always refer to the specific datasheets of your components for any additional connections or requirements not shown here. The added capacitor helps to reduce noise and stabilize the power supply, which can improve overall system performance and reliability.</p>
+    <p>Dette ledningsdiagram giver en visuel repræsentation af, hvordan de forskellige komponenter forbindes til ESP32 og TMC2209-stepperdriveren. Se altid de specifikke datablade for dine komponenter for eventuelle yderligere forbindelser eller krav, der ikke er vist her. Den tilføjede kondensator hjælper med at reducere støj og stabilisere strømforsyningen, hvilket kan forbedre systemets overordnede ydeevne og pålidelighed.</p>
 </body>
 </html>
