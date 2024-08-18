@@ -266,7 +266,6 @@ void handleReturningToStart() {
   }
 }
 
-
 void loop() {
   unsigned long currentTime = millis();
 
