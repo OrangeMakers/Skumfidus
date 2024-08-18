@@ -90,7 +90,14 @@ const unsigned long WELCOME_DURATION = 5000;  // 5 seconds
 void setup() {
   // Initialize pins
   pinMode(LED_PIN, OUTPUT);
-  pinMode(START_BUTTON_PIN, INPUT_PULLUP);  // Initialize start button pin with internal pull-up
+  pinMode(START_BUTTON_PIN, INPUT_PULLUP);  // Start button with internal pull-up
+  pinMode(HOMING_SWITCH_PIN, INPUT_PULLUP); // Homing switch with internal pull-up
+  pinMode(ROTARY_CLK_PIN, INPUT_PULLUP);    // Rotary encoder CLK with internal pull-up
+  pinMode(ROTARY_DT_PIN, INPUT_PULLUP);     // Rotary encoder DT with internal pull-up
+  pinMode(ROTARY_SW_PIN, INPUT_PULLUP);     // Rotary encoder switch with internal pull-up
+  pinMode(STEP_PIN, OUTPUT);
+  pinMode(DIR_PIN, OUTPUT);
+  pinMode(RELAY_PIN, OUTPUT);
 
   // Initialize LCD
   display.begin();
@@ -99,7 +106,6 @@ void setup() {
   stepper.setMaxSpeed(MAX_SPEED);
   stepper.setAcceleration(ACCELERATION);
   stepper.moveTo(TOTAL_STEPS);
-
 
   // Create OMDisplay update task
   xTaskCreatePinnedToCore(
