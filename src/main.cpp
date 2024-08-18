@@ -65,7 +65,8 @@ void updateLCD(float distance) {
   display.writeDisplay("Distance:", 0, 0);
   String distanceStr = String(distance, 1) + " mm";
   display.writeDisplay(distanceStr, 1, 0, 10, Alignment::LEFT);
-  display.writeDisplay(relayState ? "On" : "Off", 1, 11, 16, Alignment::RIGHT);
+  // Placeholder for future implementation
+  display.writeDisplay("", 1, 11, 16, Alignment::RIGHT);
 }
 
 // Task to update LCD
@@ -79,17 +80,6 @@ void lcdUpdateTask(void * parameter) {
   }
 }
 
-// Task to control relay
-void relayControlTask(void * parameter) {
-  for(;;) {
-    digitalWrite(RELAY_PIN, HIGH);  // Turn on relay
-    relayState = true;
-    vTaskDelay(10000 / portTICK_PERIOD_MS);  // Wait for 10 seconds
-    digitalWrite(RELAY_PIN, LOW);   // Turn off relay
-    relayState = false;
-    vTaskDelay(10000 / portTICK_PERIOD_MS);  // Wait for 10 seconds
-  }
-}
 
 // Global variables for welcome message timing
 unsigned long welcomeStartTime = 0;
@@ -98,7 +88,6 @@ const unsigned long WELCOME_DURATION = 5000;  // 5 seconds
 void setup() {
   // Initialize pins
   pinMode(LED_PIN, OUTPUT);
-  pinMode(RELAY_PIN, OUTPUT);
   pinMode(START_BUTTON_PIN, INPUT_PULLUP);  // Initialize start button pin with internal pull-up
 
   // Initialize LCD
@@ -109,15 +98,6 @@ void setup() {
   stepper.setAcceleration(ACCELERATION);
   stepper.moveTo(TOTAL_STEPS);
 
-  // Create relay control task
-  xTaskCreate(
-    relayControlTask, // Function that should be called
-    "Relay Control",  // Name of the task (for debugging)
-    1024,             // Stack size (bytes)
-    NULL,             // Parameter to pass
-    1,                // Task priority
-    NULL              // Task handle
-  );
 
   // Create OMDisplay update task
   xTaskCreatePinnedToCore(
