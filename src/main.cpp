@@ -111,7 +111,7 @@ void setup() {
   // Configure stepper
   stepper.setMaxSpeed(MAX_SPEED);
   stepper.setAcceleration(ACCELERATION);
-  stepper.moveTo(TOTAL_STEPS);
+  stepper.moveTo(HOMING_DIRECTION * TOTAL_STEPS);
 
   // Create OMDisplay update task
   xTaskCreatePinnedToCore(
@@ -265,7 +265,7 @@ void handleRunning(unsigned long currentTime) {
     case MOVING:
       if (stepper.distanceToGo() == 0) {
         // Change direction when reaching either end
-        stepper.moveTo(stepper.currentPosition() == 0 ? TOTAL_STEPS : 0);
+        stepper.moveTo(stepper.currentPosition() == 0 ? HOMING_DIRECTION * TOTAL_STEPS : 0);
         digitalWrite(LED_PIN, !digitalRead(LED_PIN));  // Toggle LED when changing direction
         currentState = CHANGING_DIRECTION;
         stateStartTime = currentTime;
