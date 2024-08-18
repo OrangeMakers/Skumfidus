@@ -52,6 +52,9 @@ volatile bool relayState = false;
 // Initialize stepper
 AccelStepper stepper(AccelStepper::DRIVER, STEP_PIN, DIR_PIN);
 
+// Initialize OMDisplay
+OMDisplay display(0x27, 16, 2);
+
 // Variables for state machine
 MotorState currentState = MOVING;
 unsigned long stateStartTime = 0;
@@ -59,15 +62,10 @@ const unsigned long DIRECTION_CHANGE_DELAY = 500; // 500ms delay when changing d
 
 // Function to update LCD display
 void updateLCD(float distance) {
-  lcd.setCursor(0, 0);
-  lcd.print("Distance:");
-  lcd.setCursor(0, 1);
-  lcd.print(distance, 1);
-  lcd.print(" mm");
-  lcd.setCursor(11, 1);
-  lcd.print("   ");  // Clear the previous state
-  lcd.setCursor(11, 1);
-  lcd.print(relayState ? "On" : "Off");
+  display.writeDisplay("Distance:", 0, 0);
+  String distanceStr = String(distance, 1) + " mm";
+  display.writeDisplay(distanceStr, 1, 0, 10, Alignment::LEFT);
+  display.writeDisplay(relayState ? "On" : "Off", 1, 11, 16, Alignment::RIGHT);
 }
 
 // Task to update LCD
@@ -98,19 +96,16 @@ void setup() {
   pinMode(START_BUTTON_PIN, INPUT_PULLUP);  // Initialize start button pin with internal pull-up
 
   // Initialize LCD
-  lcd.init();
-  lcd.backlight();
+  display.begin();
 
   // Display welcome message
-  lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.print("OrangeMakers");
-  lcd.setCursor(0, 1);
-  lcd.print("Marsh Mellow 2.0");
+  display.writeDisplay("OrangeMakers", 0, 0);
+  display.writeDisplay("Marsh Mellow 2.0", 1, 0);
   delay(5000);  // Display for 5 seconds
 
   // Clear LCD and initialize display
-  lcd.clear();
+  display.writeDisplay("                ", 0, 0);
+  display.writeDisplay("                ", 1, 0);
   updateLCD(0);
 
   // Configure stepper
@@ -137,6 +132,17 @@ void setup() {
     1,                // Task priority
     NULL              // Task handle
   );
+
+  // Create OMDisplay update task
+  xTaskCreatePinnedToCore(
+    OMDisplay::updateTask,   // Task function
+    "OMDisplay",             // Task name
+    4096,                    // Stack size (bytes)
+    (void*)&display,         // Parameter to pass
+    1,                       // Task priority
+    NULL,                    // Task handle
+    1                        // Core where the task should run
+  );
 }
 
 void loop() {
@@ -149,19 +155,11 @@ void loop() {
     if (digitalRead(START_BUTTON_PIN) == LOW) {
       if (currentSystemState == IDLE) {
         currentSystemState = RUNNING;
-        lcd.clear();
-        lcd.setCursor(0, 0);
-        lcd.print("System Started");
-        delay(2000);  // Display for 2 seconds
-        lcd.clear();
+        display.writeAlert("System Started", "", 2000);
         updateLCD(0);
       } else {
         currentSystemState = IDLE;
-        lcd.clear();
-        lcd.setCursor(0, 0);
-        lcd.print("System Idle");
-        delay(2000);  // Display for 2 seconds
-        lcd.clear();
+        display.writeAlert("System Idle", "", 2000);
         updateLCD(0);
         // Reset stepper position
         stepper.setCurrentPosition(0);
