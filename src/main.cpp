@@ -83,15 +83,6 @@ void lcdUpdateTask(void * parameter) {
   }
 }
 
-// Function to update LCD display
-void updateLCD(float distance) {
-  display.writeDisplay("Distance:", 0, 0);
-  String distanceStr = String(distance, 1) + " mm";
-  display.writeDisplay(distanceStr, 1, 0, 10, Alignment::LEFT);
-  // Placeholder for future implementation
-  display.writeDisplay("", 1, 11, 16, Alignment::RIGHT);
-}
-
 // Global variables for timing
 unsigned long stateStartTime = 0;
 const unsigned long WELCOME_DURATION = 1000;  // 5 seconds
