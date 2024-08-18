@@ -83,6 +83,14 @@ void lcdUpdateTask(void * parameter) {
   }
 }
 
+// Function to update LCD display
+void updateLCD(float distance) {
+  display.writeDisplay("Distance:", 0, 0);
+  String distanceStr = String(distance, 1) + " mm";
+  display.writeDisplay(distanceStr, 1, 0, 10, Alignment::LEFT);
+  // Placeholder for future implementation
+  display.writeDisplay("", 1, 11, 16, Alignment::RIGHT);
+}
 
 // Global variables for timing
 unsigned long stateStartTime = 0;
@@ -204,15 +212,15 @@ void handleIdle() {
     if (digitalRead(START_BUTTON_PIN) == LOW) {
       currentSystemState = RUNNING;
       display.writeAlert("System Started", "", 2000);
-      float currentDistance = abs(stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV);
-      updateLCD(currentDistance);
     }
   }
 
   lastButtonState = currentButtonState;
   stepper.stop();
   float currentDistance = abs(stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV);
-  updateLCD(currentDistance);
+  display.writeDisplay("Distance:", 0, 0);
+  display.writeDisplay(String(currentDistance, 1) + " mm", 1, 0, 10, Alignment::LEFT);
+  display.writeDisplay("Idle", 1, 11, 16, Alignment::RIGHT);
 }
 
 void handleRunning(unsigned long currentTime) {
@@ -250,8 +258,7 @@ void handleRunning(unsigned long currentTime) {
       break;
   }
 
-  float distance = abs(stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV);
-  updateLCD(distance);
+  // The LCD update is now handled by the lcdUpdateTask
 }
 
 void handleReturningToStart() {
@@ -262,7 +269,9 @@ void handleReturningToStart() {
   } else {
     stepper.run();
     float distance = abs(stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV);
-    updateLCD(distance);
+    display.writeDisplay("Returning:", 0, 0);
+    display.writeDisplay(String(distance, 1) + " mm", 1, 0, 10, Alignment::LEFT);
+    display.writeDisplay("To Start", 1, 11, 16, Alignment::RIGHT);
   }
 }
 
