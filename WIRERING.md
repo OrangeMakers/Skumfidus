@@ -26,7 +26,7 @@
 | EN   <------------- GND (or ESP32 pin for enable control)
 | MS1  <------------- GND (for full-step mode)
 | MS2  <------------- GND (for full-step mode)
-| VCC_IO <----------- ESP32 3V3
+| VCC_IO <----------- Common 5V (same as other components)
 | VM   <------------- Common 5V (same as other components)
 | GND  <------------- Common GND
 | A1   <------------- Stepper Motor Coil A (Red)
