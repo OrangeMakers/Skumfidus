@@ -11,8 +11,17 @@
 | SCL (PIN 22) -----> LCD SCL
 | D14 (PIN 14) -----> Relay Control
 | D15 (PIN 15) <----- Start Button (see separate component below)
+| D16 (PIN 16) <----- Homing Switch
 | 5V           -----> Common 5V (for LCD, TMC2209, and other components)
 | GND          -----> Common GND
+|                     |
++---------------------+
+
++---------------------+
+| Homing Switch       |
++---------------------+
+| Pin 1 <-----------> ESP32 D16 (PIN 16)
+| Pin 2 <-----------> Common GND
 |                     |
 +---------------------+
 

@@ -7,6 +7,7 @@
 #include "OMDisplay.h"
 
 #define START_BUTTON_PIN 15  // Start button pin
+#define HOMING_SWITCH_PIN 16 // Homing switch pin
 
 // Define motor states
 enum MotorState {

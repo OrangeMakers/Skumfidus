@@ -9,5 +9,6 @@
 | PIN 22    | SCL         | LCD SCL             |
 | PIN 14    | D14         | Relæ Kontrol        |
 | PIN 15    | D15         | Start Knap          |
+| PIN 16    | D16         | Homing Kontakt      |
 | 5V        | 5V          | Stepperdriver VCC, LCD VCC |
 | GND       | GND         | Fælles GND          |
