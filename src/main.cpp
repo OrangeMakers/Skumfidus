@@ -168,6 +168,7 @@ void handleHoming(unsigned long currentTime) {
         homingStarted = true;
         stateStartTime = currentTime;  // Reset the start time for homing
         display.writeAlert("Homing...", "", 2000);  // Show "Homing..." for 2 seconds
+        stepper.setAcceleration(0);  // Disable acceleration for instant stop
         homingSteps = HOMING_DIRECTION * 1000000;  // Large number to ensure continuous movement
         stepper.moveTo(homingSteps);
       }
@@ -179,7 +180,6 @@ void handleHoming(unsigned long currentTime) {
     }
     if (digitalRead(HOMING_SWITCH_PIN) == HIGH) {  // Homing switch triggered
       homingSwitchTriggered = true;
-      stepper.setAcceleration(0);  // Disable acceleration for instant stop
       stepper.stop();  // Stop the motor immediately
       stepper.setAcceleration(ACCELERATION);  // Restore original acceleration
       homingSteps = -HOMING_DIRECTION * (5.0 / DISTANCE_PER_REV) * STEPS_PER_REV;  // Move 5mm in opposite direction
