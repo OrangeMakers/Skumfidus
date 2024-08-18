@@ -166,7 +166,7 @@ void handleHoming(unsigned long currentTime) {
       }
     }
   } else {
-    if (digitalRead(HOMING_SWITCH_PIN) == LOW) {
+    if (digitalRead(HOMING_SWITCH_PIN) == HIGH) {  // Changed from LOW to HIGH
       // Homing switch triggered
       stepper.setCurrentPosition(0);
       currentSystemState = IDLE;
