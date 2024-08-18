@@ -174,3 +174,59 @@ Remember to refer to the complete datasheet and consult with the manufacturer fo
   3. Backlash in the system
   4. Potential thermal expansion of components
 - The efficiency affects the torque required to lift a given load and the back-drivability of the system.
+
+## 4. Configuring Movement Parameters in src\main.cpp
+
+To ensure that the system moves the expected distance, it's crucial to set the correct parameters in the `src\main.cpp` file. Here's how to configure these parameters based on the specifications of our 8mm ACME Threaded Rod and the stepper motor:
+
+### Step 1: Define Steps Per Revolution
+The `STEPS_PER_REV` constant should be set based on the stepper motor's step angle and the microstepping setting of the driver:
+
+```cpp
+const int STEPS_PER_REV = 1600;  // 200 * 8 (for 8 microstepping)
+```
+
+This is correct for our setup with a 1.8° step angle motor (200 steps/rev) and 8x microstepping.
+
+### Step 2: Set Distance Per Revolution
+The `DISTANCE_PER_REV` constant should match the lead of the ACME threaded rod:
+
+```cpp
+const float DISTANCE_PER_REV = 8.0;  // 8mm lead as per ACME rod specs
+```
+
+Update this value from 4.0 to 8.0 to match the lead of our 8mm ACME threaded rod.
+
+### Step 3: Define Total Distance
+The `TOTAL_DISTANCE` constant defines the travel distance in each direction:
+
+```cpp
+const float TOTAL_DISTANCE = 30.0;  // 30mm in each direction
+```
+
+This can be adjusted based on your specific application requirements.
+
+### Step 4: Calculate Total Steps
+The `TOTAL_STEPS` constant should be calculated based on the above parameters:
+
+```cpp
+const int TOTAL_STEPS = (TOTAL_DISTANCE / DISTANCE_PER_REV) * STEPS_PER_REV;
+```
+
+This calculation remains correct and doesn't need modification.
+
+### Step 5: Update Movement Calculations
+In the `updateLCD` function and anywhere else distance is calculated, ensure the formula uses the correct parameters:
+
+```cpp
+float distance = stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV;
+```
+
+This calculation is correct and doesn't need modification.
+
+### Additional Considerations
+- Verify that the `stepper.setMaxSpeed()` and `stepper.setAcceleration()` values are appropriate for your system's mechanical capabilities and desired performance.
+- Consider implementing a homing routine to ensure accurate absolute positioning.
+- If precise positioning is critical, you may need to account for backlash in the system, which is typically between 0.05mm and 0.1mm for this type of threaded rod.
+
+By correctly setting these parameters, your system should accurately move the expected distances. Always test and calibrate the system to ensure proper operation in your specific setup.
