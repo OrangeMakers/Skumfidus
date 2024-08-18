@@ -196,7 +196,7 @@ void handleHoming(unsigned long currentTime) {
     if (stepper.distanceToGo() == 0) {
       // Finished moving away from switch
       stepper.setCurrentPosition(0);
-      display.writeAlert("Homing Done", "", 2000);
+      display.writeAlert("Homing Completed", "", 2000);
       delay(2000);  // Wait for 2 seconds
       currentSystemState = IDLE;
       waitingForConfirmation = true;  // Reset for next homing
