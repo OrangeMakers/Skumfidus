@@ -18,6 +18,9 @@
 #define LED_PIN 2  // Built-in LED pin for ESP32
 #define RELAY_PIN 14  // Relay control pin
 
+// Define homing direction (1 for positive, -1 for negative)
+#define HOMING_DIRECTION -1
+
 // Define system states
 enum SystemState {
   STARTUP,
@@ -151,6 +154,8 @@ void handleStartup(unsigned long currentTime) {
 
 void handleHoming(unsigned long currentTime) {
   static bool waitingForConfirmation = true;
+  static bool homingSwitchTriggered = false;
+  static long homingSteps = 0;
 
   if (waitingForConfirmation) {
     display.writeDisplay("Start Homing", 0, 0);
@@ -163,23 +168,34 @@ void handleHoming(unsigned long currentTime) {
         stateStartTime = currentTime;  // Reset the start time for homing
         display.writeDisplay("Homing...", 0, 0);
         display.writeDisplay("", 1, 0);
+        homingSteps = HOMING_DIRECTION * 1000000;  // Large number to ensure continuous movement
+        stepper.moveTo(homingSteps);
       }
     }
-  } else {
-    if (digitalRead(HOMING_SWITCH_PIN) == HIGH) {  // Changed from LOW to HIGH
-      // Homing switch triggered
-      stepper.setCurrentPosition(0);
-      currentSystemState = IDLE;
-      display.writeAlert("Homed..", "", 2000);
-      waitingForConfirmation = true;  // Reset for next homing
+  } else if (!homingSwitchTriggered) {
+    if (digitalRead(HOMING_SWITCH_PIN) == HIGH) {  // Homing switch triggered
+      homingSwitchTriggered = true;
+      stepper.stop();  // Stop the motor immediately
+      homingSteps = -HOMING_DIRECTION * (5.0 / DISTANCE_PER_REV) * STEPS_PER_REV;  // Move 5mm in opposite direction
+      stepper.move(homingSteps);
     } else if (currentTime - stateStartTime > HOMING_TIMEOUT) {
       // Homing timeout
       currentSystemState = IDLE;
       display.writeAlert("Homing failed", "", 2000);
       waitingForConfirmation = true;  // Reset for next homing
+      homingSwitchTriggered = false;
     } else {
-      // Move towards home
-      stepper.moveTo(-1000000);  // Large negative number to ensure continuous movement
+      stepper.run();
+    }
+  } else {
+    if (stepper.distanceToGo() == 0) {
+      // Finished moving away from switch
+      stepper.setCurrentPosition(0);
+      currentSystemState = IDLE;
+      display.writeAlert("Homed", "", 2000);
+      waitingForConfirmation = true;  // Reset for next homing
+      homingSwitchTriggered = false;
+    } else {
       stepper.run();
     }
   }
