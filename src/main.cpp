@@ -228,7 +228,7 @@ void handleIdle() {
       timerStartTime = millis();
       timerRunning = true;
       enteredIdle = true;  // Reset for next time we enter idle
-      stepper.moveTo(HOMING_DIRECTION * TOTAL_STEPS);  // Start moving in homing direction
+      stepper.moveTo(-HOMING_DIRECTION * TOTAL_STEPS);  // Start moving in opposite direction of homing
     }
   }
 
@@ -266,7 +266,7 @@ void handleRunning(unsigned long currentTime) {
     case MOVING:
       if (stepper.distanceToGo() == 0) {
         // Change direction when reaching either end
-        stepper.moveTo(stepper.currentPosition() == 0 ? HOMING_DIRECTION * TOTAL_STEPS : (stepper.currentPosition() == HOMING_DIRECTION * TOTAL_STEPS ? 0 : HOMING_DIRECTION * TOTAL_STEPS));
+        stepper.moveTo(stepper.currentPosition() == 0 ? -HOMING_DIRECTION * TOTAL_STEPS : (stepper.currentPosition() == -HOMING_DIRECTION * TOTAL_STEPS ? 0 : -HOMING_DIRECTION * TOTAL_STEPS));
         digitalWrite(LED_PIN, !digitalRead(LED_PIN));  // Toggle LED when changing direction
         currentState = CHANGING_DIRECTION;
         stateStartTime = currentTime;
