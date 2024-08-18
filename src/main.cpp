@@ -44,7 +44,7 @@ const float ACCELERATION = 1600;  // Adjust for smooth acceleration
 const unsigned long LCD_UPDATE_INTERVAL = 250;  // 0.25 second in milliseconds
 
 // Initialize LCD
-LiquidCrystal_I2C lcd(0x27, 16, 2);  // Set the LCD address to 0x27 for a 16 chars and 2 line display
+// LiquidCrystal_I2C lcd(0x27, 16, 2);  // Set the LCD address to 0x27 for a 16 chars and 2 line display
 
 // Global variable to track relay state
 volatile bool relayState = false;
@@ -104,8 +104,7 @@ void setup() {
   delay(5000);  // Display for 5 seconds
 
   // Clear LCD and initialize display
-  display.writeDisplay("                ", 0, 0);
-  display.writeDisplay("                ", 1, 0);
+  display.clearDisplay();
   updateLCD(0);
 
   // Configure stepper
@@ -114,14 +113,14 @@ void setup() {
   stepper.moveTo(TOTAL_STEPS);
 
   // Create LCD update task
-  xTaskCreate(
-    lcdUpdateTask,    // Function that should be called
-    "LCD Update",     // Name of the task (for debugging)
-    2048,             // Stack size (bytes)
-    NULL,             // Parameter to pass
-    1,                // Task priority
-    NULL              // Task handle
-  );
+  // xTaskCreate(
+  //   lcdUpdateTask,    // Function that should be called
+  //   "LCD Update",     // Name of the task (for debugging)
+  //   2048,             // Stack size (bytes)
+  //   NULL,             // Parameter to pass
+  //   1,                // Task priority
+  //   NULL              // Task handle
+  // );
 
   // Create relay control task
   xTaskCreate(
