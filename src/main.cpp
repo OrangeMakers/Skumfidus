@@ -4,6 +4,7 @@
 #include <AccelStepper.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+#include "OMDisplay.h"
 
 #define START_BUTTON_PIN 15  // Start button pin
 
