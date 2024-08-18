@@ -150,6 +150,7 @@ void handleHoming(unsigned long currentTime) {
   static bool waitingForConfirmation = true;
   static bool homingSwitchTriggered = false;
   static long homingSteps = 0;
+  static bool homingStarted = false;
 
   if (waitingForConfirmation) {
     display.writeDisplay("Start Homing", 0, 0);
@@ -159,14 +160,18 @@ void handleHoming(unsigned long currentTime) {
       delay(50);  // Simple debounce
       if (digitalRead(ROTARY_SW_PIN) == LOW) {
         waitingForConfirmation = false;
+        homingStarted = true;
         stateStartTime = currentTime;  // Reset the start time for homing
-        display.writeDisplay("Homing...", 0, 0);
-        display.writeDisplay("", 1, 0);
+        display.writeAlert("Homing...", "", 2000);  // Show "Homing..." for 2 seconds
         homingSteps = HOMING_DIRECTION * 1000000;  // Large number to ensure continuous movement
         stepper.moveTo(homingSteps);
       }
     }
   } else if (!homingSwitchTriggered) {
+    if (homingStarted) {
+      display.writeDisplay("Homing...", 0, 0);
+      display.writeDisplay("", 1, 0);
+    }
     if (digitalRead(HOMING_SWITCH_PIN) == HIGH) {  // Homing switch triggered
       homingSwitchTriggered = true;
       stepper.stop();  // Stop the motor immediately
@@ -178,6 +183,7 @@ void handleHoming(unsigned long currentTime) {
       display.writeAlert("Homing failed", "", 2000);
       waitingForConfirmation = true;  // Reset for next homing
       homingSwitchTriggered = false;
+      homingStarted = false;
     } else {
       stepper.run();
     }
@@ -185,10 +191,12 @@ void handleHoming(unsigned long currentTime) {
     if (stepper.distanceToGo() == 0) {
       // Finished moving away from switch
       stepper.setCurrentPosition(0);
+      display.writeAlert("Homing Done", "", 2000);
+      delay(2000);  // Wait for 2 seconds
       currentSystemState = IDLE;
-      display.writeAlert("Homed", "", 2000);
       waitingForConfirmation = true;  // Reset for next homing
       homingSwitchTriggered = false;
+      homingStarted = false;
     } else {
       stepper.run();
     }
