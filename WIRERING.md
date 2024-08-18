@@ -12,13 +12,44 @@
 | D14 (PIN 14) -----> Relay Control
 | D15 (PIN 15) <----- Start Button (PULL UP, see separate component below)
 | D16 (PIN 16) <----- Homing Switch (PULL UP)
-| D17 (PIN 17) <----- Rotary Encoder CLK (PULL UP)
-| D18 (PIN 18) <----- Rotary Encoder DT (PULL UP)
-| D19 (PIN 19) <----- Rotary Encoder SW (PULL UP)
+| D17 (PIN 17) <---> Rotary Encoder CLK (PULL UP)
+| D18 (PIN 18) <---> Rotary Encoder DT (PULL UP)
+| D19 (PIN 19) <---> Rotary Encoder SW (PULL UP)
 | 5V           -----> Common 5V (for LCD, TMC2209, Rotary Encoder, and other components)
 | GND          -----> Common GND
 |                     |
 +---------------------+
+
+Simple Diagram:
+
+ESP32          TMC2209         Steppermotor     Rotary Encoder
++--------+     +--------+     +-------------+   +-------------+
+|    D13 |---->| STEP   |     |             |   |             |
+|    D12 |---->| DIR    |     |             |   |             |
+|     5V |---->| VCC_IO |     |             |   |             |
+|     5V |---->| VM     |     |             |   |             |
+|    GND |---->| GND    |     |             |   |             |
+|        |     | A1     |---->| Coil A (Red)|   |             |
+|        |     | A2     |---->| Coil A (Blue)|  |             |
+|        |     | B1     |---->| Coil B (Black)| |             |
+|        |     | B2     |---->| Coil B (Green)| |             |
+|        |     +--------+     +-------------+   |             |
+|        |                                      |             |
+|    SDA |---->| LCD SDA |                      |             |
+|    SCL |---->| LCD SCL |                      |             |
+|     5V |---->| LCD VCC |                      |             |
+|    GND |---->| LCD GND |                      |             |
+|        |                                      |             |
+|    D14 |---->| Relay Control |                |             |
+|        |                                      |             |
+|    D15 |<----| Start Button |                 |             |
+|    D16 |<----| Homing Switch |                |             |
+|    D17 |<----------------------------------->| CLK         |
+|    D18 |<----------------------------------->| DT          |
+|    D19 |<----------------------------------->| SW          |
+|     5V |-------------------------------------->| VCC         |
+|    GND |<------------------------------------| GND         |
++--------+                                      +-------------+
 
 +---------------------+
 | Rotary Encoder      |
