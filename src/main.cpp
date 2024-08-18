@@ -275,11 +275,13 @@ void handleRunning(unsigned long currentTime) {
       break;
   }
 
-  // Update LCD with timer information
+  // Update LCD with remaining time and distance
   unsigned long elapsedTime = (currentTime - timerStartTime) / 1000; // Convert to seconds
   unsigned long remainingTime = (timerDuration / 1000) - elapsedTime;
-  display.writeDisplay("Time: " + String(elapsedTime) + "s", 0, 0);
-  display.writeDisplay("Remain: " + String(remainingTime) + "s", 1, 0);
+  float distance = abs(stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV);
+  
+  display.writeDisplay("Remaining: " + String(remainingTime) + "s", 0, 0);
+  display.writeDisplay("Distance: " + String(distance, 1) + "mm", 1, 0);
 }
 
 void handleReturningToStart() {
