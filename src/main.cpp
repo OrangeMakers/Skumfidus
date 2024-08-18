@@ -36,6 +36,11 @@ volatile SystemState currentSystemState = STARTUP;
 // Variable to store the last button state
 volatile bool lastButtonState = HIGH;
 
+// Timer variables
+unsigned long timerStartTime = 0;
+const unsigned long timerDuration = 60000; // 60 seconds, adjust as needed
+bool timerRunning = false;
+
 // Define motor states
 enum MotorState {
   MOVING,
@@ -213,6 +218,8 @@ void handleIdle() {
     if (digitalRead(START_BUTTON_PIN) == LOW) {
       currentSystemState = RUNNING;
       display.writeAlert("System Started", "", 2000);
+      timerStartTime = millis();
+      timerRunning = true;
     }
   }
 
@@ -231,13 +238,22 @@ void handleRunning(unsigned long currentTime) {
     delay(50);  // Simple debounce
     if (digitalRead(START_BUTTON_PIN) == LOW) {
       currentSystemState = RETURNING_TO_START;
-      display.writeAlert("Returning to", "Start Position", 2000);
+      display.writeAlert("Abort", "", 2000);
       stepper.moveTo(0);  // Set target to start position
+      timerRunning = false;
       return;
     }
   }
 
   lastButtonState = currentButtonState;
+
+  if (timerRunning && (currentTime - timerStartTime >= timerDuration)) {
+    currentSystemState = RETURNING_TO_START;
+    display.writeAlert("Done", "", 2000);
+    stepper.moveTo(0);  // Set target to start position
+    timerRunning = false;
+    return;
+  }
 
   switch (currentState) {
     case MOVING:
@@ -259,7 +275,11 @@ void handleRunning(unsigned long currentTime) {
       break;
   }
 
-  // The LCD update is now handled by the lcdUpdateTask
+  // Update LCD with timer information
+  unsigned long elapsedTime = (currentTime - timerStartTime) / 1000; // Convert to seconds
+  unsigned long remainingTime = (timerDuration / 1000) - elapsedTime;
+  display.writeDisplay("Time: " + String(elapsedTime) + "s", 0, 0);
+  display.writeDisplay("Remain: " + String(remainingTime) + "s", 1, 0);
 }
 
 void handleReturningToStart() {
