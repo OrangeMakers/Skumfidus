@@ -61,7 +61,6 @@ OMDisplay display(0x27, 16, 2);
 
 // Variables for state machine
 MotorState currentState = MOVING;
-unsigned long stateStartTime = 0;
 const unsigned long DIRECTION_CHANGE_DELAY = 500; // 500ms delay when changing direction
 
 // Function to update LCD display
