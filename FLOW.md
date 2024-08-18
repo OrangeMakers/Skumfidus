@@ -18,11 +18,20 @@
 
    - Delay 5 seconds
 
-3. Initialize system state
+3. Perform homing sequence
+   - Move stepper motor towards home position
+   - Monitor homing switch
+   - When homing switch is triggered:
+     - Stop motor
+     - Set current position as zero (0.0 mm)
+   - Display "Homing..." during the process
+   - Display "Homed" for 2 seconds when complete
+
+4. Initialize system state
    - Set system to IDLE state
    - Clear LCD and prepare for main display
 
-4. Start background tasks
+5. Start background tasks
    - LCD update task
    - Relay control task
 
