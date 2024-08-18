@@ -23,7 +23,7 @@
 +---------------------+
 | STEP <------------- ESP32 D13
 | DIR  <------------- ESP32 D12
-| EN   <------------- GND (or ESP32 pin for enable control)
+| EN   <------------- GND
 | MS1  <------------- GND (for full-step mode)
 | MS2  <------------- GND (for full-step mode)
 | VCC_IO <----------- Common 5V (same as other components)
