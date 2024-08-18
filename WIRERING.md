@@ -29,10 +29,10 @@
 | VCC_IO <----------- ESP32 3V3
 | VM   <------------- Common 5V (same as other components)
 | GND  <------------- Common GND
-| A1   <------------- Stepper Motor Coil A
-| A2   <------------- Stepper Motor Coil A
-| B1   <------------- Stepper Motor Coil B
-| B2   <------------- Stepper Motor Coil B
+| A1   <------------- Stepper Motor Coil A (Red)
+| A2   <------------- Stepper Motor Coil A (Blue)
+| B1   <------------- Stepper Motor Coil B (Black)
+| B2   <------------- Stepper Motor Coil B (Green)
 |                     |
 +---------------------+
 
