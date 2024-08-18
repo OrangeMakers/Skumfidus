@@ -15,6 +15,7 @@ public:
     void begin();
     void writeDisplay(const String& text, uint8_t row, uint8_t startCol, uint8_t endCol = 0, Alignment alignment = Alignment::LEFT);
     void writeAlert(const String& row1, const String& row2, unsigned long duration);
+    void clearDisplay();
     static void updateTask(void* pvParameters);
 
 private:

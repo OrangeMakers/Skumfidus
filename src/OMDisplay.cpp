@@ -43,6 +43,16 @@ void OMDisplay::writeAlert(const String& row1, const String& row2, unsigned long
     _state = State::ALERT;
 }
 
+void OMDisplay::clearDisplay() {
+    for (int i = 0; i < _rows; i++) {
+        for (int j = 0; j < _cols; j++) {
+            _buffer[i][j] = ' ';
+        }
+        _buffer[i][_cols] = '\0';  // Ensure null termination
+    }
+    _state = State::UPDATING;
+}
+
 void OMDisplay::update() {
     switch (_state) {
         case State::UPDATING:
