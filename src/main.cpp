@@ -5,6 +5,8 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
+#define START_BUTTON_PIN 15  // Start button pin
+
 // Define motor states
 enum MotorState {
   MOVING,
@@ -16,6 +18,15 @@ enum MotorState {
 #define DIR_PIN 12
 #define LED_PIN 2  // Built-in LED pin for ESP32
 #define RELAY_PIN 14  // Relay control pin
+
+// Define system states
+enum SystemState {
+  WAITING_FOR_START,
+  RUNNING
+};
+
+// Global variable to track system state
+volatile SystemState currentSystemState = WAITING_FOR_START;
 
 // Define stepper motor parameters
 const int STEPS_PER_REV = 1600;  // 200 * 8 (for 8 microstepping)
@@ -78,6 +89,7 @@ void setup() {
   // Initialize pins
   pinMode(LED_PIN, OUTPUT);
   pinMode(RELAY_PIN, OUTPUT);
+  pinMode(START_BUTTON_PIN, INPUT_PULLUP);  // Initialize start button pin with internal pull-up
 
   // Initialize LCD
   lcd.init();
@@ -124,23 +136,39 @@ void setup() {
 void loop() {
   unsigned long currentTime = millis();
 
-  switch (currentState) {
-    case MOVING:
-      if (stepper.distanceToGo() == 0) {
-        // Change direction when reaching either end
-        stepper.moveTo(stepper.currentPosition() == 0 ? TOTAL_STEPS : 0);
-        digitalWrite(LED_PIN, !digitalRead(LED_PIN));  // Toggle LED when changing direction
-        currentState = CHANGING_DIRECTION;
-        stateStartTime = currentTime;
-      } else {
-        stepper.run();
-      }
-      break;
+  // Check for start button press
+  if (currentSystemState == WAITING_FOR_START && digitalRead(START_BUTTON_PIN) == LOW) {
+    delay(50);  // Simple debounce
+    if (digitalRead(START_BUTTON_PIN) == LOW) {
+      currentSystemState = RUNNING;
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("System Started");
+      delay(2000);  // Display for 2 seconds
+      lcd.clear();
+      updateLCD(0);
+    }
+  }
 
-    case CHANGING_DIRECTION:
-      if (currentTime - stateStartTime >= DIRECTION_CHANGE_DELAY) {
-        currentState = MOVING;
-      }
-      break;
+  if (currentSystemState == RUNNING) {
+    switch (currentState) {
+      case MOVING:
+        if (stepper.distanceToGo() == 0) {
+          // Change direction when reaching either end
+          stepper.moveTo(stepper.currentPosition() == 0 ? TOTAL_STEPS : 0);
+          digitalWrite(LED_PIN, !digitalRead(LED_PIN));  // Toggle LED when changing direction
+          currentState = CHANGING_DIRECTION;
+          stateStartTime = currentTime;
+        } else {
+          stepper.run();
+        }
+        break;
+
+      case CHANGING_DIRECTION:
+        if (currentTime - stateStartTime >= DIRECTION_CHANGE_DELAY) {
+          currentState = MOVING;
+        }
+        break;
+    }
   }
 }
