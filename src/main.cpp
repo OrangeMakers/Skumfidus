@@ -52,10 +52,6 @@ const float ACCELERATION = 3200;  // Adjust for smooth acceleration
 // Define LCD update interval
 const unsigned long LCD_UPDATE_INTERVAL = 250;  // 0.25 second in milliseconds
 
-// Initialize LCD
-// LiquidCrystal_I2C lcd(0x27, 16, 2);  // Set the LCD address to 0x27 for a 16 chars and 2 line display
-
-
 // Initialize stepper
 AccelStepper stepper(AccelStepper::DRIVER, STEP_PIN, DIR_PIN);
 
@@ -89,7 +85,7 @@ void lcdUpdateTask(void * parameter) {
 
 // Global variables for timing
 unsigned long stateStartTime = 0;
-const unsigned long WELCOME_DURATION = 5000;  // 5 seconds
+const unsigned long WELCOME_DURATION = 1000;  // 5 seconds
 const unsigned long HOMING_TIMEOUT = 30000;   // 30 seconds
 
 void setup() {
@@ -147,8 +143,6 @@ void handleStartup(unsigned long currentTime) {
     // Transition to HOMING state
     currentSystemState = HOMING;
     stateStartTime = currentTime;
-    display.writeDisplay("Homing...", 0, 0);
-    display.writeDisplay("", 1, 0);
   }
 }
 
