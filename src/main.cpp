@@ -89,6 +89,10 @@ void relayControlTask(void * parameter) {
   }
 }
 
+// Global variables for welcome message timing
+unsigned long welcomeStartTime = 0;
+const unsigned long WELCOME_DURATION = 5000;  // 5 seconds
+
 void setup() {
   // Initialize pins
   pinMode(LED_PIN, OUTPUT);
@@ -98,29 +102,10 @@ void setup() {
   // Initialize LCD
   display.begin();
 
-  // Display welcome message
-  display.writeDisplay("OrangeMakers", 0, 0);
-  display.writeDisplay("Marsh Mellow 2.0", 1, 0);
-  delay(5000);  // Display for 5 seconds
-
-  // Clear LCD and initialize display
-  display.clearDisplay();
-  updateLCD(0);
-
   // Configure stepper
   stepper.setMaxSpeed(MAX_SPEED);
   stepper.setAcceleration(ACCELERATION);
   stepper.moveTo(TOTAL_STEPS);
-
-  // Create LCD update task
-  // xTaskCreate(
-  //   lcdUpdateTask,    // Function that should be called
-  //   "LCD Update",     // Name of the task (for debugging)
-  //   2048,             // Stack size (bytes)
-  //   NULL,             // Parameter to pass
-  //   1,                // Task priority
-  //   NULL              // Task handle
-  // );
 
   // Create relay control task
   xTaskCreate(
@@ -142,10 +127,26 @@ void setup() {
     NULL,                    // Task handle
     1                        // Core where the task should run
   );
+
+  // Display welcome message
+  display.writeDisplay("OrangeMakers", 0, 0);
+  display.writeDisplay("Marsh Mellow 2.0", 1, 0);
+  welcomeStartTime = millis();  // Start the welcome message timer
 }
 
 void loop() {
   unsigned long currentTime = millis();
+
+  // Handle welcome message timing
+  if (currentTime - welcomeStartTime < WELCOME_DURATION) {
+    // Welcome message is still being displayed
+    return;  // Skip the rest of the loop
+  } else if (currentTime - welcomeStartTime == WELCOME_DURATION) {
+    // Welcome message duration has just ended
+    display.clearDisplay();
+    updateLCD(0);
+  }
+
   bool currentButtonState = digitalRead(START_BUTTON_PIN);
 
   // Check for button press (transition from HIGH to LOW)
