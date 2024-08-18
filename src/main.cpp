@@ -71,8 +71,10 @@ void updateLCD(float distance) {
 // Task to update LCD
 void lcdUpdateTask(void * parameter) {
   for(;;) {
-    float distance = stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV;
-    updateLCD(distance);
+    if (currentSystemState == RUNNING) {
+      float distance = abs(stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV);
+      updateLCD(distance);
+    }
     vTaskDelay(LCD_UPDATE_INTERVAL / portTICK_PERIOD_MS);
   }
 }
@@ -126,6 +128,16 @@ void setup() {
     1,                       // Task priority
     NULL,                    // Task handle
     1                        // Core where the task should run
+  );
+
+  // Create LCD update task
+  xTaskCreate(
+    lcdUpdateTask,           // Task function
+    "LCD Update",            // Task name
+    2048,                    // Stack size (bytes)
+    NULL,                    // Parameter to pass
+    1,                       // Task priority
+    NULL                     // Task handle
   );
 
   // Display welcome message
