@@ -27,7 +27,7 @@
 | MS1  <------------- GND (for full-step mode)
 | MS2  <------------- GND (for full-step mode)
 | VCC_IO <----------- ESP32 3V3
-| VM   <------------- Motor power supply (4.75V - 28V DC)
+| VM   <------------- Common 5V (same as other components)
 | GND  <------------- Common GND
 | A1   <------------- Stepper Motor Coil A
 | A2   <------------- Stepper Motor Coil A
@@ -44,7 +44,7 @@ Notes:
 5. The Stepper Motor connections (A1, A2, B1, B2) go to the TMC2209 driver, not directly to the ESP32.
 6. Set the TMC2209 current using the onboard potentiometer. Current (RMS) = Vref * 1.77
 7. For full-step mode (lowest resolution), connect both MS1 and MS2 to GND.
-8. The motor power supply (VM) for the TMC2209 should be appropriate for your stepper motor (4.75V - 28V DC).
+8. The motor power supply (VM) for the TMC2209 uses the common 5V supply, which should be sufficient for this stepper motor.
 9. Double-check all connections before powering on the system.
 10. Refer to the TMC2209 datasheet for additional features and configuration options.
 11. Add a capacitor (typically 100μF to 470μF) between the power supply's GND and + terminals for noise reduction and power supply stabilization.
