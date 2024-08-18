@@ -179,7 +179,9 @@ void handleHoming(unsigned long currentTime) {
     }
     if (digitalRead(HOMING_SWITCH_PIN) == HIGH) {  // Homing switch triggered
       homingSwitchTriggered = true;
+      stepper.setAcceleration(0);  // Disable acceleration for instant stop
       stepper.stop();  // Stop the motor immediately
+      stepper.setAcceleration(ACCELERATION);  // Restore original acceleration
       homingSteps = -HOMING_DIRECTION * (5.0 / DISTANCE_PER_REV) * STEPS_PER_REV;  // Move 5mm in opposite direction
       stepper.move(homingSteps);
     } else if (currentTime - stateStartTime > HOMING_TIMEOUT) {
