@@ -12,8 +12,8 @@
 | SCL (PIN 22) -----> LCD SCL
 | D14 (PIN 14) -----> Relay Control
 | D15 (PIN 15) <----- Start Button
-| 3V3          -----> TMC2209 VCC_IO
-| 5V           -----> Common 5V (for LCD and other components)
+| 5V           -----> TMC2209 VCC_IO
+| 5V           -----> Common 5V (for LCD, TMC2209, and other components)
 | GND          -----> Common GND
 |                     |
 +---------------------+
