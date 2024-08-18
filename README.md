@@ -11,10 +11,25 @@ Marsh Mellow 2.0 er et automatiseret system designet til at styre en steppermoto
 
 ## Hardware
 - ESP32 DevKit V1
-- 42hs3417 Steppermotor
+- 42HB34F08AB Steppermotor
 - 16x2 I2C LCD-skærm
 - Relæ modul
 - Steppermotor driver (indstillet til 8 mikrostepping)
+
+### Steppermotor Specifikationer
+- Model: 42HB34F08AB
+- Type: Hybrid Steppermotor
+- Producent: Changzhou Bo Hong Electric Appliance Co.,Ltd
+- Nominel spænding: 4.96V
+- Nominel strøm: 0.8A
+- Fase modstand: 6.2Ω ±10%
+- Fase induktans: 10mH ±20%
+- Step vinkel: 1.8° ±5% (fuld step, uden belastning)
+- Holde moment: 2.4 kg·cm
+- Antal ledninger: 4
+- Rotor inerti: 34 g·cm²
+- Motor vægt: 200g
+- Motor længde: 34mm
 
 ## Software
 Projektet er udviklet ved hjælp af PlatformIO og Arduino framework. Det bruger følgende biblioteker:
