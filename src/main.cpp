@@ -168,7 +168,7 @@ void handleHoming(unsigned long currentTime) {
         homingStarted = true;
         stateStartTime = currentTime;  // Reset the start time for homing
         display.writeAlert("Homing...", "", 2000);  // Show "Homing..." for 2 seconds
-        stepper.setAcceleration(0.0);  // Disable acceleration for instant stop
+        stepper.setAcceleration(ACCELERATION * 10);  // Set higher acceleration for more instant stop during homing
         homingSteps = HOMING_DIRECTION * 1000000;  // Large number to ensure continuous movement
         stepper.moveTo(homingSteps);
       }
