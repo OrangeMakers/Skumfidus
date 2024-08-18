@@ -11,7 +11,7 @@
 | SDA (PIN 21) -----> LCD SDA
 | SCL (PIN 22) -----> LCD SCL
 | D14 (PIN 14) -----> Relay Control
-| D15 (PIN 15) <----- Start Button
+| D15 (PIN 15) <----- Start Button (see separate component below)
 | 5V           -----> TMC2209 VCC_IO
 | 5V           -----> Common 5V (for LCD, TMC2209, and other components)
 | GND          -----> Common GND
@@ -51,3 +51,13 @@ Notes:
 ```
 
 This wiring diagram provides a text-based representation of how to connect the various components to the ESP32 and the TMC2209 stepper driver. Always refer to the specific datasheets of your components for any additional connections or requirements not shown here. The added capacitor helps to reduce noise and stabilize the power supply, which can improve overall system performance and reliability.
+
++---------------------+
+|    Start Button     |
++---------------------+
+| Pin 1 <-----------> ESP32 D15 (PIN 15)
+| Pin 2 <-----------> Common GND
+|                     |
++---------------------+
+
+Note: The start button is a normally open (NO) momentary push button. When pressed, it connects D15 to GND, triggering the start/stop function in the software.
