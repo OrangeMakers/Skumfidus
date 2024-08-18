@@ -19,7 +19,7 @@
 #define RELAY_PIN 14  // Relay control pin
 
 // Define homing direction (1 for positive, -1 for negative)
-#define HOMING_DIRECTION -1
+#define HOMING_DIRECTION 1
 
 // Define system states
 enum SystemState {
@@ -38,7 +38,7 @@ volatile bool lastButtonState = HIGH;
 
 // Timer variables
 unsigned long timerStartTime = 0;
-const unsigned long timerDuration = 60000; // 60 seconds, adjust as needed
+const unsigned long timerDuration = 5000; // 60 seconds, adjust as needed
 bool timerRunning = false;
 
 // Define motor states
@@ -284,8 +284,8 @@ void handleRunning(unsigned long currentTime) {
   unsigned long remainingTime = (timerDuration / 1000) - elapsedTime;
   float distance = abs(stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV);
   
-  display.writeDisplay("Remaining: " + String(remainingTime) + "s", 0, 0);
-  display.writeDisplay("Distance: " + String(distance, 1) + "mm", 1, 0);
+  display.writeDisplay("Time: " + String(remainingTime) + "s", 0, 0);
+  display.writeDisplay("Dist: " + String(distance, 1) + "mm", 1, 0);
 }
 
 void handleReturningToStart() {
