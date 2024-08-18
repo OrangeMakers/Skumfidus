@@ -33,7 +33,7 @@ volatile bool lastButtonState = HIGH;
 
 // Define stepper motor parameters
 const int STEPS_PER_REV = 1600;  // 200 * 8 (for 8 microstepping)
-const float DISTANCE_PER_REV = 4.0;  // 4mm per revolution
+const float DISTANCE_PER_REV = 8.0;  // 4mm per revolution
 const float TOTAL_DISTANCE = 30.0;  // 30mm in each direction
 const int TOTAL_STEPS = (TOTAL_DISTANCE / DISTANCE_PER_REV) * STEPS_PER_REV;
 
