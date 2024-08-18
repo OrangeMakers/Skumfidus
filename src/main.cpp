@@ -21,12 +21,15 @@ enum MotorState {
 
 // Define system states
 enum SystemState {
-  WAITING_FOR_START,
+  IDLE,
   RUNNING
 };
 
 // Global variable to track system state
-volatile SystemState currentSystemState = WAITING_FOR_START;
+volatile SystemState currentSystemState = IDLE;
+
+// Variable to store the last button state
+volatile bool lastButtonState = HIGH;
 
 // Define stepper motor parameters
 const int STEPS_PER_REV = 1600;  // 200 * 8 (for 8 microstepping)
@@ -135,20 +138,37 @@ void setup() {
 
 void loop() {
   unsigned long currentTime = millis();
+  bool currentButtonState = digitalRead(START_BUTTON_PIN);
 
-  // Check for start button press
-  if (currentSystemState == WAITING_FOR_START && digitalRead(START_BUTTON_PIN) == LOW) {
+  // Check for button press (transition from HIGH to LOW)
+  if (lastButtonState == HIGH && currentButtonState == LOW) {
     delay(50);  // Simple debounce
     if (digitalRead(START_BUTTON_PIN) == LOW) {
-      currentSystemState = RUNNING;
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      lcd.print("System Started");
-      delay(2000);  // Display for 2 seconds
-      lcd.clear();
-      updateLCD(0);
+      if (currentSystemState == IDLE) {
+        currentSystemState = RUNNING;
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("System Started");
+        delay(2000);  // Display for 2 seconds
+        lcd.clear();
+        updateLCD(0);
+      } else {
+        currentSystemState = IDLE;
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("System Idle");
+        delay(2000);  // Display for 2 seconds
+        lcd.clear();
+        updateLCD(0);
+        // Reset stepper position
+        stepper.setCurrentPosition(0);
+        stepper.moveTo(0);
+      }
     }
   }
+
+  // Update last button state
+  lastButtonState = currentButtonState;
 
   if (currentSystemState == RUNNING) {
     switch (currentState) {
@@ -170,5 +190,8 @@ void loop() {
         }
         break;
     }
+  } else {
+    // System is idle, ensure motor is stopped
+    stepper.stop();
   }
 }
