@@ -136,25 +136,6 @@ void setup() {
   stateStartTime = millis();
 }
 
-void loop() {
-  unsigned long currentTime = millis();
-
-  switch (currentSystemState) {
-    case STARTUP:
-      handleStartup(currentTime);
-      break;
-    case HOMING:
-      handleHoming(currentTime);
-      break;
-    case IDLE:
-      handleIdle();
-      break;
-    case RUNNING:
-      handleRunning(currentTime);
-      break;
-  }
-}
-
 void handleStartup(unsigned long currentTime) {
   if (currentTime - stateStartTime < WELCOME_DURATION) {
     // Display welcome message
@@ -241,4 +222,23 @@ void handleRunning(unsigned long currentTime) {
 
   float distance = abs(stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV);
   updateLCD(distance);
+}
+
+void loop() {
+  unsigned long currentTime = millis();
+
+  switch (currentSystemState) {
+    case STARTUP:
+      handleStartup(currentTime);
+      break;
+    case HOMING:
+      handleHoming(currentTime);
+      break;
+    case IDLE:
+      handleIdle();
+      break;
+    case RUNNING:
+      handleRunning(currentTime);
+      break;
+  }
 }
