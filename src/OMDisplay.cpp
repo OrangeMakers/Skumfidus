@@ -36,8 +36,10 @@ void OMDisplay::writeDisplay(const String& text, uint8_t row, uint8_t startCol, 
 }
 
 void OMDisplay::writeAlert(const String& row1, const String& row2, unsigned long duration) {
-    strncpy(_alertBuffer[0], row1.c_str(), _cols);
-    strncpy(_alertBuffer[1], row2.c_str(), _cols);
+    memset(_alertBuffer[0], ' ', _cols);
+    memset(_alertBuffer[1], ' ', _cols);
+    strncpy(_alertBuffer[0], row1.c_str(), min(row1.length(), (unsigned int)_cols));
+    strncpy(_alertBuffer[1], row2.c_str(), min(row2.length(), (unsigned int)_cols));
     _alertBuffer[0][_cols] = '\0';
     _alertBuffer[1][_cols] = '\0';
     _alertStartTime = millis();
