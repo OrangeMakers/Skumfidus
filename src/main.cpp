@@ -395,7 +395,6 @@ void handleError() {
   
   // Display the error message
   String errorRow1 = "Error";
-  errorRow1.concat(String(' ', 16 - errorRow1.length())); // Fill the rest with spaces
   display.writeAlert(errorRow1, errorMessage, 0);  // 0 means display indefinitely
   
   // Disable all inputs except for the reset button
