@@ -29,7 +29,8 @@ enum SystemState {
   HOMING,
   IDLE,
   RUNNING,
-  RETURNING_TO_START
+  RETURNING_TO_START,
+  ERROR
 };
 
 // Global variable to track system state
@@ -338,5 +339,14 @@ void loop() {
     case RETURNING_TO_START:
       handleReturningToStart();
       break;
+    case ERROR:
+      handleError();
+      break;
   }
+}
+
+void handleError() {
+  // Placeholder for error handling logic
+  display.writeAlert("ERROR", "Check system", 2000);
+  // Add more error handling code here
 }
