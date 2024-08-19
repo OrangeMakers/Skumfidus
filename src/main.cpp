@@ -18,6 +18,7 @@ volatile bool homingSwitchTriggered = false;
 void IRAM_ATTR homingSwitchISR() {
   homingSwitchTriggered = true;
 }
+
 #define ROTARY_DT_PIN 18      // Rotary encoder DT pin
 #define ROTARY_SW_PIN 19      // Rotary encoder switch pin
 
