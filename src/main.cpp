@@ -15,7 +15,8 @@
 // Define pin connections
 #define STEP_PIN 13
 #define DIR_PIN 12
-#define LED_PIN 2  // Built-in LED pin for ESP32
+#define BUILTIN_LED_PIN 2  // Built-in LED pin for ESP32
+#define ADDRESSABLE_LED_PIN 4  // New pin for Addressable LED
 #define RELAY_PIN 14  // Relay control pin
 
 // Define homing direction (1 for positive, -1 for negative)
@@ -95,7 +96,8 @@ const unsigned long HOMING_TIMEOUT = 30000;   // 30 seconds
 
 void setup() {
   // Initialize pins
-  pinMode(LED_PIN, OUTPUT);
+  pinMode(BUILTIN_LED_PIN, OUTPUT);
+  pinMode(ADDRESSABLE_LED_PIN, OUTPUT);
   pinMode(START_BUTTON_PIN, INPUT_PULLUP);  // Start button with internal pull-up
   pinMode(HOMING_SWITCH_PIN, INPUT_PULLUP); // Homing switch with internal pull-up
   pinMode(ROTARY_CLK_PIN, INPUT_PULLUP);    // Rotary encoder CLK with internal pull-up

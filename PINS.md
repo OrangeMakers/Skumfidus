@@ -5,6 +5,7 @@
 | PIN 13    | D13         | Steppermotor STEP   |
 | PIN 12    | D12         | Steppermotor DIR    |
 | PIN 2     | D2          | Indbygget LED       |
+| PIN 4     | D4          | Addressable LED     |
 | PIN 21    | SDA         | LCD SDA             |
 | PIN 22    | SCL         | LCD SCL             |
 | PIN 14    | D14         | Relæ Kontrol        |
