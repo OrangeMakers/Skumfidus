@@ -9,6 +9,14 @@
 #define START_BUTTON_PIN 15   // Start button pin
 #define HOMING_SWITCH_PIN 16  // Homing switch pin
 #define ROTARY_CLK_PIN 17     // Rotary encoder CLK pin
+
+// Interrupt flag
+volatile bool homingSwitchTriggered = false;
+
+// Interrupt Service Routine for homing switch
+void IRAM_ATTR homingSwitchISR() {
+  homingSwitchTriggered = true;
+}
 #define ROTARY_DT_PIN 18      // Rotary encoder DT pin
 #define ROTARY_SW_PIN 19      // Rotary encoder switch pin
 
@@ -103,6 +111,9 @@ void setup() {
   pinMode(START_BUTTON_PIN, INPUT_PULLUP);  // Start button with internal pull-up
   pinMode(HOMING_SWITCH_PIN, INPUT_PULLUP); // Homing switch with internal pull-up
   pinMode(ROTARY_CLK_PIN, INPUT_PULLUP);    // Rotary encoder CLK with internal pull-up
+
+  // Attach interrupt to homing switch pin
+  attachInterrupt(digitalPinToInterrupt(HOMING_SWITCH_PIN), homingSwitchISR, RISING);
   pinMode(ROTARY_DT_PIN, INPUT_PULLUP);     // Rotary encoder DT with internal pull-up
   pinMode(ROTARY_SW_PIN, INPUT_PULLUP);     // Rotary encoder switch with internal pull-up
   pinMode(STEP_PIN, OUTPUT);
@@ -161,7 +172,6 @@ void handleStartup(unsigned long currentTime) {
 
 void handleHoming(unsigned long currentTime) {
   static bool waitingForConfirmation = true;
-  static bool homingSwitchTriggered = false;
   static long homingSteps = 0;
   static bool homingStarted = false;
 
@@ -186,8 +196,7 @@ void handleHoming(unsigned long currentTime) {
       display.writeDisplay("Homing...", 0, 0);
       display.writeDisplay("", 1, 0);
     }
-    if (digitalRead(HOMING_SWITCH_PIN) == HIGH) {  // Homing switch triggered
-      homingSwitchTriggered = true;
+    if (homingSwitchTriggered) {  // Check the interrupt flag
       stepper.stop();  // Stop the motor immediately
       stepper.setAcceleration(ACCELERATION);  // Restore original acceleration
       homingSteps = -HOMING_DIRECTION * (5.0 / DISTANCE_PER_REV) * STEPS_PER_REV;  // Move 5mm in opposite direction
