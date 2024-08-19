@@ -340,11 +340,18 @@ void handleReturningToStart() {
 }
 
 void handleError() {
-  // Set ENABLE_PIN to HIGH to disable the stepper driver
-  digitalWrite(ENABLE_PIN, HIGH);
+  static bool displayCleared = false;
+
+  if (!displayCleared) {
+    // Set ENABLE_PIN to HIGH to disable the stepper driver
+    digitalWrite(ENABLE_PIN, HIGH);
+    
+    // Clear the display only once
+    display.clearDisplay();
+    displayCleared = true;
+  }
   
   // Display the error message
-  display.clearDisplay();
   display.writeAlert(errorMessage.substring(0, errorMessage.indexOf('\n')),
                      errorMessage.substring(errorMessage.indexOf('\n') + 1),
                      0);  // 0 means display indefinitely
