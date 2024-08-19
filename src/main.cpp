@@ -44,6 +44,9 @@ enum SystemState {
 // Global variable to track system state
 volatile SystemState currentSystemState = STARTUP;
 
+// Error message
+String errorMessage = "";
+
 // Variable to store the last button state
 volatile bool lastButtonState = HIGH;
 
@@ -279,6 +282,13 @@ void handleRunning(unsigned long currentTime) {
     return;
   }
 
+  // Check if homing switch is triggered
+  if (homingSwitchTriggered) {
+    currentSystemState = ERROR;
+    errorMessage = "Error\nEndstop trigger";
+    return;
+  }
+
   switch (currentState) {
     case MOVING:
       if (stepper.distanceToGo() == 0) {
@@ -330,9 +340,16 @@ void handleReturningToStart() {
 }
 
 void handleError() {
-  // Placeholder for error handling logic
-  display.writeAlert("ERROR", "Check system", 2000);
-  // Add more error handling code here
+  // Stop the stepper motor
+  stepper.stop();
+  
+  // Display the error message
+  display.writeAlert(errorMessage.substring(0, errorMessage.indexOf('\n')),
+                     errorMessage.substring(errorMessage.indexOf('\n') + 1),
+                     0);  // 0 means display indefinitely
+  
+  // Disable all inputs except for the reset button
+  // Note: Implement a hardware reset button if not already present
 }
 
 
@@ -357,7 +374,14 @@ void loop() {
       break;
     case ERROR:
       handleError();
-      break;
+      // In ERROR state, we don't do anything else until the device is reset
+      return;
+  }
+
+  // Check for homing switch trigger in any state except ERROR
+  if (currentSystemState != ERROR && homingSwitchTriggered) {
+    currentSystemState = ERROR;
+    errorMessage = "Error\nEndstop trigger";
   }
 }
 
