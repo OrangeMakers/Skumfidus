@@ -340,8 +340,8 @@ void handleReturningToStart() {
 }
 
 void handleError() {
-  // Stop the stepper motor
-  stepper.stop();
+  // Set ENABLE_PIN to HIGH to disable the stepper driver
+  digitalWrite(ENABLE_PIN, HIGH);
   
   // Display the error message
   display.writeAlert(errorMessage.substring(0, errorMessage.indexOf('\n')),
