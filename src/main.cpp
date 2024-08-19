@@ -320,6 +320,13 @@ void handleReturningToStart() {
   }
 }
 
+void handleError() {
+  // Placeholder for error handling logic
+  display.writeAlert("ERROR", "Check system", 2000);
+  // Add more error handling code here
+}
+
+
 void loop() {
   unsigned long currentTime = millis();
 
@@ -345,8 +352,3 @@ void loop() {
   }
 }
 
-void handleError() {
-  // Placeholder for error handling logic
-  display.writeAlert("ERROR", "Check system", 2000);
-  // Add more error handling code here
-}
