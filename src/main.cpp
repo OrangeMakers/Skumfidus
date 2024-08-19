@@ -216,6 +216,7 @@ void handleHoming(unsigned long currentTime) {
   static bool waitingForConfirmation = true;
   static long homingSteps = 0;
   static bool homingStarted = false;
+  static bool movingAwayFromSwitch = false;
 
   if (waitingForConfirmation) {
     display.writeDisplay("Start Homing", 0, 0);
@@ -231,29 +232,31 @@ void handleHoming(unsigned long currentTime) {
         stepper.setAcceleration(ACCELERATION * 2);  // Set higher acceleration for more instant stop during homing
         homingSteps = HOMING_DIRECTION * 1000000;  // Large number to ensure continuous movement
         stepper.moveTo(homingSteps);
+        homingSwitchTriggered = false;  // Reset the flag before starting homing
       }
     }
-  } else if (!homingSwitchTriggered) {
-    if (homingStarted) {
-      display.writeDisplay("Homing...", 0, 0);
-      display.writeDisplay("", 1, 0);
-    }
-    if (homingSwitchTriggered) {  // Check the interrupt flag
+  } else if (homingStarted && !movingAwayFromSwitch) {
+    display.writeDisplay("Homing...", 0, 0);
+    display.writeDisplay("", 1, 0);
+
+    if (homingSwitchTriggered) {
       stepper.stop();  // Stop the motor immediately
       stepper.setAcceleration(ACCELERATION);  // Restore original acceleration
       homingSteps = -HOMING_DIRECTION * (5.0 / DISTANCE_PER_REV) * STEPS_PER_REV;  // Move 5mm in opposite direction
       stepper.move(homingSteps);
+      movingAwayFromSwitch = true;
+      homingSwitchTriggered = false;  // Reset the flag
     } else if (currentTime - stateStartTime > HOMING_TIMEOUT) {
       // Homing timeout
       currentSystemState = IDLE;
       display.writeAlert("Homing failed", "", 2000);
       waitingForConfirmation = true;  // Reset for next homing
-      homingSwitchTriggered = false;
       homingStarted = false;
+      movingAwayFromSwitch = false;
     } else {
       stepper.run();
     }
-  } else {
+  } else if (movingAwayFromSwitch) {
     if (stepper.distanceToGo() == 0) {
       // Finished moving away from switch
       stepper.setCurrentPosition(0);
@@ -261,8 +264,8 @@ void handleHoming(unsigned long currentTime) {
       delay(2000);  // Wait for 2 seconds
       currentSystemState = IDLE;
       waitingForConfirmation = true;  // Reset for next homing
-      homingSwitchTriggered = false;
       homingStarted = false;
+      movingAwayFromSwitch = false;
     } else {
       stepper.run();
     }
