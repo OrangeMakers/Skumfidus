@@ -25,7 +25,7 @@ void IRAM_ATTR homingSwitchISR() {
 // Define pin connections
 #define STEP_PIN 13
 #define DIR_PIN 12
-#define ENABLE_PIN 27  // New pin for Stepper Driver ENABLE
+#define STEPPER_ENABLE_PIN 27  // Pin for Stepper Driver ENABLE
 #define BUILTIN_LED_PIN 2  // Built-in LED pin for ESP32
 #define ADDRESSABLE_LED_PIN 4  // New pin for Addressable LED
 #define RELAY_PIN 14  // Relay control pin
@@ -157,11 +157,11 @@ void setup() {
   pinMode(ROTARY_SW_PIN, INPUT_PULLUP);     // Rotary encoder switch with internal pull-up
   pinMode(STEP_PIN, OUTPUT);
   pinMode(DIR_PIN, OUTPUT);
-  pinMode(ENABLE_PIN, OUTPUT);
+  pinMode(STEPPER_ENABLE_PIN, OUTPUT);
   pinMode(RELAY_PIN, OUTPUT);
 
-  // Set ENABLE_PIN to LOW to enable the stepper driver
-  digitalWrite(ENABLE_PIN, LOW);
+  // Set STEPPER_ENABLE_PIN to LOW to enable the stepper driver
+  digitalWrite(STEPPER_ENABLE_PIN, LOW);
 
   // Initialize LCD
   display.begin();
@@ -385,8 +385,8 @@ void handleError() {
   static bool displayCleared = false;
 
   if (!displayCleared) {
-    // Set ENABLE_PIN to HIGH to disable the stepper driver
-    digitalWrite(ENABLE_PIN, HIGH);
+    // Set STEPPER_ENABLE_PIN to HIGH to disable the stepper driver
+    digitalWrite(STEPPER_ENABLE_PIN, HIGH);
     
     // Clear the display only once
     display.clearDisplay();
