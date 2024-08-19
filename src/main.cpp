@@ -139,6 +139,14 @@ unsigned long stateStartTime = 0;
 const unsigned long WELCOME_DURATION = 1000;  // 5 seconds
 const unsigned long HOMING_TIMEOUT = 30000;   // 30 seconds
 
+// New function to handle state changes
+void changeState(SystemState newState, unsigned long currentTime = 0) {
+  previousSystemState = currentSystemState;
+  currentSystemState = newState;
+  stateStartTime = currentTime == 0 ? millis() : currentTime;
+  stateJustChanged = true;
+}
+
 void setup() {
   // Initialize EEPROM
   EEPROM.begin(512);  // Initialize EEPROM with 512 bytes
@@ -195,10 +203,7 @@ void setup() {
   );
 
   // Initialize state
-  currentSystemState = STARTUP;
-  previousSystemState = STARTUP;
-  stateJustChanged = true;
-  stateStartTime = millis();
+  changeState(STARTUP, millis());
 
   // Save parameters to EEPROM (in case they were not present)
   saveParametersToEEPROM();
@@ -212,10 +217,7 @@ void handleStartup(unsigned long currentTime) {
   }
 
   if (currentTime - stateStartTime >= WELCOME_DURATION) {
-    previousSystemState = currentSystemState;
-    currentSystemState = HOMING;
-    stateStartTime = currentTime;
-    stateJustChanged = true;
+    changeState(HOMING, currentTime);
   }
 }
 
@@ -261,9 +263,7 @@ void handleHoming(unsigned long currentTime) {
       homingSwitchTriggered = false;  // Reset the flag
     } else if (currentTime - stateStartTime > HOMING_TIMEOUT) {
       // Homing timeout
-      previousSystemState = currentSystemState;
-      currentSystemState = IDLE;
-      stateJustChanged = true;
+      changeState(IDLE, currentTime);
       display.writeAlert("Homing failed", "", 2000);
     } else {
       stepper.run();
@@ -274,9 +274,7 @@ void handleHoming(unsigned long currentTime) {
       stepper.setCurrentPosition(0);
       display.writeAlert("Homing Completed", "", 2000);
       delay(2000);  // Wait for 2 seconds
-      previousSystemState = currentSystemState;
-      currentSystemState = IDLE;
-      stateJustChanged = true;
+      changeState(IDLE, currentTime);
     } else {
       stepper.run();
     }
@@ -296,9 +294,7 @@ void handleIdle() {
   if (lastButtonState == HIGH && currentButtonState == LOW) {
     delay(50);  // Simple debounce
     if (digitalRead(START_BUTTON_PIN) == LOW) {
-      previousSystemState = currentSystemState;
-      currentSystemState = RUNNING;
-      stateJustChanged = true;
+      changeState(RUNNING, millis());
       display.writeAlert("System Started", "", 2000);
       timerStartTime = millis();
       timerRunning = true;
@@ -321,9 +317,7 @@ void handleRunning(unsigned long currentTime) {
   if (lastButtonState == HIGH && currentButtonState == LOW) {
     delay(50);  // Simple debounce
     if (digitalRead(START_BUTTON_PIN) == LOW) {
-      previousSystemState = currentSystemState;
-      currentSystemState = RETURNING_TO_START;
-      stateJustChanged = true;
+      changeState(RETURNING_TO_START, currentTime);
       display.writeAlert("Abort", "", 2000);
       stepper.moveTo(0);  // Set target to start position
       timerRunning = false;
@@ -334,9 +328,7 @@ void handleRunning(unsigned long currentTime) {
   lastButtonState = currentButtonState;
 
   if (timerRunning && (currentTime - timerStartTime >= timerDuration)) {
-    previousSystemState = currentSystemState;
-    currentSystemState = RETURNING_TO_START;
-    stateJustChanged = true;
+    changeState(RETURNING_TO_START, currentTime);
     display.writeAlert("Done", "", 2000);
     stepper.moveTo(0);  // Set target to start position
     timerRunning = false;
@@ -345,9 +337,7 @@ void handleRunning(unsigned long currentTime) {
 
   // Check if homing switch is triggered
   if (homingSwitchTriggered) {
-    previousSystemState = currentSystemState;
-    currentSystemState = ERROR;
-    stateJustChanged = true;
+    changeState(ERROR, currentTime);
     errorMessage = "Endstop trigger";
     return;
   }
@@ -389,9 +379,7 @@ void handleReturningToStart() {
 
   if (stepper.distanceToGo() == 0) {
     // We've reached the start position
-    previousSystemState = currentSystemState;
-    currentSystemState = IDLE;
-    stateJustChanged = true;
+    changeState(IDLE, millis());
     display.writeAlert("Returned to", "Start Position", 2000);
   } else {
     stepper.run();
@@ -445,9 +433,7 @@ void loop() {
 
   // Check for homing switch trigger in any state except HOMING, STARTUP, and ERROR
   if (currentSystemState != HOMING && currentSystemState != STARTUP && currentSystemState != ERROR && homingSwitchTriggered) {
-    previousSystemState = currentSystemState;
-    currentSystemState = ERROR;
-    stateJustChanged = true;
+    changeState(ERROR, currentTime);
     errorMessage = "Endstop trigger";
   }
 }
