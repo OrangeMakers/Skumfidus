@@ -344,6 +344,7 @@ void handleError() {
   digitalWrite(ENABLE_PIN, HIGH);
   
   // Display the error message
+  display.clearDisplay();
   display.writeAlert(errorMessage.substring(0, errorMessage.indexOf('\n')),
                      errorMessage.substring(errorMessage.indexOf('\n') + 1),
                      0);  // 0 means display indefinitely
