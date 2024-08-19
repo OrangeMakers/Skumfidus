@@ -15,6 +15,7 @@
 // Define pin connections
 #define STEP_PIN 13
 #define DIR_PIN 12
+#define ENABLE_PIN 27  // New pin for Stepper Driver ENABLE
 #define BUILTIN_LED_PIN 2  // Built-in LED pin for ESP32
 #define ADDRESSABLE_LED_PIN 4  // New pin for Addressable LED
 #define RELAY_PIN 14  // Relay control pin
@@ -105,7 +106,11 @@ void setup() {
   pinMode(ROTARY_SW_PIN, INPUT_PULLUP);     // Rotary encoder switch with internal pull-up
   pinMode(STEP_PIN, OUTPUT);
   pinMode(DIR_PIN, OUTPUT);
+  pinMode(ENABLE_PIN, OUTPUT);
   pinMode(RELAY_PIN, OUTPUT);
+
+  // Set ENABLE_PIN to LOW to enable the stepper driver
+  digitalWrite(ENABLE_PIN, LOW);
 
   // Initialize LCD
   display.begin();
