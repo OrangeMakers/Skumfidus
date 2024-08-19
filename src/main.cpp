@@ -4,6 +4,7 @@
 #include <AccelStepper.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+#include <EEPROM.h>
 #include "OMDisplay.h"
 
 #define START_BUTTON_PIN 15   // Start button pin
@@ -52,7 +53,7 @@ volatile bool lastButtonState = HIGH;
 
 // Timer variables
 unsigned long timerStartTime = 0;
-const unsigned long timerDuration = 30000; // 60 seconds, adjust as needed
+unsigned long timerDuration = 30000; // 60 seconds, adjust as needed
 bool timerRunning = false;
 
 // Define motor states
@@ -64,10 +65,38 @@ enum MotorState {
 // Movement and stepper motor parameters
 const int STEPS_PER_REV = 1600;  // 200 * 8 (for 8 microstepping)
 const float DISTANCE_PER_REV = 8.0;  // 8mm per revolution (lead of ACME rod)
-const float TOTAL_DISTANCE = 120.0;  // 30mm in each direction
-const int TOTAL_STEPS = (TOTAL_DISTANCE / DISTANCE_PER_REV) * STEPS_PER_REV;
-const float MAX_SPEED = 1600;  // Maintains 2 revolutions per second (16 mm/second)
+float TOTAL_DISTANCE = 120.0;  // 30mm in each direction
+int TOTAL_STEPS;
+float MAX_SPEED = 1600;  // Maintains 2 revolutions per second (16 mm/second)
 const float ACCELERATION = 3200.0;  // Adjust for smooth acceleration
+
+// EEPROM addresses
+const int EEPROM_TIMER_DURATION_ADDR = 0;
+const int EEPROM_TOTAL_DISTANCE_ADDR = 4;
+const int EEPROM_MAX_SPEED_ADDR = 8;
+
+// Function to save parameters to EEPROM
+void saveParametersToEEPROM() {
+  EEPROM.put(EEPROM_TIMER_DURATION_ADDR, timerDuration);
+  EEPROM.put(EEPROM_TOTAL_DISTANCE_ADDR, TOTAL_DISTANCE);
+  EEPROM.put(EEPROM_MAX_SPEED_ADDR, MAX_SPEED);
+  EEPROM.commit();
+}
+
+// Function to load parameters from EEPROM
+void loadParametersFromEEPROM() {
+  EEPROM.get(EEPROM_TIMER_DURATION_ADDR, timerDuration);
+  EEPROM.get(EEPROM_TOTAL_DISTANCE_ADDR, TOTAL_DISTANCE);
+  EEPROM.get(EEPROM_MAX_SPEED_ADDR, MAX_SPEED);
+  
+  // Check if values are valid (not NaN or infinity)
+  if (isnan(TOTAL_DISTANCE) || isinf(TOTAL_DISTANCE)) TOTAL_DISTANCE = 120.0;
+  if (isnan(MAX_SPEED) || isinf(MAX_SPEED)) MAX_SPEED = 1600;
+  if (timerDuration == 0xFFFFFFFF) timerDuration = 30000; // Default value if EEPROM is empty
+  
+  // Update TOTAL_STEPS based on loaded TOTAL_DISTANCE
+  TOTAL_STEPS = (TOTAL_DISTANCE / DISTANCE_PER_REV) * STEPS_PER_REV;
+}
 
 // Define LCD update interval
 const unsigned long LCD_UPDATE_INTERVAL = 250;  // 0.25 second in milliseconds
@@ -108,6 +137,12 @@ const unsigned long WELCOME_DURATION = 1000;  // 5 seconds
 const unsigned long HOMING_TIMEOUT = 30000;   // 30 seconds
 
 void setup() {
+  // Initialize EEPROM
+  EEPROM.begin(512);  // Initialize EEPROM with 512 bytes
+
+  // Load parameters from EEPROM
+  loadParametersFromEEPROM();
+
   // Initialize pins
   pinMode(BUILTIN_LED_PIN, OUTPUT);
   pinMode(ADDRESSABLE_LED_PIN, OUTPUT);
@@ -159,6 +194,9 @@ void setup() {
   // Initialize state
   currentSystemState = STARTUP;
   stateStartTime = millis();
+
+  // Save parameters to EEPROM (in case they were not present)
+  saveParametersToEEPROM();
 }
 
 void handleStartup(unsigned long currentTime) {
