@@ -378,8 +378,8 @@ void loop() {
       return;
   }
 
-  // Check for homing switch trigger in any state except ERROR
-  if (currentSystemState != ERROR && homingSwitchTriggered) {
+  // Check for homing switch trigger in any state except HOMING, STARTUP, and ERROR
+  if (currentSystemState != HOMING && currentSystemState != STARTUP && currentSystemState != ERROR && homingSwitchTriggered) {
     currentSystemState = ERROR;
     errorMessage = "Error\nEndstop trigger";
   }
