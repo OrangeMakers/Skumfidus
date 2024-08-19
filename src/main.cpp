@@ -327,7 +327,7 @@ void handleRunning(unsigned long currentTime) {
   // Check if homing switch is triggered
   if (homingSwitchTriggered) {
     currentSystemState = ERROR;
-    errorMessage = "Error\nEndstop trigger";
+    errorMessage = "Endstop trigger";
     return;
   }
 
@@ -394,9 +394,9 @@ void handleError() {
   }
   
   // Display the error message
-  display.writeAlert(errorMessage.substring(0, errorMessage.indexOf('\n')),
-                     errorMessage.substring(errorMessage.indexOf('\n') + 1),
-                     0);  // 0 means display indefinitely
+  String errorRow1 = "Error";
+  errorRow1.concat(String(' ', 16 - errorRow1.length())); // Fill the rest with spaces
+  display.writeAlert(errorRow1, errorMessage, 0);  // 0 means display indefinitely
   
   // Disable all inputs except for the reset button
   // Note: Implement a hardware reset button if not already present
@@ -431,7 +431,7 @@ void loop() {
   // Check for homing switch trigger in any state except HOMING, STARTUP, and ERROR
   if (currentSystemState != HOMING && currentSystemState != STARTUP && currentSystemState != ERROR && homingSwitchTriggered) {
     currentSystemState = ERROR;
-    errorMessage = "Error\nEndstop trigger";
+    errorMessage = "Endstop trigger";
   }
 }
 
