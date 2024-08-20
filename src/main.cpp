@@ -405,11 +405,14 @@ void handleError() {
   if (stateJustChanged) {
     // Set STEPPER_ENABLE_PIN to HIGH to disable the stepper driver
     digitalWrite(STEPPER_ENABLE_PIN, HIGH);
+
+    // Always display the error message
+    display.writeAlert("Error", errorMessage, 0);  // 0 means display indefinitely
+
     stateJustChanged = false;
   }
   
-  // Always display the error message
-  display.writeAlert("Error", errorMessage, 0);  // 0 means display indefinitely
+
   
   // In ERROR state, we don't do anything else until the device is reset
 }
