@@ -17,7 +17,7 @@
 
 // Initialize ButtonHandler objects
 ButtonHandler buttonStart(START_BUTTON_PIN);
-ButtonHandler buttonLimitSwitch(HOMING_SWITCH_PIN);
+ButtonHandler buttonLimitSwitch(HOMING_SWITCH_PIN, false);
 ButtonHandler buttonRotarySwitch(ROTARY_SW_PIN);
 
 
@@ -278,7 +278,6 @@ void handleHoming(unsigned long currentTime) {
     display.writeDisplay("", 1, 0);
 
     if (buttonLimitSwitch.getState()) {
-      Serial.println("Limit switch triggered!");
       stepper.stop();  // Stop the motor immediately
       stepper.setAcceleration(ACCELERATION);  // Restore original acceleration
       homingSteps = -HOMING_DIRECTION * (5.0 / DISTANCE_PER_REV) * STEPS_PER_REV;  // Move 5mm in opposite direction
