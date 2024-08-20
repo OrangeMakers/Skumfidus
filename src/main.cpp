@@ -158,6 +158,7 @@ void changeState(SystemState newState, unsigned long currentTime = 0) {
 }
 
 void setup() {
+  Serial.begin(115200);  // Initialize serial communication
   // Initialize EEPROM
   EEPROM.begin(512);  // Initialize EEPROM with 512 bytes
 
@@ -233,6 +234,7 @@ void handleHoming(unsigned long currentTime) {
   static long homingSteps = 0;
   static bool homingStarted = false;
   static bool movingAwayFromSwitch = false;
+  static unsigned long lastDebugPrint = 0;
 
   if (stateJustChanged) {
     waitingForConfirmation = true;
@@ -241,6 +243,13 @@ void handleHoming(unsigned long currentTime) {
     display.writeDisplay("Start Homing", 0, 0);
     display.writeDisplay("Press knob", 1, 0);
     stateJustChanged = false;
+  }
+
+  // Debug print every second
+  if (currentTime - lastDebugPrint > 1000) {
+    Serial.print("Limit Switch State: ");
+    Serial.println(buttonLimitSwitch.getState() ? "Pressed" : "Not Pressed");
+    lastDebugPrint = currentTime;
   }
 
   if (waitingForConfirmation) {
@@ -258,6 +267,7 @@ void handleHoming(unsigned long currentTime) {
     display.writeDisplay("", 1, 0);
 
     if (buttonLimitSwitch.getState()) {
+      Serial.println("Limit switch triggered!");
       stepper.stop();  // Stop the motor immediately
       stepper.setAcceleration(ACCELERATION);  // Restore original acceleration
       homingSteps = -HOMING_DIRECTION * (5.0 / DISTANCE_PER_REV) * STEPS_PER_REV;  // Move 5mm in opposite direction
