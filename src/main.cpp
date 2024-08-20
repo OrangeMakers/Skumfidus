@@ -21,17 +21,11 @@ bool homingSwitchTriggered = false;
 void checkHomingSwitch() {
   int reading = digitalRead(HOMING_SWITCH_PIN);
   
-  if (reading != lastHomingSwitchState) {
-    lastDebounceTime = millis();
-  }
-
-  if ((millis() - lastDebounceTime) > debounceDelay) {
-    if (reading != lastHomingSwitchState) {
-      lastHomingSwitchState = reading;
-      if (lastHomingSwitchState == LOW) {
-        homingSwitchTriggered = true;
-      }
+  if (reading == LOW) {  // Switch is active LOW
+    if (millis() - lastDebounceTime > debounceDelay) {
+      homingSwitchTriggered = true;
     }
+    lastDebounceTime = millis();
   }
 
   lastHomingSwitchState = reading;
@@ -283,6 +277,8 @@ void handleHoming(unsigned long currentTime) {
   } else if (homingStarted && !movingAwayFromSwitch) {
     display.writeDisplay("Homing...", 0, 0);
     display.writeDisplay("", 1, 0);
+
+    checkHomingSwitch();  // Check the homing switch state
 
     if (homingSwitchTriggered) {
       stepper.stop();  // Stop the motor immediately
