@@ -48,6 +48,9 @@ volatile SystemState currentSystemState = STARTUP;
 SystemState previousSystemState = STARTUP;
 bool stateJustChanged = true;
 
+// Flag to control LCD update task
+volatile bool lcdUpdateEnabled = true;
+
 // Error message
 String errorMessage = "";
 
@@ -126,12 +129,22 @@ void updateLCD(float distance) {
 // Task to update LCD
 void lcdUpdateTask(void * parameter) {
   for(;;) {
-    if (currentSystemState == RUNNING) {
+    if (lcdUpdateEnabled && currentSystemState == RUNNING) {
       float distance = abs(stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV);
       updateLCD(distance);
     }
     vTaskDelay(LCD_UPDATE_INTERVAL / portTICK_PERIOD_MS);
   }
+}
+
+// Function to enable LCD updates
+void enableLCDUpdates() {
+  lcdUpdateEnabled = true;
+}
+
+// Function to disable LCD updates
+void disableLCDUpdates() {
+  lcdUpdateEnabled = false;
 }
 
 // Global variables for timing
@@ -308,7 +321,8 @@ void handleIdle() {
 
 void handleRunning(unsigned long currentTime) {
   if (stateJustChanged) {
-    // Any initialization for the RUNNING state
+    // Enable LCD updates when entering RUNNING state
+    enableLCDUpdates();
     stateJustChanged = false;
   }
 
@@ -373,6 +387,7 @@ void handleRunning(unsigned long currentTime) {
 
 void handleReturningToStart() {
   if (stateJustChanged) {
+    disableLCDUpdates();
     display.clearDisplay();
     stateJustChanged = false;
   }
@@ -391,6 +406,7 @@ void handleReturningToStart() {
 
 void handleError() {
   if (stateJustChanged) {
+    disableLCDUpdates();
     // Set STEPPER_ENABLE_PIN to HIGH to disable the stepper driver
     digitalWrite(STEPPER_ENABLE_PIN, HIGH);
     
