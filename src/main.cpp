@@ -20,6 +20,16 @@ ButtonHandler buttonStart(START_BUTTON_PIN);
 ButtonHandler buttonLimitSwitch(HOMING_SWITCH_PIN);
 ButtonHandler buttonRotarySwitch(ROTARY_SW_PIN);
 
+// Function to dump switch states
+void dumpSwitchStates() {
+  Serial.print("Start:");
+  Serial.print(buttonStart.getState());
+  Serial.print(" Limit:");
+  Serial.print(buttonLimitSwitch.getState());
+  Serial.print(" Rotary:");
+  Serial.println(buttonRotarySwitch.getState());
+}
+
 // Define pin connections
 #define STEP_PIN 13
 #define DIR_PIN 12
