@@ -72,8 +72,6 @@ volatile bool lcdUpdateEnabled = false;
 // Error message
 String errorMessage = "";
 
-// Variable to store the last button state
-volatile bool lastButtonState = HIGH;
 
 // Timer variables
 Timer timer;
@@ -352,20 +350,13 @@ void handleRunning(unsigned long currentTime) {
     stepper.moveTo(-HOMING_DIRECTION * TOTAL_STEPS);  // Set initial movement direction
   }
 
-  bool currentButtonState = buttonStart.getState();
-
-  if (lastButtonState == HIGH && currentButtonState == LOW) {
-    delay(50);  // Simple debounce
-    if (digitalRead(START_BUTTON_PIN) == LOW) {
-      changeState(RETURNING_TO_START, currentTime);
-      display.writeAlert("Abort", "", 2000);
-      stepper.moveTo(0);  // Set target to start position
-      timer.stop();
-      return;
-    }
+  if (buttonStart.isPressed()) {
+    changeState(RETURNING_TO_START, currentTime);
+    display.writeAlert("Abort", "", 2000);
+    stepper.moveTo(0);  // Set target to start position
+    timer.stop();
+    return;
   }
-
-  lastButtonState = currentButtonState;
 
   if (timer.hasExpired()) {
     changeState(RETURNING_TO_START, currentTime);
