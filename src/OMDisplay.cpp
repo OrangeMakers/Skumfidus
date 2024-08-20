@@ -1,7 +1,7 @@
 #include "OMDisplay.h"
 
 OMDisplay::OMDisplay(uint8_t lcd_addr, uint8_t lcd_cols, uint8_t lcd_rows)
-    : _lcd(lcd_addr, lcd_cols, lcd_rows), _cols(lcd_cols), _rows(lcd_rows), _state(State::IDLE), _alertChanged(false) {
+    : _lcd(lcd_addr, lcd_cols, lcd_rows), _cols(lcd_cols), _rows(lcd_rows), _updateNeeded(false), _alertActive(false) {
     memset(_buffer, ' ', sizeof(_buffer));
     memset(_alertBuffer, ' ', sizeof(_alertBuffer));
     memset(_currentAlertBuffer, ' ', sizeof(_currentAlertBuffer));
@@ -36,63 +36,50 @@ void OMDisplay::writeDisplay(const String& text, uint8_t row, uint8_t startCol, 
         }
     }
 
-    _state = State::UPDATING;
+    _updateNeeded = true;
+    _alertActive = false;
 }
 
 void OMDisplay::writeAlert(const String& row1, const String& row2, unsigned long duration) {
-    char newAlertBuffer[2][17];
-    memset(newAlertBuffer[0], ' ', _cols);
-    memset(newAlertBuffer[1], ' ', _cols);
-    strncpy(newAlertBuffer[0], row1.c_str(), min(row1.length(), (unsigned int)_cols));
-    strncpy(newAlertBuffer[1], row2.c_str(), min(row2.length(), (unsigned int)_cols));
-    newAlertBuffer[0][_cols] = '\0';
-    newAlertBuffer[1][_cols] = '\0';
+    memset(_alertBuffer[0], ' ', _cols);
+    memset(_alertBuffer[1], ' ', _cols);
+    strncpy(_alertBuffer[0], row1.c_str(), min(row1.length(), (unsigned int)_cols));
+    strncpy(_alertBuffer[1], row2.c_str(), min(row2.length(), (unsigned int)_cols));
+    _alertBuffer[0][_cols] = '\0';
+    _alertBuffer[1][_cols] = '\0';
 
-    if (strcmp(newAlertBuffer[0], _alertBuffer[0]) != 0 || strcmp(newAlertBuffer[1], _alertBuffer[1]) != 0) {
-        memcpy(_alertBuffer, newAlertBuffer, sizeof(_alertBuffer));
-        _alertChanged = true;
-        _alertStartTime = millis();
-        _alertDuration = duration;
-        _state = State::ALERT;
-    }
+    _alertStartTime = millis();
+    _alertDuration = duration;
+    _updateNeeded = true;
+    _alertActive = true;
 }
 
 void OMDisplay::clearDisplay() {
     for (int i = 0; i < _rows; i++) {
-        for (int j = 0; j < _cols; j++) {
-            _buffer[i][j] = ' ';
-        }
+        memset(_buffer[i], ' ', _cols);
         _buffer[i][_cols] = '\0';  // Ensure null termination
     }
-    _state = State::UPDATING;
+    _updateNeeded = true;
+    _alertActive = false;
 }
 
 void OMDisplay::update() {
-    switch (_state) {
-        case State::UPDATING:
+    if (_updateNeeded) {
+        if (_alertActive) {
+            for (int i = 0; i < _rows; i++) {
+                _lcd.setCursor(0, i);
+                _lcd.print(_alertBuffer[i]);
+            }
+            if (_alertDuration != 0 && millis() - _alertStartTime > _alertDuration) {
+                _alertActive = false;
+            }
+        } else {
             for (int i = 0; i < _rows; i++) {
                 _lcd.setCursor(0, i);
                 _lcd.print(_buffer[i]);
             }
-            _state = State::IDLE;
-            break;
-        case State::ALERT:
-            if (_alertChanged) {
-                for (int i = 0; i < _rows; i++) {
-                    if (strcmp(_alertBuffer[i], _currentAlertBuffer[i]) != 0) {
-                        _lcd.setCursor(0, i);
-                        _lcd.print(_alertBuffer[i]);
-                        strcpy(_currentAlertBuffer[i], _alertBuffer[i]);
-                    }
-                }
-                _alertChanged = false;
-            }
-            if (_alertDuration != 0 && millis() - _alertStartTime > _alertDuration) {
-                _state = State::UPDATING;
-            }
-            break;
-        default:
-            break;
+        }
+        _updateNeeded = false;
     }
 }
 

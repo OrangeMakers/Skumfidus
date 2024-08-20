@@ -26,13 +26,8 @@ private:
     char _buffer[2][17];  // Assuming max 16 columns + null terminator
     char _alertBuffer[2][17];  // Buffer for new alert messages
     char _currentAlertBuffer[2][17];  // Buffer to store the current displayed alert message
-    bool _alertChanged;  // Flag to indicate if the alert message has changed
-    enum class State {
-        IDLE,
-        UPDATING,
-        ALERT
-    };
-    State _state;
+    bool _updateNeeded;  // Flag to indicate if a display update is needed
+    bool _alertActive;   // Flag to indicate if an alert is currently active
     unsigned long _alertStartTime;
     unsigned long _alertDuration;
 };
