@@ -7,33 +7,18 @@
 #include <EEPROM.h>
 #include "OMDisplay.h"
 #include "Timer.h"
+#include "ButtonHandler.h"
 
 #define START_BUTTON_PIN 15   // Start button pin
 #define HOMING_SWITCH_PIN 16  // Homing switch pin
 #define ROTARY_CLK_PIN 17     // Rotary encoder CLK pin
-
-// Debounce variables for homing switch
-unsigned long lastDebounceTime = 0;
-unsigned long debounceDelay = 50;
-int lastHomingSwitchState = HIGH;
-bool homingSwitchTriggered = false;
-
-// Function to check homing switch with debounce
-void checkHomingSwitch() {
-  int reading = digitalRead(HOMING_SWITCH_PIN);
-  
-  if (reading == LOW) {  // Switch is active LOW
-    if (millis() - lastDebounceTime > debounceDelay) {
-      homingSwitchTriggered = true;
-    }
-    lastDebounceTime = millis();
-  }
-
-  lastHomingSwitchState = reading;
-}
-
 #define ROTARY_DT_PIN 18      // Rotary encoder DT pin
 #define ROTARY_SW_PIN 19      // Rotary encoder switch pin
+
+// Initialize ButtonHandler objects
+ButtonHandler buttonStart(START_BUTTON_PIN);
+ButtonHandler buttonLimitSwitch(HOMING_SWITCH_PIN);
+ButtonHandler buttonRotarySwitch(ROTARY_SW_PIN);
 
 // Define pin connections
 #define STEP_PIN 13
@@ -182,17 +167,15 @@ void setup() {
   // Initialize pins
   pinMode(BUILTIN_LED_PIN, OUTPUT);
   pinMode(ADDRESSABLE_LED_PIN, OUTPUT);
-  pinMode(START_BUTTON_PIN, INPUT_PULLUP);  // Start button with internal pull-up
-  pinMode(HOMING_SWITCH_PIN, INPUT_PULLUP); // Homing switch with internal pull-up
-  pinMode(ROTARY_CLK_PIN, INPUT_PULLUP);    // Rotary encoder CLK with internal pull-up
-
-  // No need to attach interrupt for homing switch
-  pinMode(ROTARY_DT_PIN, INPUT_PULLUP);     // Rotary encoder DT with internal pull-up
-  pinMode(ROTARY_SW_PIN, INPUT_PULLUP);     // Rotary encoder switch with internal pull-up
   pinMode(STEP_PIN, OUTPUT);
   pinMode(DIR_PIN, OUTPUT);
   pinMode(STEPPER_ENABLE_PIN, OUTPUT);
   pinMode(RELAY_PIN, OUTPUT);
+
+  // Initialize ButtonHandler objects
+  buttonStart.begin();
+  buttonLimitSwitch.begin();
+  buttonRotarySwitch.begin();
 
   // Set STEPPER_ENABLE_PIN to LOW to enable the stepper driver
   digitalWrite(STEPPER_ENABLE_PIN, LOW);
@@ -261,32 +244,25 @@ void handleHoming(unsigned long currentTime) {
   }
 
   if (waitingForConfirmation) {
-    if (digitalRead(ROTARY_SW_PIN) == LOW) {
-      delay(50);  // Simple debounce
-      if (digitalRead(ROTARY_SW_PIN) == LOW) {
-        waitingForConfirmation = false;
-        homingStarted = true;
-        stateStartTime = currentTime;  // Reset the start time for homing
-        display.writeAlert("Homing begin...", "", 2000);  // Show "Homing..." for 2 seconds
-        stepper.setAcceleration(ACCELERATION * 2);  // Set higher acceleration for more instant stop during homing
-        homingSteps = HOMING_DIRECTION * 1000000;  // Large number to ensure continuous movement
-        stepper.moveTo(homingSteps);
-        homingSwitchTriggered = false;  // Reset the flag before starting homing
-      }
+    if (buttonRotarySwitch.isPressed()) {
+      waitingForConfirmation = false;
+      homingStarted = true;
+      stateStartTime = currentTime;  // Reset the start time for homing
+      display.writeAlert("Homing begin...", "", 2000);  // Show "Homing..." for 2 seconds
+      stepper.setAcceleration(ACCELERATION * 2);  // Set higher acceleration for more instant stop during homing
+      homingSteps = HOMING_DIRECTION * 1000000;  // Large number to ensure continuous movement
+      stepper.moveTo(homingSteps);
     }
   } else if (homingStarted && !movingAwayFromSwitch) {
     display.writeDisplay("Homing...", 0, 0);
     display.writeDisplay("", 1, 0);
 
-    checkHomingSwitch();  // Check the homing switch state
-
-    if (homingSwitchTriggered) {
+    if (buttonLimitSwitch.getState()) {
       stepper.stop();  // Stop the motor immediately
       stepper.setAcceleration(ACCELERATION);  // Restore original acceleration
       homingSteps = -HOMING_DIRECTION * (5.0 / DISTANCE_PER_REV) * STEPS_PER_REV;  // Move 5mm in opposite direction
       stepper.move(homingSteps);
       movingAwayFromSwitch = true;
-      homingSwitchTriggered = false;  // Reset the flag
     } else if (currentTime - stateStartTime > HOMING_TIMEOUT) {
       // Homing timeout
       changeState(IDLE, currentTime);
@@ -315,19 +291,13 @@ void handleIdle() {
     stateJustChanged = false;
   }
 
-  bool currentButtonState = digitalRead(START_BUTTON_PIN);
-
-  if (lastButtonState == HIGH && currentButtonState == LOW) {
-    delay(50);  // Simple debounce
-    if (digitalRead(START_BUTTON_PIN) == LOW) {
-      changeState(RUNNING, millis());
-      display.writeAlert("System Started", "", 2000);
-      timer.start(timerDuration);
-      stepper.moveTo(-HOMING_DIRECTION * TOTAL_STEPS);  // Start moving in opposite direction of homing
-    }
+  if (buttonStart.isPressed()) {
+    changeState(RUNNING, millis());
+    display.writeAlert("System Started", "", 2000);
+    timer.start(timerDuration);
+    stepper.moveTo(-HOMING_DIRECTION * TOTAL_STEPS);  // Start moving in opposite direction of homing
   }
 
-  lastButtonState = currentButtonState;
   stepper.stop();
 }
 
@@ -432,14 +402,15 @@ void handleError() {
 void loop() {
   unsigned long currentTime = millis();
 
-  // Check homing switch state with debounce
-  checkHomingSwitch();
+  // Update all ButtonHandler objects
+  buttonStart.update();
+  buttonLimitSwitch.update();
+  buttonRotarySwitch.update();
 
   // Check for homing switch trigger in any state except HOMING, STARTUP, and ERROR
-  if (currentSystemState != HOMING && currentSystemState != STARTUP && currentSystemState != ERROR && homingSwitchTriggered) {
+  if (currentSystemState != HOMING && currentSystemState != STARTUP && currentSystemState != ERROR && buttonLimitSwitch.getState()) {
     changeState(ERROR, currentTime);
     errorMessage = "Endstop trigger";
-    homingSwitchTriggered = false;  // Reset the flag
     handleError();  // Immediately handle the error
     return;  // Exit the loop to prevent further state processing
   }
@@ -464,4 +435,9 @@ void loop() {
       handleError();
       break;
   }
+
+  // Reset changed states after handling
+  buttonStart.reset();
+  buttonLimitSwitch.reset();
+  buttonRotarySwitch.reset();
 }
