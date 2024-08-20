@@ -49,7 +49,7 @@ SystemState previousSystemState = STARTUP;
 bool stateJustChanged = true;
 
 // Flag to control LCD update task
-volatile bool lcdUpdateEnabled = true;
+volatile bool lcdUpdateEnabled = false;
 
 // Error message
 String errorMessage = "";
@@ -129,7 +129,7 @@ void updateLCD(float distance) {
 // Task to update LCD
 void lcdUpdateTask(void * parameter) {
   for(;;) {
-    if (lcdUpdateEnabled && currentSystemState == RUNNING) {
+    if (lcdUpdateEnabled) {
       float distance = abs(stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV);
       updateLCD(distance);
     }
