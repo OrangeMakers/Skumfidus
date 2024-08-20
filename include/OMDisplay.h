@@ -25,6 +25,7 @@ private:
     uint8_t _rows;
     char _buffer[2][17];  // Assuming max 16 columns + null terminator
     char _alertBuffer[2][17];  // Buffer for alert messages
+    char _currentAlertBuffer[2][17];  // Buffer to store the current alert message
     enum class State {
         IDLE,
         UPDATING,
@@ -33,6 +34,7 @@ private:
     State _state;
     unsigned long _alertStartTime;
     unsigned long _alertDuration;
+    bool _alertChanged;  // Flag to indicate if the alert message has changed
 };
 
 #endif // OMDISPLAY_H

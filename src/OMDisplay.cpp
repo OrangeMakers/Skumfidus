@@ -36,15 +36,27 @@ void OMDisplay::writeDisplay(const String& text, uint8_t row, uint8_t startCol, 
 }
 
 void OMDisplay::writeAlert(const String& row1, const String& row2, unsigned long duration) {
-    memset(_alertBuffer[0], ' ', _cols);
-    memset(_alertBuffer[1], ' ', _cols);
-    strncpy(_alertBuffer[0], row1.c_str(), min(row1.length(), (unsigned int)_cols));
-    strncpy(_alertBuffer[1], row2.c_str(), min(row2.length(), (unsigned int)_cols));
-    _alertBuffer[0][_cols] = '\0';
-    _alertBuffer[1][_cols] = '\0';
-    _alertStartTime = millis();
-    _alertDuration = duration;
-    _state = State::ALERT;
+    char newAlertBuffer[2][17];
+    memset(newAlertBuffer[0], ' ', _cols);
+    memset(newAlertBuffer[1], ' ', _cols);
+    strncpy(newAlertBuffer[0], row1.c_str(), min(row1.length(), (unsigned int)_cols));
+    strncpy(newAlertBuffer[1], row2.c_str(), min(row2.length(), (unsigned int)_cols));
+    newAlertBuffer[0][_cols] = '\0';
+    newAlertBuffer[1][_cols] = '\0';
+
+    // Check if the new alert is different from the current one
+    if (strcmp(newAlertBuffer[0], _currentAlertBuffer[0]) != 0 || 
+        strcmp(newAlertBuffer[1], _currentAlertBuffer[1]) != 0) {
+        
+        // Update the alert buffers
+        memcpy(_alertBuffer, newAlertBuffer, sizeof(_alertBuffer));
+        memcpy(_currentAlertBuffer, newAlertBuffer, sizeof(_currentAlertBuffer));
+        
+        _alertStartTime = millis();
+        _alertDuration = duration;
+        _state = State::ALERT;
+        _alertChanged = true;
+    }
 }
 
 void OMDisplay::clearDisplay() {
@@ -67,9 +79,12 @@ void OMDisplay::update() {
             _state = State::IDLE;
             break;
         case State::ALERT:
-            for (int i = 0; i < _rows; i++) {
-                _lcd.setCursor(0, i);
-                _lcd.print(_alertBuffer[i]);
+            if (_alertChanged) {
+                for (int i = 0; i < _rows; i++) {
+                    _lcd.setCursor(0, i);
+                    _lcd.print(_alertBuffer[i]);
+                }
+                _alertChanged = false;
             }
             if (_alertDuration != 0 && millis() - _alertStartTime > _alertDuration) {
                 _state = State::UPDATING;
