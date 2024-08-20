@@ -21,33 +21,17 @@ void OMDisplay::begin() {
 void OMDisplay::writeDisplay(const String& row1, const String& row2, unsigned long duration) {
     fillBuffer(_newBuffer, row1, row2);
 
-    switch (_state) {
-        case DisplayState::IDLE:
-            if (!compareBuffers(_currentBuffer, _newBuffer)) {
-                copyBuffer(_currentBuffer, _newBuffer);
-                _updateNeeded = true;
-                if (duration > 0) {
-                    _state = DisplayState::DISPLAYING;
-                    _displayStartTime = millis();
-                    _displayDuration = duration;
-                }
-            }
-            break;
-
-        case DisplayState::DISPLAYING:
-            if (millis() - _displayStartTime < _displayDuration) {
-                copyBuffer(_bufferedMessage, _newBuffer);
-                _state = DisplayState::BUFFERED;
-            } else {
-                copyBuffer(_currentBuffer, _newBuffer);
-                _updateNeeded = true;
-                _state = DisplayState::IDLE;
-            }
-            break;
-
-        case DisplayState::BUFFERED:
+    if (!compareBuffers(_currentBuffer, _newBuffer)) {
+        if (duration > 0) {
             copyBuffer(_bufferedMessage, _newBuffer);
-            break;
+            _state = DisplayState::DISPLAYING;
+            _displayStartTime = millis();
+            _displayDuration = duration;
+        } else {
+            copyBuffer(_currentBuffer, _newBuffer);
+            _updateNeeded = true;
+            _state = DisplayState::IDLE;
+        }
     }
 }
 
@@ -64,17 +48,13 @@ void OMDisplay::update() {
             break;
 
         case DisplayState::DISPLAYING:
-            if (millis() - _displayStartTime >= _displayDuration) {
-                _state = DisplayState::IDLE;
-                if (compareBuffers(_currentBuffer, _bufferedMessage)) {
-                    copyBuffer(_currentBuffer, _bufferedMessage);
-                    _updateNeeded = true;
+            if (_updateNeeded || millis() - _displayStartTime < _displayDuration) {
+                for (int i = 0; i < _rows; i++) {
+                    _lcd.setCursor(0, i);
+                    _lcd.print(_bufferedMessage[i]);
                 }
-            }
-            break;
-
-        case DisplayState::BUFFERED:
-            if (millis() - _displayStartTime >= _displayDuration) {
+                _updateNeeded = false;
+            } else if (millis() - _displayStartTime >= _displayDuration) {
                 copyBuffer(_currentBuffer, _bufferedMessage);
                 _updateNeeded = true;
                 _state = DisplayState::IDLE;
