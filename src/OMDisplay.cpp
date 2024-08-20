@@ -2,15 +2,17 @@
 
 OMDisplay::OMDisplay(uint8_t lcd_addr, uint8_t lcd_cols, uint8_t lcd_rows)
     : _lcd(lcd_addr, lcd_cols, lcd_rows), _cols(lcd_cols), _rows(lcd_rows), 
-      _state(DisplayState::IDLE), _updateNeeded(false) {
+      _updateNeeded(false), _messageActive(false) {
     memset(_currentBuffer, ' ', sizeof(_currentBuffer));
-    memset(_newBuffer, ' ', sizeof(_newBuffer));
-    memset(_bufferedMessage, ' ', sizeof(_bufferedMessage));
+    memset(_activeMessage.content, ' ', sizeof(_activeMessage.content));
+    memset(_queuedMessage.content, ' ', sizeof(_queuedMessage.content));
     for (int i = 0; i < 2; i++) {
         _currentBuffer[i][16] = '\0';
-        _newBuffer[i][16] = '\0';
-        _bufferedMessage[i][16] = '\0';
+        _activeMessage.content[i][16] = '\0';
+        _queuedMessage.content[i][16] = '\0';
     }
+    _activeMessage.duration = 0;
+    _queuedMessage.duration = 0;
 }
 
 void OMDisplay::begin() {
@@ -19,64 +21,65 @@ void OMDisplay::begin() {
 }
 
 void OMDisplay::writeDisplay(const String& row1, const String& row2, unsigned long duration) {
-    fillBuffer(_newBuffer, row1, row2);
+    char newBuffer[2][17];
+    fillBuffer(newBuffer, row1, row2);
 
-    if (!compareBuffers(_currentBuffer, _newBuffer)) {
-        if (duration > 0) {
-            copyBuffer(_bufferedMessage, _newBuffer);
-            _state = DisplayState::DISPLAYING;
-            _displayStartTime = millis();
-            _displayDuration = duration;
-        } else {
-            copyBuffer(_currentBuffer, _newBuffer);
-            _updateNeeded = true;
-            _state = DisplayState::IDLE;
-        }
+    if (_messageActive) {
+        setQueuedMessage(newBuffer, duration);
+    } else {
+        setActiveMessage(newBuffer, duration);
     }
 }
 
 void OMDisplay::writeDisplayNoQueue(const String& row1, const String& row2, unsigned long duration) {
-    fillBuffer(_newBuffer, row1, row2);
-
-    if (!compareBuffers(_currentBuffer, _newBuffer)) {
-        copyBuffer(_currentBuffer, _newBuffer);
+    if (!_messageActive) {
+        char newBuffer[2][17];
+        fillBuffer(newBuffer, row1, row2);
+        copyBuffer(_currentBuffer, newBuffer);
         _updateNeeded = true;
-        _state = DisplayState::IDLE;
-
-        if (duration > 0) {
-            _displayStartTime = millis();
-            _displayDuration = duration;
-            _state = DisplayState::DISPLAYING;
-        }
     }
 }
 
 void OMDisplay::update() {
-    switch (_state) {
-        case DisplayState::IDLE:
-            if (_updateNeeded) {
-                for (int i = 0; i < _rows; i++) {
-                    _lcd.setCursor(0, i);
-                    _lcd.print(_currentBuffer[i]);
-                }
-                _updateNeeded = false;
-            }
-            break;
+    unsigned long currentTime = millis();
 
-        case DisplayState::DISPLAYING:
-            if (_updateNeeded || millis() - _displayStartTime < _displayDuration) {
-                for (int i = 0; i < _rows; i++) {
-                    _lcd.setCursor(0, i);
-                    _lcd.print(_bufferedMessage[i]);
-                }
-                _updateNeeded = false;
-            } else if (millis() - _displayStartTime >= _displayDuration) {
-                copyBuffer(_currentBuffer, _bufferedMessage);
+    if (_messageActive) {
+        if (currentTime - _displayStartTime >= _activeMessage.duration) {
+            _messageActive = false;
+            if (_queuedMessage.duration > 0) {
+                setActiveMessage(_queuedMessage.content, _queuedMessage.duration);
+                memset(_queuedMessage.content, ' ', sizeof(_queuedMessage.content));
+                _queuedMessage.duration = 0;
+            } else {
+                copyBuffer(_currentBuffer, _activeMessage.content);
                 _updateNeeded = true;
-                _state = DisplayState::IDLE;
             }
-            break;
+        } else {
+            copyBuffer(_currentBuffer, _activeMessage.content);
+            _updateNeeded = true;
+        }
     }
+
+    if (_updateNeeded) {
+        for (int i = 0; i < _rows; i++) {
+            _lcd.setCursor(0, i);
+            _lcd.print(_currentBuffer[i]);
+        }
+        _updateNeeded = false;
+    }
+}
+
+void OMDisplay::setActiveMessage(const char content[2][17], unsigned long duration) {
+    copyBuffer(_activeMessage.content, content);
+    _activeMessage.duration = duration;
+    _messageActive = true;
+    _displayStartTime = millis();
+    _updateNeeded = true;
+}
+
+void OMDisplay::setQueuedMessage(const char content[2][17], unsigned long duration) {
+    copyBuffer(_queuedMessage.content, content);
+    _queuedMessage.duration = duration;
 }
 
 void OMDisplay::updateTask(void* pvParameters) {

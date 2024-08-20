@@ -14,26 +14,26 @@ public:
     void update();
 
 private:
-    enum class DisplayState {
-        IDLE,
-        DISPLAYING,
-        BUFFERED
+    struct DisplayMessage {
+        char content[2][17];
+        unsigned long duration;
     };
 
     LiquidCrystal_I2C _lcd;
     uint8_t _cols;
     uint8_t _rows;
     char _currentBuffer[2][17];  // Current display content
-    char _newBuffer[2][17];      // New content to be displayed
-    char _bufferedMessage[2][17]; // Buffered message
-    DisplayState _state;
+    DisplayMessage _activeMessage;
+    DisplayMessage _queuedMessage;
     unsigned long _displayStartTime;
-    unsigned long _displayDuration;
     bool _updateNeeded;
+    bool _messageActive;
 
     void fillBuffer(char buffer[2][17], const String& row1, const String& row2);
     bool compareBuffers(const char buffer1[2][17], const char buffer2[2][17]);
     void copyBuffer(char dest[2][17], const char src[2][17]);
+    void setActiveMessage(const char content[2][17], unsigned long duration);
+    void setQueuedMessage(const char content[2][17], unsigned long duration);
 };
 
 #endif // OMDISPLAY_H
