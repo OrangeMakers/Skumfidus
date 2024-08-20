@@ -1,3 +1,5 @@
+#define DEBUG
+
 #include <Arduino.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
@@ -167,12 +169,32 @@ unsigned long stateStartTime = 0;
 const unsigned long WELCOME_DURATION = 1000;  // 5 seconds
 const unsigned long HOMING_TIMEOUT = 30000;   // 30 seconds
 
+// Function to convert SystemState to string
+const char* getStateName(SystemState state) {
+  switch(state) {
+    case STARTUP: return "STARTUP";
+    case HOMING: return "HOMING";
+    case IDLE: return "IDLE";
+    case RUNNING: return "RUNNING";
+    case RETURNING_TO_START: return "RETURNING_TO_START";
+    case ERROR: return "ERROR";
+    default: return "UNKNOWN";
+  }
+}
+
 // New function to handle state changes
 void changeState(SystemState newState, unsigned long currentTime = 0) {
   previousSystemState = currentSystemState;
   currentSystemState = newState;
   stateStartTime = currentTime == 0 ? millis() : currentTime;
   stateJustChanged = true;
+
+  #ifdef DEBUG
+  Serial.print("State changed from ");
+  Serial.print(getStateName(previousSystemState));
+  Serial.print(" to ");
+  Serial.println(getStateName(currentSystemState));
+  #endif
 }
 
 void setup() {
