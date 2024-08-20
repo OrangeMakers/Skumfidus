@@ -326,6 +326,10 @@ void handleHoming(unsigned long currentTime) {
 void handleIdle() {
   if (stateJustChanged) {
     display.clearDisplay();
+    delay(50);  // Short delay to ensure the display is cleared
+    display.writeDisplay("                ", 0, 0);  // Clear first line
+    display.writeDisplay("                ", 1, 0);  // Clear second line
+    delay(50);  // Short delay after clearing
     display.writeDisplay("Idle..", 0, 0);
     display.writeDisplay("Press Start", 1, 0);
     stateJustChanged = false;
