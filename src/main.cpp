@@ -193,7 +193,11 @@ void changeState(SystemState newState, unsigned long currentTime = 0) {
 }
 
 void setup() {
+  // Init if debug
+  #ifdef DEBUG
   Serial.begin(115200);  // Initialize serial communication
+  #endif
+
   // Initialize EEPROM
   EEPROM.begin(512);  // Initialize EEPROM with 512 bytes
 
@@ -254,7 +258,8 @@ void setup() {
 
 void handleStartup(unsigned long currentTime) {
   if (stateJustChanged) {
-    display.writeDisplay("OrangeMakers", "Marshmallow 2.0", WELCOME_DURATION);
+    display.writeDisplay("OrangeMakers", "Marshmallow 2.0");
+    // delay(WELCOME_DURATION);
     stateJustChanged = false;
   }
 
@@ -307,7 +312,6 @@ void handleHoming(unsigned long currentTime) {
       // Finished moving away from switch
       stepper.setCurrentPosition(0);
       display.writeDisplay("Homing:", "Completed", 2000);
-      delay(2000);  // Wait for 2 seconds
       changeState(IDLE, currentTime);
     } else {
       stepper.run();
@@ -341,7 +345,7 @@ void handleRunning(unsigned long currentTime) {
 
   if (buttonStart.isPressed()) {
     changeState(RETURNING_TO_START, currentTime);
-    display.writeDisplay("Abort", "", 2000);
+    display.writeDisplay("Cooking:", "Aborted", 2000);
     stepper.moveTo(0);  // Set target to start position
     timer.stop();
     return;
@@ -349,7 +353,7 @@ void handleRunning(unsigned long currentTime) {
 
   if (timer.hasExpired()) {
     changeState(RETURNING_TO_START, currentTime);
-    display.writeDisplay("Done", "", 2000);
+    display.writeDisplay("Cooking:", "Done", 2000);
     stepper.moveTo(0);  // Set target to start position
     timer.stop();
     return;
@@ -429,7 +433,10 @@ void loop() {
   static unsigned long lastDebugPrint = 0;
 
   // Debug
+  #ifdef DEBUG
   dumpDebug();
+  #endif
+
 
   // Update all ButtonHandler objects
   buttonStart.update();
