@@ -1,14 +1,15 @@
 #include "OMDisplay.h"
 
 OMDisplay::OMDisplay(uint8_t lcd_addr, uint8_t lcd_cols, uint8_t lcd_rows)
-    : _lcd(lcd_addr, lcd_cols, lcd_rows), _cols(lcd_cols), _rows(lcd_rows), _updateNeeded(false), _alertActive(false) {
-    memset(_buffer, ' ', sizeof(_buffer));
-    memset(_alertBuffer, ' ', sizeof(_alertBuffer));
-    memset(_currentAlertBuffer, ' ', sizeof(_currentAlertBuffer));
+    : _lcd(lcd_addr, lcd_cols, lcd_rows), _cols(lcd_cols), _rows(lcd_rows), 
+      _state(DisplayState::IDLE), _updateNeeded(false) {
+    memset(_currentBuffer, ' ', sizeof(_currentBuffer));
+    memset(_newBuffer, ' ', sizeof(_newBuffer));
+    memset(_bufferedMessage, ' ', sizeof(_bufferedMessage));
     for (int i = 0; i < 2; i++) {
-        _buffer[i][16] = '\0';
-        _alertBuffer[i][16] = '\0';
-        _currentAlertBuffer[i][16] = '\0';
+        _currentBuffer[i][16] = '\0';
+        _newBuffer[i][16] = '\0';
+        _bufferedMessage[i][16] = '\0';
     }
 }
 
@@ -17,69 +18,68 @@ void OMDisplay::begin() {
     _lcd.backlight();
 }
 
-void OMDisplay::writeDisplay(const String& text, uint8_t row, uint8_t startCol, uint8_t endCol, Alignment alignment) {
-    if (row >= _rows || startCol >= _cols) return;
-    
-    endCol = (endCol == 0 || endCol > _cols) ? _cols : endCol;
-    int len = text.length();
-    int availableSpace = endCol - startCol;
+void OMDisplay::writeDisplay(const String& row1, const String& row2, unsigned long duration) {
+    fillBuffer(_newBuffer, row1, row2);
 
-    if (alignment == Alignment::RIGHT && len < availableSpace) {
-        startCol = endCol - len;
+    switch (_state) {
+        case DisplayState::IDLE:
+            if (!compareBuffers(_currentBuffer, _newBuffer)) {
+                copyBuffer(_currentBuffer, _newBuffer);
+                _updateNeeded = true;
+                if (duration > 0) {
+                    _state = DisplayState::DISPLAYING;
+                    _displayStartTime = millis();
+                    _displayDuration = duration;
+                }
+            }
+            break;
+
+        case DisplayState::DISPLAYING:
+            if (millis() - _displayStartTime < _displayDuration) {
+                copyBuffer(_bufferedMessage, _newBuffer);
+                _state = DisplayState::BUFFERED;
+            } else {
+                copyBuffer(_currentBuffer, _newBuffer);
+                _updateNeeded = true;
+                _state = DisplayState::IDLE;
+            }
+            break;
+
+        case DisplayState::BUFFERED:
+            copyBuffer(_bufferedMessage, _newBuffer);
+            break;
     }
-
-    for (int i = 0; i < availableSpace; i++) {
-        if (i < len) {
-            _buffer[row][startCol + i] = text[i];
-        } else {
-            _buffer[row][startCol + i] = ' ';
-        }
-    }
-
-    _updateNeeded = true;
-    _alertActive = false;
-}
-
-void OMDisplay::writeAlert(const String& row1, const String& row2, unsigned long duration) {
-    memset(_alertBuffer[0], ' ', _cols);
-    memset(_alertBuffer[1], ' ', _cols);
-    strncpy(_alertBuffer[0], row1.c_str(), min(row1.length(), (unsigned int)_cols));
-    strncpy(_alertBuffer[1], row2.c_str(), min(row2.length(), (unsigned int)_cols));
-    _alertBuffer[0][_cols] = '\0';
-    _alertBuffer[1][_cols] = '\0';
-
-    _alertStartTime = millis();
-    _alertDuration = duration;
-    _updateNeeded = true;
-    _alertActive = true;
-}
-
-void OMDisplay::clearDisplay() {
-    for (int i = 0; i < _rows; i++) {
-        memset(_buffer[i], ' ', _cols);
-        _buffer[i][_cols] = '\0';  // Ensure null termination
-    }
-    _updateNeeded = true;
-    _alertActive = false;
 }
 
 void OMDisplay::update() {
-    if (_updateNeeded) {
-        if (_alertActive) {
-            for (int i = 0; i < _rows; i++) {
-                _lcd.setCursor(0, i);
-                _lcd.print(_alertBuffer[i]);
+    switch (_state) {
+        case DisplayState::IDLE:
+            if (_updateNeeded) {
+                for (int i = 0; i < _rows; i++) {
+                    _lcd.setCursor(0, i);
+                    _lcd.print(_currentBuffer[i]);
+                }
+                _updateNeeded = false;
             }
-            if (_alertDuration != 0 && millis() - _alertStartTime > _alertDuration) {
-                _alertActive = false;
+            break;
+
+        case DisplayState::DISPLAYING:
+            if (millis() - _displayStartTime >= _displayDuration) {
+                _state = DisplayState::IDLE;
+                if (compareBuffers(_currentBuffer, _bufferedMessage)) {
+                    copyBuffer(_currentBuffer, _bufferedMessage);
+                    _updateNeeded = true;
+                }
             }
-        } else {
-            for (int i = 0; i < _rows; i++) {
-                _lcd.setCursor(0, i);
-                _lcd.print(_buffer[i]);
+            break;
+
+        case DisplayState::BUFFERED:
+            if (millis() - _displayStartTime >= _displayDuration) {
+                copyBuffer(_currentBuffer, _bufferedMessage);
+                _updateNeeded = true;
+                _state = DisplayState::IDLE;
             }
-        }
-        _updateNeeded = false;
+            break;
     }
 }
 
@@ -89,4 +89,23 @@ void OMDisplay::updateTask(void* pvParameters) {
         display->update();
         vTaskDelay(50 / portTICK_PERIOD_MS);
     }
+}
+
+void OMDisplay::fillBuffer(char buffer[2][17], const String& row1, const String& row2) {
+    strncpy(buffer[0], row1.c_str(), _cols);
+    strncpy(buffer[1], row2.c_str(), _cols);
+    for (int i = 0; i < 2; i++) {
+        for (int j = strlen(buffer[i]); j < _cols; j++) {
+            buffer[i][j] = ' ';
+        }
+        buffer[i][_cols] = '\0';
+    }
+}
+
+bool OMDisplay::compareBuffers(const char buffer1[2][17], const char buffer2[2][17]) {
+    return (strcmp(buffer1[0], buffer2[0]) == 0) && (strcmp(buffer1[1], buffer2[1]) == 0);
+}
+
+void OMDisplay::copyBuffer(char dest[2][17], const char src[2][17]) {
+    memcpy(dest, src, sizeof(_currentBuffer));
 }
