@@ -415,6 +415,9 @@ void loop() {
   buttonLimitSwitch.update();
   buttonRotarySwitch.update();
 
+  // Dump switch states
+  dumpSwitchStates();
+
   // Check for homing switch trigger in any state except HOMING, STARTUP, and ERROR
   if (currentSystemState != HOMING && currentSystemState != STARTUP && currentSystemState != ERROR && buttonLimitSwitch.getState()) {
     changeState(ERROR, currentTime);
