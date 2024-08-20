@@ -9,6 +9,7 @@ public:
     OMDisplay(uint8_t lcd_addr, uint8_t lcd_cols, uint8_t lcd_rows);
     void begin();
     void writeDisplay(const String& row1, const String& row2, unsigned long duration = 0);
+    void writeDisplayNoQueue(const String& row1, const String& row2, unsigned long duration = 0);
     static void updateTask(void* pvParameters);
     void update();
 

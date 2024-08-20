@@ -35,6 +35,22 @@ void OMDisplay::writeDisplay(const String& row1, const String& row2, unsigned lo
     }
 }
 
+void OMDisplay::writeDisplayNoQueue(const String& row1, const String& row2, unsigned long duration) {
+    fillBuffer(_newBuffer, row1, row2);
+
+    if (!compareBuffers(_currentBuffer, _newBuffer)) {
+        copyBuffer(_currentBuffer, _newBuffer);
+        _updateNeeded = true;
+        _state = DisplayState::IDLE;
+
+        if (duration > 0) {
+            _displayStartTime = millis();
+            _displayDuration = duration;
+            _state = DisplayState::DISPLAYING;
+        }
+    }
+}
+
 void OMDisplay::update() {
     switch (_state) {
         case DisplayState::IDLE:
