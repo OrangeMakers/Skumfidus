@@ -294,11 +294,9 @@ void handleHoming(unsigned long currentTime) {
       stepper.setAcceleration(ACCELERATION * 2);  // Set higher acceleration for more instant stop during homing
       homingSteps = HOMING_DIRECTION * 1000000;  // Large number to ensure continuous movement
       stepper.moveTo(homingSteps);
+      display.writeDisplay("Homing:", "In progress");
     }
   } else if (homingStarted && !movingAwayFromSwitch) {
-    
-    display.writeDisplay("Homing:", "In progress");
-
     if (buttonLimitSwitch.getState()) {
       display.writeDisplay("Homing:", "Triggered", 1000);
       stepper.stop();  // Stop the motor immediately
