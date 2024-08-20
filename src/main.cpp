@@ -331,7 +331,7 @@ void handleRunning(unsigned long currentTime) {
   }
 
   // Check if homing switch is triggered
-  if (homingSwitchTriggered) {
+  if (buttonLimitSwitch.getState()) {
     changeState(ERROR, currentTime);
     errorMessage = "Endstop trigger";
     return;
