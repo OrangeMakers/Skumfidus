@@ -398,8 +398,7 @@ void handleError() {
     display.clearDisplay();
     
     // Display the error message
-    String errorRow1 = "Error";
-    display.writeAlert(errorRow1, errorMessage, 0);  // 0 means display indefinitely
+    display.writeAlert("Error", errorMessage, 0);  // 0 means display indefinitely
     
     stateJustChanged = false;
   }
