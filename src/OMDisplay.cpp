@@ -71,7 +71,7 @@ void OMDisplay::update() {
                 _lcd.setCursor(0, i);
                 _lcd.print(_alertBuffer[i]);
             }
-            if (millis() - _alertStartTime > _alertDuration) {
+            if (_alertDuration != 0 && millis() - _alertStartTime > _alertDuration) {
                 _state = State::UPDATING;
             }
             break;
