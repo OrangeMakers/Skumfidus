@@ -316,6 +316,7 @@ void handleIdle() {
     display.writeAlert("System Started", "", 2000);
     timer.start(timerDuration);
     stepper.moveTo(-HOMING_DIRECTION * TOTAL_STEPS);  // Start moving in opposite direction of homing
+    return;  // Exit the function immediately to start running
   }
 
   stepper.stop();
@@ -325,9 +326,11 @@ void handleRunning(unsigned long currentTime) {
   if (stateJustChanged) {
     stateJustChanged = false;
     timer.start(timerDuration);
+    currentState = MOVING;  // Ensure we start in the MOVING state
+    stepper.moveTo(-HOMING_DIRECTION * TOTAL_STEPS);  // Set initial movement direction
   }
 
-  bool currentButtonState = digitalRead(START_BUTTON_PIN);
+  bool currentButtonState = buttonStart.getState();
 
   if (lastButtonState == HIGH && currentButtonState == LOW) {
     delay(50);  // Simple debounce
