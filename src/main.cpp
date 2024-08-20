@@ -20,14 +20,22 @@ ButtonHandler buttonStart(START_BUTTON_PIN);
 ButtonHandler buttonLimitSwitch(HOMING_SWITCH_PIN);
 ButtonHandler buttonRotarySwitch(ROTARY_SW_PIN);
 
+
 // Function to dump switch states
-void dumpSwitchStates() {
-  Serial.print("Start:");
-  Serial.print(buttonStart.getState());
-  Serial.print(" Limit:");
-  Serial.print(buttonLimitSwitch.getState());
-  Serial.print(" Rotary:");
-  Serial.println(buttonRotarySwitch.getState());
+static unsigned long lastDebugPrint = 0;
+void dumpDebug() {
+    unsigned long currentTime = millis();
+
+    // Debug print every second
+    if (currentTime - lastDebugPrint > 1000) {
+        Serial.print("Start:");
+        Serial.print(buttonStart.getState());
+        Serial.print(" Limit:");
+        Serial.print(buttonLimitSwitch.getState());
+        Serial.print(" Rotary:");
+        Serial.println(buttonRotarySwitch.getState());
+        lastDebugPrint = currentTime;
+    }
 }
 
 // Define pin connections
@@ -244,7 +252,7 @@ void handleHoming(unsigned long currentTime) {
   static long homingSteps = 0;
   static bool homingStarted = false;
   static bool movingAwayFromSwitch = false;
-  static unsigned long lastDebugPrint = 0;
+
 
   if (stateJustChanged) {
     waitingForConfirmation = true;
@@ -253,13 +261,6 @@ void handleHoming(unsigned long currentTime) {
     display.writeDisplay("Start Homing", 0, 0);
     display.writeDisplay("Press knob", 1, 0);
     stateJustChanged = false;
-  }
-
-  // Debug print every second
-  if (currentTime - lastDebugPrint > 1000) {
-    Serial.print("Limit Switch State: ");
-    Serial.println(buttonLimitSwitch.getState() ? "Pressed" : "Not Pressed");
-    lastDebugPrint = currentTime;
   }
 
   if (waitingForConfirmation) {
@@ -420,13 +421,15 @@ void handleError() {
 void loop() {
   unsigned long currentTime = millis();
 
+  static unsigned long lastDebugPrint = 0;
+
+  // Debug
+  dumpDebug();
+
   // Update all ButtonHandler objects
   buttonStart.update();
   buttonLimitSwitch.update();
   buttonRotarySwitch.update();
-
-  // Dump switch states
-  dumpSwitchStates();
 
   // Check for homing switch trigger in any state except HOMING, STARTUP, and ERROR
   if (currentSystemState != HOMING && currentSystemState != STARTUP && currentSystemState != ERROR && buttonLimitSwitch.getState()) {
