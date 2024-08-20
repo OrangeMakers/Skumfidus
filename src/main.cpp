@@ -120,7 +120,7 @@ void loadParametersFromEEPROM() {
 }
 
 // Define LCD update interval
-const unsigned long LCD_UPDATE_INTERVAL = 250;  // 0.25 second in milliseconds
+const unsigned long LCD_UPDATE_INTERVAL = 100;  // 0.1 second in milliseconds
 
 // Initialize stepper
 AccelStepper stepper(AccelStepper::DRIVER, STEP_PIN, DIR_PIN);
@@ -179,17 +179,22 @@ const char* getStateName(SystemState state) {
 
 // New function to handle state changes
 void changeState(SystemState newState, unsigned long currentTime = 0) {
+  #ifdef DEBUG
+  if(newState != previousSystemState){
+    Serial.print("State changed from ");
+    Serial.print(getStateName(previousSystemState));
+    Serial.print(" to ");
+    Serial.println(getStateName(newState));
+  } else {
+    Serial.print("Current state ");
+    Serial.println(getStateName(newState));
+  }
+  #endif
+  
   previousSystemState = currentSystemState;
   currentSystemState = newState;
   stateStartTime = currentTime == 0 ? millis() : currentTime;
   stateJustChanged = true;
-
-  #ifdef DEBUG
-  Serial.print("State changed from ");
-  Serial.print(getStateName(previousSystemState));
-  Serial.print(" to ");
-  Serial.println(getStateName(currentSystemState));
-  #endif
 }
 
 void setup() {
@@ -259,7 +264,6 @@ void setup() {
 void handleStartup(unsigned long currentTime) {
   if (stateJustChanged) {
     display.writeDisplay("OrangeMakers", "Marshmallow 2.0");
-    // delay(WELCOME_DURATION);
     stateJustChanged = false;
   }
 
@@ -292,9 +296,11 @@ void handleHoming(unsigned long currentTime) {
       stepper.moveTo(homingSteps);
     }
   } else if (homingStarted && !movingAwayFromSwitch) {
+    
     display.writeDisplay("Homing:", "In progress");
 
     if (buttonLimitSwitch.getState()) {
+      display.writeDisplay("Homing:", "Triggered", 1000);
       stepper.stop();  // Stop the motor immediately
       stepper.setAcceleration(ACCELERATION);  // Restore original acceleration
       homingSteps = -HOMING_DIRECTION * (5.0 / DISTANCE_PER_REV) * STEPS_PER_REV;  // Move 5mm in opposite direction
@@ -302,8 +308,9 @@ void handleHoming(unsigned long currentTime) {
       movingAwayFromSwitch = true;
     } else if (currentTime - stateStartTime > HOMING_TIMEOUT) {
       // Homing timeout
-      changeState(IDLE, currentTime);
-      display.writeDisplay("Homing:", "Failed", 2000);
+      errorMessage = "Homing failed";
+      changeState(ERROR, currentTime);
+      return;
     } else {
       stepper.run();
     }
@@ -311,7 +318,7 @@ void handleHoming(unsigned long currentTime) {
     if (stepper.distanceToGo() == 0) {
       // Finished moving away from switch
       stepper.setCurrentPosition(0);
-      display.writeDisplay("Homing:", "Completed", 2000);
+      display.writeDisplay("Homing:", "Completed", 1000);
       changeState(IDLE, currentTime);
     } else {
       stepper.run();
@@ -338,6 +345,7 @@ void handleIdle() {
 void handleRunning(unsigned long currentTime) {
   if (stateJustChanged) {
     stateJustChanged = false;
+    display.writeDisplay("Cooking", "Started", 1000);
     timer.start(timerDuration);
     currentState = MOVING;  // Ensure we start in the MOVING state
     stepper.moveTo(-HOMING_DIRECTION * TOTAL_STEPS);  // Set initial movement direction
@@ -345,7 +353,7 @@ void handleRunning(unsigned long currentTime) {
 
   if (buttonStart.isPressed()) {
     changeState(RETURNING_TO_START, currentTime);
-    display.writeDisplay("Cooking:", "Aborted", 2000);
+    display.writeDisplay("Cooking", "Aborted", 2000);
     stepper.moveTo(0);  // Set target to start position
     timer.stop();
     return;
@@ -353,7 +361,7 @@ void handleRunning(unsigned long currentTime) {
 
   if (timer.hasExpired()) {
     changeState(RETURNING_TO_START, currentTime);
-    display.writeDisplay("Cooking:", "Done", 2000);
+    display.writeDisplay("Cooking", "Done", 2000);
     stepper.moveTo(0);  // Set target to start position
     timer.stop();
     return;
@@ -392,7 +400,7 @@ void handleRunning(unsigned long currentTime) {
   
   String timeStr = "Time: " + String(remainingTime) + "s";
   String distStr = "Dist: " + String(distance, 1) + "mm";
-  display.writeDisplay(timeStr, distStr);
+  display.writeDisplayNoQueue(timeStr, distStr);
 }
 
 void handleReturningToStart() {
@@ -409,7 +417,7 @@ void handleReturningToStart() {
     float distance = abs(stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV);
     String returnStr = "Returning";
     String distStr = "Dist: " + String(distance, 1) + "mm";
-    display.writeDisplay(returnStr, distStr);
+    display.writeDisplayNoQueue(returnStr, distStr);
   }
 }
 
@@ -422,7 +430,7 @@ void handleError() {
   }
   
   // Always display the error message
-  display.writeDisplay("Error", errorMessage);  // No duration means display indefinitely
+  display.writeDisplay("Error", errorMessage, 0);  // No duration means display indefinitely
 
   // In ERROR state, we don't do anything else until the device is reset
 }
