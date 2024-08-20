@@ -6,6 +6,7 @@
 #include <freertos/task.h>
 #include <EEPROM.h>
 #include "OMDisplay.h"
+#include "Timer.h"
 
 #define START_BUTTON_PIN 15   // Start button pin
 #define HOMING_SWITCH_PIN 16  // Homing switch pin
@@ -70,9 +71,8 @@ String errorMessage = "";
 volatile bool lastButtonState = HIGH;
 
 // Timer variables
-unsigned long timerStartTime = 0;
-unsigned long timerDuration = 30000; // 60 seconds, adjust as needed
-bool timerRunning = false;
+Timer timer;
+unsigned long timerDuration = 30000; // 30 seconds, adjust as needed
 
 // Define motor states
 enum MotorState {
@@ -322,8 +322,7 @@ void handleIdle() {
     if (digitalRead(START_BUTTON_PIN) == LOW) {
       changeState(RUNNING, millis());
       display.writeAlert("System Started", "", 2000);
-      timerStartTime = millis();
-      timerRunning = true;
+      timer.start(timerDuration);
       stepper.moveTo(-HOMING_DIRECTION * TOTAL_STEPS);  // Start moving in opposite direction of homing
     }
   }
@@ -335,6 +334,7 @@ void handleIdle() {
 void handleRunning(unsigned long currentTime) {
   if (stateJustChanged) {
     stateJustChanged = false;
+    timer.start(timerDuration);
   }
 
   bool currentButtonState = digitalRead(START_BUTTON_PIN);
@@ -345,18 +345,18 @@ void handleRunning(unsigned long currentTime) {
       changeState(RETURNING_TO_START, currentTime);
       display.writeAlert("Abort", "", 2000);
       stepper.moveTo(0);  // Set target to start position
-      timerRunning = false;
+      timer.stop();
       return;
     }
   }
 
   lastButtonState = currentButtonState;
 
-  if (timerRunning && (currentTime - timerStartTime >= timerDuration)) {
+  if (timer.hasExpired()) {
     changeState(RETURNING_TO_START, currentTime);
     display.writeAlert("Done", "", 2000);
     stepper.moveTo(0);  // Set target to start position
-    timerRunning = false;
+    timer.stop();
     return;
   }
 
@@ -388,8 +388,7 @@ void handleRunning(unsigned long currentTime) {
   }
 
   // Update LCD with remaining time and distance
-  unsigned long elapsedTime = (currentTime - timerStartTime) / 1000; // Convert to seconds
-  unsigned long remainingTime = (timerDuration / 1000) - elapsedTime;
+  unsigned long remainingTime = timer.getRemainingTime() / 1000; // Convert to seconds
   float distance = abs(stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV);
   
   display.writeDisplay("Time: " + String(remainingTime) + "s", 0, 0);
