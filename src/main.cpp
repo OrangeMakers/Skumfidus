@@ -278,8 +278,8 @@ void handleHoming(unsigned long currentTime) {
     waitingForConfirmation = true;
     homingStarted = false;
     movingAwayFromSwitch = false;
-    display.writeDisplay("Start Homing", 0, 0);
-    display.writeDisplay("Press knob", 1, 0);
+    display.writeDisplay("To start homing", 0, 0);
+    display.writeDisplay("press rotary", 1, 0);
     stateJustChanged = false;
   }
 
@@ -288,14 +288,12 @@ void handleHoming(unsigned long currentTime) {
       waitingForConfirmation = false;
       homingStarted = true;
       stateStartTime = currentTime;  // Reset the start time for homing
-      display.writeAlert("Homing begin...", "", 2000);  // Show "Homing..." for 2 seconds
       stepper.setAcceleration(ACCELERATION * 2);  // Set higher acceleration for more instant stop during homing
       homingSteps = HOMING_DIRECTION * 1000000;  // Large number to ensure continuous movement
       stepper.moveTo(homingSteps);
     }
   } else if (homingStarted && !movingAwayFromSwitch) {
-    display.writeDisplay("Homing...", 0, 0);
-    display.writeDisplay("", 1, 0);
+    display.writeAlert("Homing:", "In progress", 0);
 
     if (buttonLimitSwitch.getState()) {
       stepper.stop();  // Stop the motor immediately
@@ -306,7 +304,7 @@ void handleHoming(unsigned long currentTime) {
     } else if (currentTime - stateStartTime > HOMING_TIMEOUT) {
       // Homing timeout
       changeState(IDLE, currentTime);
-      display.writeAlert("Homing failed", "", 2000);
+      display.writeAlert("Homing:", "Failed", 2000);
     } else {
       stepper.run();
     }
@@ -314,7 +312,7 @@ void handleHoming(unsigned long currentTime) {
     if (stepper.distanceToGo() == 0) {
       // Finished moving away from switch
       stepper.setCurrentPosition(0);
-      display.writeAlert("Homing Completed", "", 2000);
+      display.writeAlert("Homing:", "Completed", 2000);
       delay(2000);  // Wait for 2 seconds
       changeState(IDLE, currentTime);
     } else {
@@ -325,11 +323,8 @@ void handleHoming(unsigned long currentTime) {
 
 void handleIdle() {
   if (stateJustChanged) {
-    display.clearDisplay();
-    delay(50);  // Short delay to ensure the display is cleared
-    display.writeDisplay("                ", 0, 0);  // Clear first line
-    display.writeDisplay("                ", 1, 0);  // Clear second line
-    delay(50);  // Short delay after clearing
+    // display.clearDisplay();
+    // delay(50);  // Short delay after clearing
     display.writeDisplay("Idle..", 0, 0);
     display.writeDisplay("Press Start", 1, 0);
     stateJustChanged = false;
@@ -337,7 +332,6 @@ void handleIdle() {
 
   if (buttonStart.isPressed()) {
     changeState(RUNNING, millis());
-    display.writeAlert("System Started", "", 2000);
     timer.start(timerDuration);
     stepper.moveTo(-HOMING_DIRECTION * TOTAL_STEPS);  // Start moving in opposite direction of homing
     return;  // Exit the function immediately to start running
@@ -428,12 +422,12 @@ void handleError() {
     // Set STEPPER_ENABLE_PIN to HIGH to disable the stepper driver
     digitalWrite(STEPPER_ENABLE_PIN, HIGH);
 
-    // Always display the error message
-    display.writeAlert("Error", errorMessage, 0);  // 0 means display indefinitely
-
     stateJustChanged = false;
   }
   
+  // Always display the error message
+  display.writeAlert("Error", errorMessage, 0);  // 0 means display indefinitely
+
   // In ERROR state, we don't do anything else until the device is reset
 }
 
