@@ -410,20 +410,26 @@ void handleError() {
     // Set STEPPER_ENABLE_PIN to HIGH to disable the stepper driver
     digitalWrite(STEPPER_ENABLE_PIN, HIGH);
     
-    // Clear the display only once
-    display.clearDisplay();
-    
-    // Display the error message
-    display.writeAlert("Error", errorMessage, 0);  // 0 means display indefinitely
-    
     stateJustChanged = false;
   }
+  
+  // Always display the error message, even if it's not the first time
+  display.writeAlert("Error", errorMessage, 0);  // 0 means display indefinitely
   
   // In ERROR state, we don't do anything else until the device is reset
 }
 
 void loop() {
   unsigned long currentTime = millis();
+
+  // Check for homing switch trigger in any state except HOMING, STARTUP, and ERROR
+  if (currentSystemState != HOMING && currentSystemState != STARTUP && currentSystemState != ERROR && homingSwitchTriggered) {
+    changeState(ERROR, currentTime);
+    errorMessage = "Endstop trigger";
+    homingSwitchTriggered = false;  // Reset the flag
+    handleError();  // Immediately handle the error
+    return;  // Exit the loop to prevent further state processing
+  }
 
   switch (currentSystemState) {
     case STARTUP:
@@ -443,12 +449,6 @@ void loop() {
       break;
     case ERROR:
       handleError();
-      return;
-  }
-
-  // Check for homing switch trigger in any state except HOMING, STARTUP, and ERROR
-  if (currentSystemState != HOMING && currentSystemState != STARTUP && currentSystemState != ERROR && homingSwitchTriggered) {
-    changeState(ERROR, currentTime);
-    errorMessage = "Endstop trigger";
+      break;
   }
 }
