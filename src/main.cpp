@@ -394,8 +394,6 @@ void handleError() {
     stateJustChanged = false;
   }
   
-
-  
   // In ERROR state, we don't do anything else until the device is reset
 }
 
