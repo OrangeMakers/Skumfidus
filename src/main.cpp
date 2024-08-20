@@ -321,8 +321,6 @@ void handleIdle() {
 
 void handleRunning(unsigned long currentTime) {
   if (stateJustChanged) {
-    // Enable LCD updates when entering RUNNING state
-    enableLCDUpdates();
     stateJustChanged = false;
   }
 
@@ -387,7 +385,6 @@ void handleRunning(unsigned long currentTime) {
 
 void handleReturningToStart() {
   if (stateJustChanged) {
-    disableLCDUpdates();
     display.clearDisplay();
     stateJustChanged = false;
   }
@@ -406,14 +403,12 @@ void handleReturningToStart() {
 
 void handleError() {
   if (stateJustChanged) {
-    disableLCDUpdates();
     // Set STEPPER_ENABLE_PIN to HIGH to disable the stepper driver
     digitalWrite(STEPPER_ENABLE_PIN, HIGH);
-    
     stateJustChanged = false;
   }
   
-  // Always display the error message, even if it's not the first time
+  // Always display the error message
   display.writeAlert("Error", errorMessage, 0);  // 0 means display indefinitely
   
   // In ERROR state, we don't do anything else until the device is reset

@@ -34,7 +34,6 @@ private:
     State _state;
     unsigned long _alertStartTime;
     unsigned long _alertDuration;
-    bool _alertChanged;  // Flag to indicate if the alert message has changed
 };
 
 #endif // OMDISPLAY_H
