@@ -34,6 +34,8 @@ private:
     void copyBuffer(char dest[2][17], const char src[2][17]);
     void setActiveMessage(const char content[2][17], unsigned long duration);
     void setQueuedMessage(const char content[2][17], unsigned long duration);
+    bool isQueuedMessagePresent() const;
+    void clearQueuedMessage();
 };
 
 #endif // OMDISPLAY_H

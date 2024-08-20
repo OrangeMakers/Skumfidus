@@ -46,10 +46,9 @@ void OMDisplay::update() {
     if (_messageActive) {
         if (currentTime - _displayStartTime >= _activeMessage.duration) {
             _messageActive = false;
-            if (_queuedMessage.duration > 0) {
+            if (isQueuedMessagePresent()) {
                 setActiveMessage(_queuedMessage.content, _queuedMessage.duration);
-                memset(_queuedMessage.content, ' ', sizeof(_queuedMessage.content));
-                _queuedMessage.duration = 0;
+                clearQueuedMessage();
             } else {
                 copyBuffer(_currentBuffer, _activeMessage.content);
                 _updateNeeded = true;
@@ -67,6 +66,18 @@ void OMDisplay::update() {
         }
         _updateNeeded = false;
     }
+}
+
+bool OMDisplay::isQueuedMessagePresent() const {
+    return _queuedMessage.content[0][0] != ' ' || _queuedMessage.content[1][0] != ' ';
+}
+
+void OMDisplay::clearQueuedMessage() {
+    memset(_queuedMessage.content, ' ', sizeof(_queuedMessage.content));
+    for (int i = 0; i < 2; i++) {
+        _queuedMessage.content[i][_cols] = '\0';
+    }
+    _queuedMessage.duration = 0;
 }
 
 void OMDisplay::setActiveMessage(const char content[2][17], unsigned long duration) {
