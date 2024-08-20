@@ -11,12 +11,30 @@
 #define HOMING_SWITCH_PIN 16  // Homing switch pin
 #define ROTARY_CLK_PIN 17     // Rotary encoder CLK pin
 
-// Interrupt flag
-volatile bool homingSwitchTriggered = false;
+// Debounce variables for homing switch
+unsigned long lastDebounceTime = 0;
+unsigned long debounceDelay = 50;
+int lastHomingSwitchState = HIGH;
+bool homingSwitchTriggered = false;
 
-// Interrupt Service Routine for homing switch
-void IRAM_ATTR homingSwitchISR() {
-  homingSwitchTriggered = true;
+// Function to check homing switch with debounce
+void checkHomingSwitch() {
+  int reading = digitalRead(HOMING_SWITCH_PIN);
+  
+  if (reading != lastHomingSwitchState) {
+    lastDebounceTime = millis();
+  }
+
+  if ((millis() - lastDebounceTime) > debounceDelay) {
+    if (reading != lastHomingSwitchState) {
+      lastHomingSwitchState = reading;
+      if (lastHomingSwitchState == LOW) {
+        homingSwitchTriggered = true;
+      }
+    }
+  }
+
+  lastHomingSwitchState = reading;
 }
 
 #define ROTARY_DT_PIN 18      // Rotary encoder DT pin
@@ -174,8 +192,7 @@ void setup() {
   pinMode(HOMING_SWITCH_PIN, INPUT_PULLUP); // Homing switch with internal pull-up
   pinMode(ROTARY_CLK_PIN, INPUT_PULLUP);    // Rotary encoder CLK with internal pull-up
 
-  // Attach interrupt to homing switch pin
-  attachInterrupt(digitalPinToInterrupt(HOMING_SWITCH_PIN), homingSwitchISR, RISING);
+  // No need to attach interrupt for homing switch
   pinMode(ROTARY_DT_PIN, INPUT_PULLUP);     // Rotary encoder DT with internal pull-up
   pinMode(ROTARY_SW_PIN, INPUT_PULLUP);     // Rotary encoder switch with internal pull-up
   pinMode(STEP_PIN, OUTPUT);
@@ -419,6 +436,9 @@ void handleError() {
 
 void loop() {
   unsigned long currentTime = millis();
+
+  // Check homing switch state with debounce
+  checkHomingSwitch();
 
   // Check for homing switch trigger in any state except HOMING, STARTUP, and ERROR
   if (currentSystemState != HOMING && currentSystemState != STARTUP && currentSystemState != ERROR && homingSwitchTriggered) {
