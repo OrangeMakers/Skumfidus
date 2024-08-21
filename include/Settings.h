@@ -6,14 +6,13 @@
 #include <LiquidCrystal_I2C.h>
 #include <vector>
 #include "ButtonHandler.h"
-#include "OMDisplay.h"
-#include "OMDisplay.h"
+#include "MatrixDisplay.h"
 
 extern ButtonHandler buttonRotarySwitch;
 
 class Settings {
 public:
-    Settings(LiquidCrystal_I2C& lcd, ESP32Encoder& encoder, OMDisplay& display);
+    Settings(MatrixDisplay& display, ESP32Encoder& encoder);
     void loadSettingsFromEEPROM();
     void saveSettingsToEEPROM();
     unsigned long getCookTime() const { return _cookTime; }
@@ -31,7 +30,7 @@ public:
 
 private:
     int _totalSteps;
-    OMDisplay& _display;  // Add this line
+    MatrixDisplay& _display;
     enum class MenuItem {
         COOK_TIME,
         TOTAL_DISTANCE,
@@ -48,7 +47,6 @@ private:
         bool visible;
     };
 
-    LiquidCrystal_I2C& _lcd;
     ESP32Encoder& _encoder;
     bool _isDone;
     bool _inEditMode;

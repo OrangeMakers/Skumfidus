@@ -5,7 +5,7 @@
 
 class ButtonHandler {
 public:
-    ButtonHandler(uint8_t pin, bool activeLow = true);
+    ButtonHandler(uint8_t pin, const char* name, bool activeLow = true);
     void begin();
     void update();
     bool isPressed();
@@ -16,6 +16,7 @@ public:
 
 private:
     uint8_t _pin;
+    const char* _name;
     bool _activeLow;
     bool _lastState;
     bool _currentState;

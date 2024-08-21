@@ -3,9 +3,10 @@
 
 #include <Arduino.h>
 #include <LiquidCrystal_I2C.h>
-#include <mutex>
-#include <atomic>
 #include <vector>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/semphr.h"
 
 class MatrixDisplay {
 public:
@@ -13,18 +14,22 @@ public:
     ~MatrixDisplay();
     void begin();
     void updateDisplay(const String& row1, const String& row2);
+    void startUpdateThread();
+    void stopUpdateThread();
 
 private:
     LiquidCrystal_I2C _lcd;
-    std::mutex _displayMutex;
     uint8_t _cols;
     uint8_t _rows;
-    std::vector<std::vector<char>> _currentBuffer;
-    std::vector<std::vector<char>> _newBuffer;
+    std::vector<std::vector<char>> _buffer;
+    volatile bool _updateNeeded;
+    TaskHandle_t _updateTaskHandle;
+    SemaphoreHandle_t _bufferMutex;
 
-    void updateThread();
+    static void updateTaskWrapper(void* parameter);
+    void updateTask();
     void updateChangedCharacters();
-    void fillBuffer(std::vector<std::vector<char>>& buffer, const String& row1, const String& row2);
+    void fillBuffer(const String& row1, const String& row2);
 };
 
 #endif // MATRIX_DISPLAY_H

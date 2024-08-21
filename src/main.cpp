@@ -8,6 +8,7 @@
 #include <freertos/task.h>
 #include <EEPROM.h>
 #include <ESP32Encoder.h>
+#include "MatrixDisplay.h"
 #include "Timer.h"
 #include "ButtonHandler.h"
 #include "Settings.h"
@@ -146,63 +147,49 @@ void loadParametersFromEEPROM() {
 }
 
 // Define LCD update interval
-const unsigned long LCD_UPDATE_INTERVAL = 100;  // 0.1 second in milliseconds
+const unsigned long LCD_UPDATE_INTERVAL = 250;  // 0.25 second in milliseconds
 
 // Initialize stepper
 AccelStepper stepper(AccelStepper::DRIVER, STEP_PIN, DIR_PIN);
 
-// Initialize OMDisplay
-OMDisplay display(0x27, 16, 2);
-
 // Initialize MatrixDisplay
-MatrixDisplay matrixDisplay(0x27, 16, 2);
+MatrixDisplay display(0x27, 16, 2);
 
 // Initialize Settings
-Settings settings(display.getLCD(), encoder, display);
+Settings settings(display, encoder);
 
 // Variables for state machine
 MotorState currentState = MOVING;
 const unsigned long DIRECTION_CHANGE_DELAY = 500; // 500ms delay when changing direction
 
 // Function to update LCD display
-void updateLCD(float distance) {
-  String distanceStr = "Distance: " + String(distance, 1) + " mm";
-  display.writeDisplay(distanceStr, "");
-}
+// void updateLCD(float distance) {
+//   String distanceStr = "Distance: " + String(distance, 1) + " mm";
+//   display.updateDisplay(distanceStr, "");
+// }
 
-// Task to update LCD
-void lcdUpdateTask(void * parameter) {
-  for(;;) {
-    if (lcdUpdateEnabled) {
-      float distance = abs(stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV);
-      updateLCD(distance);
-    }
-    vTaskDelay(LCD_UPDATE_INTERVAL / portTICK_PERIOD_MS);
-  }
-}
+// // Task to update LCD
+// void lcdUpdateTask(void * parameter) {
+//   for(;;) {
+//     if (lcdUpdateEnabled) {
+//       float distance = abs(stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV);
+//       updateLCD(distance);
+//     }
+//     vTaskDelay(LCD_UPDATE_INTERVAL / portTICK_PERIOD_MS);
+//   }
+// }
 
 // Function to enable LCD updates
-void enableLCDUpdates() {
-  lcdUpdateEnabled = true;
-}
-
-// Function to disable LCD updates
-void disableLCDUpdates() {
-  lcdUpdateEnabled = false;
-}
+// These functions are no longer needed with MatrixDisplay
 
 // Function to enter Settings menu
 void enterSettingsMenu() {
-  disableLCDUpdates();  // Disable OMDisplay updates
-  //display.clearBuffer();  // Clear OMDisplay buffer
   settings.enter();  // Enter settings menu
 }
 
 // Function to exit Settings menu
 void exitSettingsMenu() {
   settings.exit();  // Exit settings menu
-  //display.clearBuffer();  // Clear OMDisplay buffer
-  enableLCDUpdates();  // Re-enable OMDisplay updates
 }
 
 // Global variables for timing
@@ -285,26 +272,19 @@ void setup() {
   stepper.setAcceleration(ACCELERATION);
   stepper.moveTo(0);  // Start at home position
 
-  // Create OMDisplay update task
-  xTaskCreatePinnedToCore(
-    OMDisplay::updateTask,   // Task function
-    "OMDisplay",             // Task name
-    4096,                    // Stack size (bytes)
-    (void*)&display,         // Parameter to pass
-    1,                       // Task priority
-    NULL,                    // Task handle
-    1                        // Core where the task should run
-  );
+  // Initialize and start MatrixDisplay update thread
+  display.begin();
+  display.startUpdateThread();
 
-  // Create LCD update task
-  xTaskCreate(
-    lcdUpdateTask,           // Task function
-    "LCD Update",            // Task name
-    2048,                    // Stack size (bytes)
-    NULL,                    // Parameter to pass
-    1,                       // Task priority
-    NULL                     // Task handle
-  );
+  // // Create LCD update task
+  // xTaskCreate(
+  //   lcdUpdateTask,           // Task function
+  //   "LCD Update",            // Task name
+  //   2048,                    // Stack size (bytes)
+  //   NULL,                    // Parameter to pass
+  //   1,                       // Task priority
+  //   NULL                     // Task handle
+  // );
 
   // Initialize state
   changeState(STARTUP, millis());
@@ -315,7 +295,7 @@ void setup() {
 
 void handleStartup(unsigned long currentTime) {
   if (stateJustChanged) {
-    display.writeDisplay("OrangeMakers", "Marshmallow 2.0");
+    display.updateDisplay("OrangeMakers", "Marshmallow 2.0");
     stateJustChanged = false;
   }
 
@@ -334,7 +314,7 @@ void handleHoming(unsigned long currentTime) {
     waitingForConfirmation = true;
     homingStarted = false;
     movingAwayFromSwitch = false;
-    display.writeDisplay("To start homing", "press rotary");
+    display.updateDisplay("To start homing", "press rotary");
     stateJustChanged = false;
   }
 
@@ -346,11 +326,11 @@ void handleHoming(unsigned long currentTime) {
       stepper.setAcceleration(ACCELERATION * 2);  // Set higher acceleration for more instant stop during homing
       homingSteps = HOMING_DIRECTION * 1000000;  // Large number to ensure continuous movement
       stepper.moveTo(homingSteps);
-      display.writeDisplay("Homing:", "In progress");
+      display.updateDisplay("Homing:", "In progress");
     }
   } else if (homingStarted && !movingAwayFromSwitch) {
     if (buttonLimitSwitch.getState()) {
-      display.writeDisplay("Homing:", "Triggered", 1000);
+      display.updateDisplay("Homing:", "Triggered");
       stepper.stop();  // Stop the motor immediately
       stepper.setAcceleration(ACCELERATION);  // Restore original acceleration
       homingSteps = -HOMING_DIRECTION * (5.0 / DISTANCE_PER_REV) * STEPS_PER_REV;  // Move 5mm in opposite direction
@@ -368,7 +348,7 @@ void handleHoming(unsigned long currentTime) {
     if (stepper.distanceToGo() == 0) {
       // Finished moving away from switch
       stepper.setCurrentPosition(0);
-      display.writeDisplay("Homing:", "Completed", 1000);
+      display.updateDisplay("Homing:", "Completed");
       changeState(IDLE, currentTime);
     } else {
       stepper.run();
@@ -381,7 +361,7 @@ void handleIdle() {
   const unsigned long LONG_PRESS_DURATION = 1000; // 1 second for long press
 
   if (stateJustChanged) {
-    display.writeDisplay("Idle..", "Press Start");
+    display.updateDisplay("Idle..", "Press Start");
     stateJustChanged = false;
   }
 
@@ -409,17 +389,20 @@ void handleIdle() {
 }
 
 void handleRunning(unsigned long currentTime) {
+  static unsigned long lastUpdateTime = 0;
+
   if (stateJustChanged) {
     stateJustChanged = false;
-    display.writeDisplay("Cooking", "Started", 1000);
+    display.updateDisplay("Cooking", "Started");
     timer.start(timerDuration);
     currentState = MOVING;  // Ensure we start in the MOVING state
     stepper.moveTo(-HOMING_DIRECTION * TOTAL_STEPS);  // Set initial movement direction
+    lastUpdateTime = 0; // Force an immediate update
   }
 
   if (buttonStart.isPressed()) {
     changeState(RETURNING_TO_START, currentTime);
-    display.writeDisplay("Cooking", "Aborted", 2000);
+    display.updateDisplay("Cooking", "Aborted");
     stepper.moveTo(0);  // Set target to start position
     timer.stop();
     return;
@@ -427,7 +410,7 @@ void handleRunning(unsigned long currentTime) {
 
   if (timer.hasExpired()) {
     changeState(RETURNING_TO_START, currentTime);
-    display.writeDisplay("Cooking", "Done", 2000);
+    display.updateDisplay("Cooking", "Done");
     stepper.moveTo(0);  // Set target to start position
     timer.stop();
     return;
@@ -460,30 +443,42 @@ void handleRunning(unsigned long currentTime) {
       break;
   }
 
-  // Update LCD with remaining time and distance
-  unsigned long remainingTime = timer.getRemainingTime() / 1000; // Convert to seconds
-  float distance = abs(stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV);
-  
-  String timeStr = "Time: " + String(remainingTime) + "s";
-  String distStr = "Dist: " + String(distance, 1) + "mm";
-  display.writeDisplayNoQueue(timeStr, distStr);
+  // Update LCD with remaining time and distance at specified interval
+  if (currentTime - lastUpdateTime >= LCD_UPDATE_INTERVAL) {
+    unsigned long remainingTime = timer.getRemainingTime() / 1000; // Convert to seconds
+    float distance = abs(stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV);
+    
+    String timeStr = "Time: " + String(remainingTime) + "s";
+    String distStr = "Dist: " + String(distance, 1) + "mm";
+    display.updateDisplay(timeStr, distStr);
+    
+    lastUpdateTime = currentTime;
+  }
 }
 
 void handleReturningToStart() {
+  static unsigned long lastUpdateTime = 0;
+  unsigned long currentTime = millis();
+
   if (stateJustChanged) {
     stateJustChanged = false;
+    lastUpdateTime = 0; // Force an immediate update
   }
 
   if (stepper.distanceToGo() == 0) {
     // We've reached the start position
-    changeState(IDLE, millis());
-    display.writeDisplay("Returned to", "Start Position", 2000);
+    changeState(IDLE, currentTime);
+    display.updateDisplay("Returned to", "Start Position");
   } else {
     stepper.run();
-    float distance = abs(stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV);
-    String returnStr = "Returning";
-    String distStr = "Dist: " + String(distance, 1) + "mm";
-    display.writeDisplayNoQueue(returnStr, distStr);
+
+    if (currentTime - lastUpdateTime >= LCD_UPDATE_INTERVAL) {
+      float distance = abs(stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV);
+      String returnStr = "Returning";
+      String distStr = "Dist: " + String(distance, 1) + "mm";
+      display.updateDisplay(returnStr, distStr);
+      lastUpdateTime = currentTime;
+    }
   }
 }
 
@@ -496,7 +491,7 @@ void handleError() {
   }
   
   // Always display the error message
-  display.writeDisplay("Error", errorMessage, 0);  // No duration means display indefinitely
+  display.updateDisplay("Error", errorMessage);
 
   // In ERROR state, we don't do anything else until the device is reset
 }
@@ -504,10 +499,10 @@ void handleError() {
 void loop() {
   unsigned long currentTime = millis();
 
-  static unsigned long lastDebugPrint = 0;
 
   // Debug
   #ifdef DEBUG
+  static unsigned long lastDebugPrint = 0;
   dumpDebug();
   #endif
 

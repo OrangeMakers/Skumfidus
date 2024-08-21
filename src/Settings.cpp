@@ -3,8 +3,8 @@
 
 extern ButtonHandler buttonRotarySwitch;
 
-Settings::Settings(LiquidCrystal_I2C& lcd, ESP32Encoder& encoder, OMDisplay& display)
-    : _lcd(lcd), _encoder(encoder), _display(display), _isDone(false), _inEditMode(false), _currentMenuIndex(0), _lastEncoderValue(0),
+Settings::Settings(MatrixDisplay& display, ESP32Encoder& encoder)
+    : _display(display), _encoder(encoder), _isDone(false), _inEditMode(false), _currentMenuIndex(0), _lastEncoderValue(0),
       _cookTime(30000), _totalDistance(50.0f), _maxSpeed(1600.0f), _totalSteps(0), _settingsChanged(false) {
     initializeMenuItems();
     _totalSteps = (_totalDistance / DISTANCE_PER_REV) * STEPS_PER_REV;
@@ -66,16 +66,14 @@ void Settings::enter() {
     _currentMenuIndex = 0;  // Always start at the first menu item (COOK_TIME)
     _lastEncoderValue = _encoder.getCount();
     updateMenuVisibility();
-    _display.clearBuffer();  // Clear OMDisplay buffer
-    _lcd.clear();  // Clear the LCD
+    _display.updateDisplay("", "");  // Clear the display
     displayCurrentMenuItem();
 }
 
 void Settings::exit() {
     _isDone = true;
     _inEditMode = false;
-    _display.clearBuffer();  // Clear OMDisplay buffer
-    _lcd.clear();  // Clear the LCD
+    _display.updateDisplay("", "");  // Clear the display
 }
 
 void Settings::update() {
@@ -117,15 +115,13 @@ void Settings::handleMenuSelection() {
             break;
         case MenuItem::LOAD_EEPROM:
             loadSettingsFromEEPROM();
-            _lcd.clear();
-            _lcd.print("Settings Loaded");
+            _display.updateDisplay("Settings Loaded", "");
             delay(1000);
             break;
         case MenuItem::SAVE_EEPROM:
             if (confirmAction("Save Settings?")) {
                 saveSettingsToEEPROM();
-                _lcd.clear();
-                _lcd.print("Settings Saved");
+                _display.updateDisplay("Settings Saved", "");
                 delay(1000);
             }
             break;
@@ -135,10 +131,7 @@ void Settings::handleMenuSelection() {
         case MenuItem::FACTORY_RESET:
             if (confirmAction("Factory Reset?")) {
                 factoryReset();
-                _lcd.clear();
-                _lcd.print("Factory Reset");
-                _lcd.setCursor(0, 1);
-                _lcd.print("Complete");
+                _display.updateDisplay("Factory Reset", "Complete");
                 delay(2000);
             }
             break;
@@ -148,10 +141,7 @@ void Settings::handleMenuSelection() {
 }
 
 bool Settings::confirmAction(const char* message) {
-    _lcd.clear();
-    _lcd.print(message);
-    _lcd.setCursor(0, 1);
-    _lcd.print("Yes");
+    _display.updateDisplay(message, "Yes");
     
     bool confirmed = true;
     int32_t lastConfirmEncoderValue = _encoder.getCount();
@@ -160,8 +150,7 @@ bool Settings::confirmAction(const char* message) {
         int32_t newEncoderValue = _encoder.getCount();
         if (newEncoderValue != lastConfirmEncoderValue) {
             confirmed = !confirmed;
-            _lcd.setCursor(0, 1);
-            _lcd.print(confirmed ? "Yes" : "No ");
+            _display.updateDisplay(message, confirmed ? "Yes" : "No");
             lastConfirmEncoderValue = newEncoderValue;
         }
         buttonRotarySwitch.update();
@@ -206,24 +195,24 @@ void Settings::updateMenuVisibility() {
 }
 
 void Settings::displayCurrentMenuItem() {
-    _lcd.clear();
-    _lcd.setCursor(0, 0);
-    _lcd.print(_menuItems[_currentMenuIndex].displayName);
-    _lcd.setCursor(0, 1);
+    String topLine = _menuItems[_currentMenuIndex].displayName;
+    String bottomLine;
     
     switch (_menuItems[_currentMenuIndex].item) {
         case MenuItem::COOK_TIME:
-            _lcd.print(String(_cookTime / 1000) + "s");
+            bottomLine = String(_cookTime / 1000) + "s";
             break;
         case MenuItem::TOTAL_DISTANCE:
-            _lcd.print(String(_totalDistance, 1) + "mm");
+            bottomLine = String(_totalDistance, 1) + "mm";
             break;
         case MenuItem::MAX_SPEED:
-            _lcd.print(String((_maxSpeed / 2400.0f) * 100, 0) + "%");
+            bottomLine = String((_maxSpeed / 2400.0f) * 100, 0) + "%";
             break;
         default:
             break;
     }
+    
+    _display.updateDisplay(topLine, bottomLine);
 }
 
 int8_t Settings::getEncoderDirection() {
@@ -304,17 +293,11 @@ void Settings::updateDisplay() {
             value = "";
             break;
     }
-    _lcd.clear();
-    _lcd.setCursor(0, 0);
-    _lcd.print(_menuItems[_currentMenuIndex].displayName);
-    _lcd.setCursor(0, 1);
-    _lcd.print(value);
+    _display.updateDisplay(_menuItems[_currentMenuIndex].displayName, value);
 }
 
 void Settings::invertDisplayColors() {
-    // Implement display color inversion
-    // This will depend on your specific LCD library
-    // For example:
-    // _lcd.setBacklight(!_lcd.getBacklight());
-    // Or you might need to redraw everything with inverted colors
+    // This function is no longer needed with MatrixDisplay
+    // You may want to implement a visual indicator for edit mode in another way
+    // For now, we'll leave it empty
 }
