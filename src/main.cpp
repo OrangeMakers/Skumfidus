@@ -279,6 +279,8 @@ void handleStartup(unsigned long currentTime) {
   }
 }
 
+static unsigned long lastHomingUpdateTime = 0;
+
 void handleHoming(unsigned long currentTime) {
   static bool waitingForConfirmation = true;
   static long homingSteps = 0;
@@ -291,6 +293,7 @@ void handleHoming(unsigned long currentTime) {
     movingAwayFromSwitch = false;
     display.updateDisplay("To start homing", "press rotary");
     stateJustChanged = false;
+    lastHomingUpdateTime = 0; // Reset the update time when state changes
   }
 
   if (waitingForConfirmation) {
