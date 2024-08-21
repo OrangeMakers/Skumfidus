@@ -1,0 +1,10 @@
+/read-only docs\README.md
+/read-only include\ButtonHandler.h
+/read-only include\MatrixDisplay.h
+/read-only include\Settings.h
+/read-only include\Timer.h
+/read-only src\ButtonHandler.cpp
+/read-only src\main.cpp
+/read-only src\MatrixDisplay.cpp
+/read-only src\Settings.cpp
+/read-only src\Timer.cpp
