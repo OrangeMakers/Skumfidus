@@ -341,10 +341,7 @@ void handleHoming(unsigned long currentTime) {
       stepper.runToPosition();  // Wait for the stepper to stop
       
       // Wait for 1 second
-      unsigned long waitStartTime = millis();
-      while (millis() - waitStartTime < 1000) {
-        // Do nothing, just wait
-      }
+      delay(1000);
       
       stepper.setMaxSpeed(MOVE_TO_ZERO_SPEED);
       stepper.setAcceleration(ACCELERATION);  // Restore original acceleration
