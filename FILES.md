@@ -1,4 +1,7 @@
 /read-only docs\README.md
+/read-only docs\CONTRIBUTING.md
+/read-only docs\CHANGELOG.md
+/read-only docs\LICENSE
 /read-only include\ButtonHandler.h
 /read-only include\MatrixDisplay.h
 /read-only include\Settings.h
