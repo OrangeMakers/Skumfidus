@@ -337,7 +337,8 @@ void handleHoming(unsigned long currentTime) {
   } else if (homingStarted && !movingAwayFromSwitch) {
     if (buttonLimitSwitch.getState()) {
       display.updateDisplay("Homing:", "Triggered");
-      stepper.stop();  // Stop the motor immediately
+      stepper.stop();  // Stop as fast as possible: sets new target
+      stepper.runToPosition();  // Wait for the stepper to stop
       stepper.setMaxSpeed(MOVE_TO_ZERO_SPEED);
       stepper.setAcceleration(ACCELERATION);  // Restore original acceleration
       homingSteps = -HOMING_DIRECTION * (HOMING_DISTANCE / DISTANCE_PER_REV) * STEPS_PER_REV;  // Move HOMING_DISTANCE in opposite direction
