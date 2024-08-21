@@ -167,26 +167,6 @@ Settings settings(display, encoder);
 MotorState currentState = MOVING;
 const unsigned long DIRECTION_CHANGE_DELAY = 500; // 500ms delay when changing direction
 
-// Function to update LCD display
-// void updateLCD(float distance) {
-//   String distanceStr = "Distance: " + String(distance, 1) + " mm";
-//   display.updateDisplay(distanceStr, "");
-// }
-
-// // Task to update LCD
-// void lcdUpdateTask(void * parameter) {
-//   for(;;) {
-//     if (lcdUpdateEnabled) {
-//       float distance = abs(stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV);
-//       updateLCD(distance);
-//     }
-//     vTaskDelay(LCD_UPDATE_INTERVAL / portTICK_PERIOD_MS);
-//   }
-// }
-
-// Function to enable LCD updates
-// These functions are no longer needed with MatrixDisplay
-
 // Function to enter Settings menu
 void enterSettingsMenu() {
   settings.enter();  // Enter settings menu
@@ -280,16 +260,6 @@ void setup() {
   // Initialize and start MatrixDisplay update thread
   display.begin();
   display.startUpdateThread();
-
-  // // Create LCD update task
-  // xTaskCreate(
-  //   lcdUpdateTask,           // Task function
-  //   "LCD Update",            // Task name
-  //   2048,                    // Stack size (bytes)
-  //   NULL,                    // Parameter to pass
-  //   1,                       // Task priority
-  //   NULL                     // Task handle
-  // );
 
   // Initialize state
   changeState(STARTUP, millis());
