@@ -1,4 +1,4 @@
-//#define DEBUG
+#define DEBUG
 
 #include <Arduino.h>
 #include <Wire.h>
@@ -32,6 +32,7 @@ ESP32Encoder encoder;
 int32_t lastEncoderValue = 0;
 int32_t encoderValue = 0;
 
+#ifdef DEBUG
 // Function to dump switch states and encoder value
 static unsigned long lastDebugPrint = 0;
 void dumpDebug() {
@@ -52,6 +53,7 @@ void dumpDebug() {
         lastDebugPrint = currentTime;
     }
 }
+#endif
 
 // Function to handle encoder changes
 void handleEncoderChange(int32_t newValue) {
@@ -103,7 +105,6 @@ volatile bool lcdUpdateEnabled = false;
 
 // Error message
 String errorMessage = "";
-
 
 // Timer variables
 Timer timer;
@@ -306,11 +307,11 @@ void handleHoming(unsigned long currentTime) {
       stepper.setAcceleration(ACCELERATION * 2);  // Set higher acceleration for more instant stop during homing
       homingSteps = HOMING_DIRECTION * 1000000;  // Large number to ensure continuous movement
       stepper.moveTo(homingSteps);
-      display.updateDisplay("Homing:", "In progress");
+      display.updateDisplay("Homing:", "In progress", 500);
     }
   } else if (homingStarted && !movingAwayFromSwitch) {
     if (buttonLimitSwitch.getState()) {
-      display.updateDisplay("Homing:", "Triggered");
+      display.updateDisplay("Homing:", "Triggered", 1000);
       stepper.stop();  // Stop as fast as possible: sets new target
       stepper.runToPosition();  // Wait for the stepper to stop
       
@@ -322,6 +323,7 @@ void handleHoming(unsigned long currentTime) {
       homingSteps = -HOMING_DIRECTION * (HOMING_DISTANCE / DISTANCE_PER_REV) * STEPS_PER_REV;  // Move HOMING_DISTANCE in opposite direction
       stepper.move(homingSteps);
       movingAwayFromSwitch = true;
+      display.updateDisplay("Homing:", "Move to Zero", 1000);
     } else if (currentTime - stateStartTime > HOMING_TIMEOUT) {
       // Homing timeout
       errorMessage = "Homing failed";
@@ -335,7 +337,10 @@ void handleHoming(unsigned long currentTime) {
       // Finished moving away from switch
       stepper.setCurrentPosition(0);
       stepper.setMaxSpeed(MAX_SPEED);  // Restore original max speed
-      display.updateDisplay("Homing:", "Completed");
+      #ifdef DEBUG
+      Serial.println("Homing completed!");
+      #endif
+      display.updateDisplay("Homing:", "Completed", 2000);
       changeState(IDLE, currentTime);
     } else {
       stepper.run();
