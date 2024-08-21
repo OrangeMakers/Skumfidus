@@ -8,7 +8,6 @@
 #include <freertos/task.h>
 #include <EEPROM.h>
 #include <ESP32Encoder.h>
-#include "OMDisplay.h"
 #include "Timer.h"
 #include "ButtonHandler.h"
 #include "Settings.h"
