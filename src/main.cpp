@@ -7,9 +7,12 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <EEPROM.h>
+#include <ESP32Encoder.h>
 #include "OMDisplay.h"
 #include "Timer.h"
 #include "ButtonHandler.h"
+#include "Settings.h"
+#include "MatrixDisplay.h"
 
 #define START_BUTTON_PIN 15   // Start button pin
 #define HOMING_SWITCH_PIN 16  // Homing switch pin
@@ -18,12 +21,18 @@
 #define ROTARY_SW_PIN 19      // Rotary encoder switch pin
 
 // Initialize ButtonHandler objects
-ButtonHandler buttonStart(START_BUTTON_PIN);
-ButtonHandler buttonLimitSwitch(HOMING_SWITCH_PIN, false);
-ButtonHandler buttonRotarySwitch(ROTARY_SW_PIN);
+ButtonHandler buttonStart(START_BUTTON_PIN, "Start");
+ButtonHandler buttonLimitSwitch(HOMING_SWITCH_PIN, "Limit", false);
+ButtonHandler buttonRotarySwitch(ROTARY_SW_PIN, "Rotary");
 
+// Initialize ESP32Encoder
+ESP32Encoder encoder;
 
-// Function to dump switch states
+// Variables for encoder
+int32_t lastEncoderValue = 0;
+int32_t encoderValue = 0;
+
+// Function to dump switch states and encoder value
 static unsigned long lastDebugPrint = 0;
 void dumpDebug() {
     unsigned long currentTime = millis();
@@ -35,9 +44,26 @@ void dumpDebug() {
         Serial.print(" Limit:");
         Serial.print(buttonLimitSwitch.getState());
         Serial.print(" Rotary:");
-        Serial.println(buttonRotarySwitch.getState());
+        Serial.print(buttonRotarySwitch.getState());
+        Serial.print(" Encoder:");
+        Serial.print(encoderValue);
+        Serial.print(" Direction:");
+        Serial.println(encoderValue > lastEncoderValue ? "CW" : (encoderValue < lastEncoderValue ? "CCW" : "No change"));
         lastDebugPrint = currentTime;
     }
+}
+
+// Function to handle encoder changes
+void handleEncoderChange(int32_t newValue) {
+    #ifdef DEBUG
+    if (newValue != lastEncoderValue) {
+        Serial.print("Encoder ");
+        Serial.print(newValue > lastEncoderValue ? "clockwise" : "anticlockwise");
+        Serial.print(" to ");
+        Serial.println(newValue);
+    }
+    #endif
+    lastEncoderValue = newValue;
 }
 
 // Define pin connections
@@ -58,7 +84,8 @@ enum SystemState {
   IDLE,
   RUNNING,
   RETURNING_TO_START,
-  ERROR
+  ERROR,
+  SETTINGS_MENU
 };
 
 // Global variable to track system state
@@ -128,6 +155,12 @@ AccelStepper stepper(AccelStepper::DRIVER, STEP_PIN, DIR_PIN);
 // Initialize OMDisplay
 OMDisplay display(0x27, 16, 2);
 
+// Initialize MatrixDisplay
+MatrixDisplay matrixDisplay(0x27, 16, 2);
+
+// Initialize Settings
+Settings settings(display.getLCD(), encoder, display);
+
 // Variables for state machine
 MotorState currentState = MOVING;
 const unsigned long DIRECTION_CHANGE_DELAY = 500; // 500ms delay when changing direction
@@ -159,6 +192,20 @@ void disableLCDUpdates() {
   lcdUpdateEnabled = false;
 }
 
+// Function to enter Settings menu
+void enterSettingsMenu() {
+  disableLCDUpdates();  // Disable OMDisplay updates
+  //display.clearBuffer();  // Clear OMDisplay buffer
+  settings.enter();  // Enter settings menu
+}
+
+// Function to exit Settings menu
+void exitSettingsMenu() {
+  settings.exit();  // Exit settings menu
+  //display.clearBuffer();  // Clear OMDisplay buffer
+  enableLCDUpdates();  // Re-enable OMDisplay updates
+}
+
 // Global variables for timing
 unsigned long stateStartTime = 0;
 const unsigned long WELCOME_DURATION = 1000;  // 5 seconds
@@ -173,6 +220,7 @@ const char* getStateName(SystemState state) {
     case RUNNING: return "RUNNING";
     case RETURNING_TO_START: return "RETURNING_TO_START";
     case ERROR: return "ERROR";
+    case SETTINGS_MENU: return "SETTINGS_MENU";
     default: return "UNKNOWN";
   }
 }
@@ -221,6 +269,11 @@ void setup() {
   buttonStart.begin();
   buttonLimitSwitch.begin();
   buttonRotarySwitch.begin();
+
+  // Initialize ESP32Encoder
+  ESP32Encoder::useInternalWeakPullResistors=UP;
+  encoder.attachHalfQuad(ROTARY_CLK_PIN, ROTARY_DT_PIN);
+  encoder.setCount(0);
 
   // Set STEPPER_ENABLE_PIN to LOW to enable the stepper driver
   digitalWrite(STEPPER_ENABLE_PIN, LOW);
@@ -325,6 +378,9 @@ void handleHoming(unsigned long currentTime) {
 }
 
 void handleIdle() {
+  static unsigned long buttonPressStartTime = 0;
+  const unsigned long LONG_PRESS_DURATION = 1000; // 1 second for long press
+
   if (stateJustChanged) {
     display.writeDisplay("Idle..", "Press Start");
     stateJustChanged = false;
@@ -335,6 +391,19 @@ void handleIdle() {
     timer.start(timerDuration);
     stepper.moveTo(-HOMING_DIRECTION * TOTAL_STEPS);  // Start moving in opposite direction of homing
     return;  // Exit the function immediately to start running
+  }
+
+  if (buttonRotarySwitch.getState()) {
+    if (buttonPressStartTime == 0) {
+      buttonPressStartTime = millis();
+    } else if (millis() - buttonPressStartTime >= LONG_PRESS_DURATION) {
+      changeState(SETTINGS_MENU, millis());
+      enterSettingsMenu();
+      buttonPressStartTime = 0;
+      return;
+    }
+  } else {
+    buttonPressStartTime = 0;
   }
 
   stepper.stop();
@@ -443,11 +512,22 @@ void loop() {
   dumpDebug();
   #endif
 
-
   // Update all ButtonHandler objects
   buttonStart.update();
   buttonLimitSwitch.update();
   buttonRotarySwitch.update();
+
+  // Read encoder value
+  encoderValue = encoder.getCount();
+
+  // Check if encoder value has changed
+  if (encoderValue != lastEncoderValue) {
+    // Handle encoder change
+    int32_t change = encoderValue - lastEncoderValue;
+    // You can use 'change' to update menu selection or modify values
+    // For example: menuIndex = (menuIndex + change) % MENU_ITEMS;
+    handleEncoderChange(encoderValue);
+  }
 
   // Check for homing switch trigger in any state except HOMING, STARTUP, and ERROR
   if (currentSystemState != HOMING && currentSystemState != STARTUP && currentSystemState != ERROR && buttonLimitSwitch.getState()) {
@@ -475,6 +555,13 @@ void loop() {
       break;
     case ERROR:
       handleError();
+      break;
+    case SETTINGS_MENU:
+      settings.update();
+      if (settings.isDone()) {
+        exitSettingsMenu();
+        changeState(IDLE, currentTime);
+      }
       break;
   }
 
