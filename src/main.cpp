@@ -152,6 +152,7 @@ void loadParametersFromEEPROM() {
 }
 
 // Define LCD update interval
+static unsigned long lastLCDUpdateTime = 0;
 const unsigned long LCD_UPDATE_INTERVAL = 250;  // 0.25 second in milliseconds
 
 // Initialize stepper
@@ -375,7 +376,6 @@ void handleIdle() {
 }
 
 void handleRunning(unsigned long currentTime) {
-  static unsigned long lastUpdateTime = 0;
 
   if (stateJustChanged) {
     stateJustChanged = false;
@@ -383,7 +383,7 @@ void handleRunning(unsigned long currentTime) {
     timer.start(timerDuration);
     currentState = MOVING;  // Ensure we start in the MOVING state
     stepper.moveTo(-HOMING_DIRECTION * TOTAL_STEPS);  // Set initial movement direction
-    lastUpdateTime = 0; // Force an immediate update
+    lastLCDUpdateTime = 0; // Force an immediate update
   }
 
   if (buttonStart.isPressed()) {
@@ -430,7 +430,7 @@ void handleRunning(unsigned long currentTime) {
   }
 
   // Update LCD with remaining time and distance at specified interval
-  if (currentTime - lastUpdateTime >= LCD_UPDATE_INTERVAL) {
+  if (currentTime - lastLCDUpdateTime >= LCD_UPDATE_INTERVAL) {
     unsigned long remainingTime = timer.getRemainingTime() / 1000; // Convert to seconds
     float distance = abs(stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV);
     
@@ -438,17 +438,16 @@ void handleRunning(unsigned long currentTime) {
     String distStr = "Dist: " + String(distance, 1) + "mm";
     display.updateDisplay(timeStr, distStr);
     
-    lastUpdateTime = currentTime;
+    lastLCDUpdateTime = currentTime;
   }
 }
 
 void handleReturningToStart() {
-  static unsigned long lastUpdateTime = 0;
   unsigned long currentTime = millis();
 
   if (stateJustChanged) {
     stateJustChanged = false;
-    lastUpdateTime = 0; // Force an immediate update
+    lastLCDUpdateTime = 0; // Force an immediate update
   }
 
   if (stepper.distanceToGo() == 0) {
@@ -458,12 +457,12 @@ void handleReturningToStart() {
   } else {
     stepper.run();
 
-    if (currentTime - lastUpdateTime >= LCD_UPDATE_INTERVAL) {
+    if (currentTime - lastLCDUpdateTime >= LCD_UPDATE_INTERVAL) {
       float distance = abs(stepper.currentPosition() * DISTANCE_PER_REV / STEPS_PER_REV);
       String returnStr = "Returning";
       String distStr = "Dist: " + String(distance, 1) + "mm";
       display.updateDisplay(returnStr, distStr);
-      lastUpdateTime = currentTime;
+      lastLCDUpdateTime = currentTime;
     }
   }
 }
