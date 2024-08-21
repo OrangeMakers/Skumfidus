@@ -77,6 +77,11 @@ void handleEncoderChange(int32_t newValue) {
 // Define homing direction (1 for positive, -1 for negative)
 #define HOMING_DIRECTION 1
 
+// Define homing parameters
+#define HOMING_DISTANCE 125.0 // Distance to move back after hitting the switch (in mm)
+#define HOMING_SPEED 800.0 // Speed for homing movement
+#define MOVE_TO_ZERO_SPEED 400.0 // Speed for moving to zero position after homing
+
 // Define system states
 enum SystemState {
   STARTUP,
@@ -323,6 +328,7 @@ void handleHoming(unsigned long currentTime) {
       waitingForConfirmation = false;
       homingStarted = true;
       stateStartTime = currentTime;  // Reset the start time for homing
+      stepper.setMaxSpeed(HOMING_SPEED);
       stepper.setAcceleration(ACCELERATION * 2);  // Set higher acceleration for more instant stop during homing
       homingSteps = HOMING_DIRECTION * 1000000;  // Large number to ensure continuous movement
       stepper.moveTo(homingSteps);
@@ -332,8 +338,9 @@ void handleHoming(unsigned long currentTime) {
     if (buttonLimitSwitch.getState()) {
       display.updateDisplay("Homing:", "Triggered");
       stepper.stop();  // Stop the motor immediately
+      stepper.setMaxSpeed(MOVE_TO_ZERO_SPEED);
       stepper.setAcceleration(ACCELERATION);  // Restore original acceleration
-      homingSteps = -HOMING_DIRECTION * (5.0 / DISTANCE_PER_REV) * STEPS_PER_REV;  // Move 5mm in opposite direction
+      homingSteps = -HOMING_DIRECTION * (HOMING_DISTANCE / DISTANCE_PER_REV) * STEPS_PER_REV;  // Move HOMING_DISTANCE in opposite direction
       stepper.move(homingSteps);
       movingAwayFromSwitch = true;
     } else if (currentTime - stateStartTime > HOMING_TIMEOUT) {
@@ -348,6 +355,7 @@ void handleHoming(unsigned long currentTime) {
     if (stepper.distanceToGo() == 0) {
       // Finished moving away from switch
       stepper.setCurrentPosition(0);
+      stepper.setMaxSpeed(MAX_SPEED);  // Restore original max speed
       display.updateDisplay("Homing:", "Completed");
       changeState(IDLE, currentTime);
     } else {
