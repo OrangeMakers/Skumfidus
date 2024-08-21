@@ -50,6 +50,11 @@ void Settings::saveSettingsToEEPROM() {
     updateMenuVisibility();
 }
 
+unsigned long Settings::getCookTime() const { return _cookTime; }
+float Settings::getTotalDistance() const { return _totalDistance; }
+float Settings::getMaxSpeed() const { return _maxSpeed; }
+int Settings::getTotalSteps() const { return _totalSteps; }
+
 void Settings::factoryReset() {
     _cookTime = 30000;
     _totalDistance = 50.0f;
