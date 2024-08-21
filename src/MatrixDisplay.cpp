@@ -1,10 +1,13 @@
 #include "MatrixDisplay.h"
+#include <queue>
 
 MatrixDisplay::MatrixDisplay(uint8_t lcd_addr, uint8_t lcd_cols, uint8_t lcd_rows)
     : _lcd(lcd_addr, lcd_cols, lcd_rows), _cols(lcd_cols), _rows(lcd_rows),
       _buffer(_rows, std::vector<char>(_cols, ' ')),
-      _updateNeeded(false), _updateTaskHandle(NULL), _bufferMutex(NULL) {
+      _updateNeeded(false), _updateTaskHandle(NULL), _bufferMutex(NULL),
+      _messageQueueMutex(NULL), _currentMessageEndTime(0) {
     _bufferMutex = xSemaphoreCreateMutex();
+    _messageQueueMutex = xSemaphoreCreateMutex();
 }
 
 void MatrixDisplay::begin() {
@@ -12,9 +15,38 @@ void MatrixDisplay::begin() {
     _lcd.backlight();
 }
 
-void MatrixDisplay::updateDisplay(const String& row1, const String& row2) {
+void MatrixDisplay::updateDisplay(const String& row1, const String& row2, unsigned long displayDuration) {
+    if (xSemaphoreTake(_messageQueueMutex, portMAX_DELAY) == pdTRUE) {
+        unsigned long currentTime = millis();
+        DisplayMessage newMessage = {row1, row2, currentTime + displayDuration};
+
+        if (displayDuration > 0) {
+            if (_messageQueue.empty() || currentTime >= _currentMessageEndTime) {
+                // If queue is empty or current message has expired, display immediately
+                _messageQueue = std::queue<DisplayMessage>();  // Clear the queue
+                _messageQueue.push(newMessage);
+                _currentMessageEndTime = newMessage.endTime;
+                updateBufferWithMessage(newMessage);
+            } else {
+                // Add to queue, replacing any existing queued message
+                if (_messageQueue.size() > 1) {
+                    _messageQueue.pop();  // Remove the old queued message
+                }
+                _messageQueue.push(newMessage);
+            }
+        } else {
+            // For immediate display (duration = 0), clear queue and display
+            _messageQueue = std::queue<DisplayMessage>();
+            updateBufferWithMessage(newMessage);
+        }
+
+        xSemaphoreGive(_messageQueueMutex);
+    }
+}
+
+void MatrixDisplay::updateBufferWithMessage(const DisplayMessage& message) {
     if (xSemaphoreTake(_bufferMutex, portMAX_DELAY) == pdTRUE) {
-        fillBuffer(row1, row2);
+        fillBuffer(message.row1, message.row2);
         _updateNeeded = true;
         xSemaphoreGive(_bufferMutex);
     }
@@ -22,10 +54,23 @@ void MatrixDisplay::updateDisplay(const String& row1, const String& row2) {
 
 void MatrixDisplay::updateTask() {
     while (true) {
+        unsigned long currentTime = millis();
+
+        if (xSemaphoreTake(_messageQueueMutex, portMAX_DELAY) == pdTRUE) {
+            if (!_messageQueue.empty() && currentTime >= _currentMessageEndTime) {
+                DisplayMessage nextMessage = _messageQueue.front();
+                _messageQueue.pop();
+                _currentMessageEndTime = nextMessage.endTime;
+                updateBufferWithMessage(nextMessage);
+            }
+            xSemaphoreGive(_messageQueueMutex);
+        }
+
         if (_updateNeeded) {
             updateChangedCharacters();
             _updateNeeded = false;
         }
+
         vTaskDelay(pdMS_TO_TICKS(50));  // Check for updates every 50ms
     }
 }
@@ -77,5 +122,8 @@ void MatrixDisplay::updateTaskWrapper(void* parameter) {
 MatrixDisplay::~MatrixDisplay() {
     if (_bufferMutex != NULL) {
         vSemaphoreDelete(_bufferMutex);
+    }
+    if (_messageQueueMutex != NULL) {
+        vSemaphoreDelete(_messageQueueMutex);
     }
 }
