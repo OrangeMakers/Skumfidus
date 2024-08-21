@@ -3,7 +3,6 @@
 
 #include <Arduino.h>
 #include <ESP32Encoder.h>
-#include <LiquidCrystal_I2C.h>
 #include <vector>
 #include "ButtonHandler.h"
 #include "MatrixDisplay.h"
@@ -15,10 +14,10 @@ public:
     Settings(MatrixDisplay& display, ESP32Encoder& encoder);
     void loadSettingsFromEEPROM();
     void saveSettingsToEEPROM();
-    unsigned long getCookTime() const { return _cookTime; }
-    float getTotalDistance() const { return _totalDistance; }
-    float getMaxSpeed() const { return _maxSpeed; }
-    int getTotalSteps() const { return _totalSteps; }
+    unsigned long getCookTime() const;
+    float getTotalDistance() const;
+    float getMaxSpeed() const;
+    int getTotalSteps() const;
     static constexpr float DISTANCE_PER_REV = 8.0f;
     static constexpr int STEPS_PER_REV = 1600;
     ~Settings();
@@ -68,7 +67,6 @@ private:
     void enterEditMode();
     void exitEditMode();
     void adjustValue(int8_t direction);
-    void invertDisplayColors();
     void adjustCookTime(int8_t direction);
     void adjustTotalDistance(int8_t direction);
     void adjustMaxSpeed(int8_t direction);
