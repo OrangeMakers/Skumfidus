@@ -326,6 +326,7 @@ void handleRunning(unsigned long currentTime) {
     timer.start(settings.getCookTime());
     currentState = MOVING;  // Ensure we start in the MOVING state
     TOTAL_STEPS = (settings.getTotalDistance() / DISTANCE_PER_REV) * STEPS_PER_REV;
+    stepper.setMaxSpeed(settings.getMaxSpeed());  // Set the correct max speed
     stepper.moveTo(-HOMING_DIRECTION * TOTAL_STEPS);  // Set initial movement direction
     lastLCDUpdateTime = 0; // Force an immediate update
   }
@@ -392,6 +393,7 @@ void handleReturningToStart() {
 
   if (stateJustChanged) {
     stateJustChanged = false;
+    stepper.setMaxSpeed(settings.getMaxSpeed());  // Set the correct max speed
     lastLCDUpdateTime = 0; // Force an immediate update
   }
 
