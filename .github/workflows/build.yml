@@ -37,16 +37,10 @@ jobs:
     - name: Check and update CHANGELOG.md format
       id: changelog
       run: |
-        # Check if [Unreleased] section exists
-        if ! grep -q "^## \[Unreleased\]" CHANGELOG.md; then
-          echo "Error: [Unreleased] section is missing in CHANGELOG.md"
-          exit 1
-        fi
-        
-        # Check if there's a description after [Unreleased]
-        DESCRIPTION=$(sed -n '/^## \[Unreleased\]/,/^### Added/p' CHANGELOG.md | sed '1d;$d' | tr -d '[:space:]')
+        # Check if [Unreleased] section exists and has a non-default description
+        DESCRIPTION=$(sed -n '/^## \[Unreleased\]/,/^###/p' CHANGELOG.md | sed '1d;$d' | tr -d '[:space:]')
         if [ -z "$DESCRIPTION" ] || [ "$DESCRIPTION" = "[Insertreleasedescriptionhere]" ]; then
-          echo "Error: Release description is missing or not updated in CHANGELOG.md"
+          echo "Error: [Unreleased] section is missing or has not been updated in CHANGELOG.md"
           exit 1
         fi
         
