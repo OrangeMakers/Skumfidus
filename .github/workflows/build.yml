@@ -15,27 +15,29 @@ jobs:
       with:
         fetch-depth: 0  # Fetch all history for all tags and branches
     
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v0.10.2
+      with:
+        versionSpec: '5.x'
+    
+    - name: Determine Version
+      id: gitversion
+      uses: gittools/actions/gitversion/execute@v0.10.2
+      with:
+        useConfigFile: true
+    
     - name: Set up PlatformIO
       uses: actions/setup-python@v4
       with:
         python-version: '3.x'
     - run: pip install platformio
     
-    - name: Install git-semver
-      run: |
-        npm install -g git-semver
-        echo "$(npm bin -g)" >> $GITHUB_PATH
-
-    - name: Calculate version
-      id: semver
-      run: echo "version=$(git-semver)" >> $GITHUB_OUTPUT
-    
     - name: Build project
       run: platformio run
     
     - name: Update CHANGELOG.md
       run: |
-        sed -i "s/## \[Unreleased\]/## [${{ steps.semver.outputs.version }}] - $(date +'%Y-%m-%d')/" CHANGELOG.md
+        sed -i "s/## \[Unreleased\]/## [${{ steps.gitversion.outputs.semVer }}] - $(date +'%Y-%m-%d')/" CHANGELOG.md
     
     - name: Get latest changelog entry
       id: changelog
@@ -49,8 +51,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: v${{ steps.semver.outputs.version }}
-        release_name: Release v${{ steps.semver.outputs.version }}
+        tag_name: v${{ steps.gitversion.outputs.semVer }}
+        release_name: Release v${{ steps.gitversion.outputs.semVer }}
         body: ${{ steps.changelog.outputs.latest_entry }}
         draft: false
         prerelease: false
@@ -59,7 +61,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: ./.pio/build/esp32doit-devkit-v1/firmware.bin
-        tag_name: v${{ steps.semver.outputs.version }}
+        tag_name: v${{ steps.gitversion.outputs.semVer }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -67,5 +69,5 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git commit -am "Update CHANGELOG.md for version ${{ steps.semver.outputs.version }}"
+        git commit -am "Update CHANGELOG.md for version ${{ steps.gitversion.outputs.semVer }}"
         git push

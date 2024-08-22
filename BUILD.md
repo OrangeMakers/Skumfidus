@@ -1,6 +1,6 @@
 # Automated Build with GitHub Actions
 
-This document describes how to set up automated builds using GitHub Actions for this project, including automatic version calculation based on commit history.
+This document describes how to set up automated builds using GitHub Actions for this project, including automatic version calculation based on commit history using GitVersion.
 
 ## Workflow Overview
 
@@ -12,7 +12,7 @@ The build artifacts will include information from the CHANGELOG.md in their desc
 
 ## Automatic Version Calculation
 
-We use Semantic Versioning (SemVer) for version numbers, calculated automatically based on commit history:
+We use GitVersion for Semantic Versioning (SemVer), calculated automatically based on commit history and tags:
 
 1. Major version: Incremented for breaking changes
 2. Minor version: Incremented for new features
@@ -22,14 +22,21 @@ The version is calculated using commit messages since the last Git tag. We use c
 
 - "BREAKING CHANGE:" or "!:" for major version increment
 - "feat:" for minor version increment
-- "fix:" for patch version increment
+- "fix:", "build:", "chore:", "ci:", "docs:", "perf:", "refactor:", "revert:", "style:", "test:" for patch version increment
 
 ## Setting up the Workflow
 
-1. Install the `git-semver` tool in your GitHub Actions environment:
+1. Create a `GitVersion.yml` file in the root of your repository with the following content:
 
-```bash
-npm install -g git-semver
+```yaml
+mode: ContinuousDelivery
+branches: {}
+ignore:
+  sha: []
+merge-message-formats: {}
+major-version-bump-message: "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\([\\w\\s-]*\\))?(!:|:.*\\n\\n((.+\\n)+\\n)?BREAKING CHANGE:\\s.+)"
+minor-version-bump-message: "^(feat)(\\([\\w\\s-]*\\))?:"
+patch-version-bump-message: "^(build|chore|ci|docs|fix|perf|refactor|revert|style|test)(\\([\\w\\s-]*\\))?:"
 ```
 
 2. Create a new file `.github/workflows/build.yml` in your repository with the following content:
@@ -41,41 +48,46 @@ on:
   push:
     paths:
       - 'CHANGELOG.md'
+      - '.github\workflows\build.yml'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 0  # Fetch all history for all tags and branches
     
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v0.10.2
+      with:
+        versionSpec: '5.x'
+    
+    - name: Determine Version
+      id: gitversion
+      uses: gittools/actions/gitversion/execute@v0.10.2
+      with:
+        useConfigFile: true
+    
     - name: Set up PlatformIO
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: '3.x'
     - run: pip install platformio
-    
-    - name: Install git-semver
-      run: npm install -g git-semver
-    
-    - name: Calculate version
-      id: semver
-      run: echo "::set-output name=version::$(git-semver)"
     
     - name: Build project
       run: platformio run
     
     - name: Update CHANGELOG.md
       run: |
-        sed -i "s/## \[Unreleased\]/## [${{ steps.semver.outputs.version }}] - $(date +'%Y-%m-%d')/" CHANGELOG.md
+        sed -i "s/## \[Unreleased\]/## [${{ steps.gitversion.outputs.semVer }}] - $(date +'%Y-%m-%d')/" CHANGELOG.md
     
     - name: Get latest changelog entry
       id: changelog
       run: |
         LATEST_ENTRY=$(sed -n '/^## /,/^## /p' CHANGELOG.md | sed '$d' | tail -n +2)
-        echo "::set-output name=latest_entry::$LATEST_ENTRY"
+        echo "latest_entry=$LATEST_ENTRY" >> $GITHUB_OUTPUT
     
     - name: Create Release
       id: create_release
@@ -83,35 +95,34 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: v${{ steps.semver.outputs.version }}
-        release_name: Release v${{ steps.semver.outputs.version }}
+        tag_name: v${{ steps.gitversion.outputs.semVer }}
+        release_name: Release v${{ steps.gitversion.outputs.semVer }}
         body: ${{ steps.changelog.outputs.latest_entry }}
         draft: false
         prerelease: false
     
     - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ./.pio/build/esp32doit-devkit-v1/firmware.bin
+        tag_name: v${{ steps.gitversion.outputs.semVer }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./.pio/build/esp32doit-devkit-v1/firmware.bin
-        asset_name: firmware-v${{ steps.semver.outputs.version }}.bin
-        asset_content_type: application/octet-stream
 
     - name: Commit CHANGELOG.md changes
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git commit -am "Update CHANGELOG.md for version ${{ steps.semver.outputs.version }}"
+        git commit -am "Update CHANGELOG.md for version ${{ steps.gitversion.outputs.semVer }}"
         git push
+```
 
-3. Commit and push this file to your repository.
+3. Commit and push these files to your repository.
 
 ## How it Works
 
-1. The workflow is triggered when changes are pushed to the CHANGELOG.md file.
-2. It calculates the new version number based on commit history.
+1. The workflow is triggered when changes are pushed to the CHANGELOG.md file or the build.yml file.
+2. GitVersion calculates the new version number based on commit history and tags.
 3. It updates the CHANGELOG.md file with the new version number.
 4. It sets up the PlatformIO environment and builds the project.
 5. It extracts the latest entry from the updated CHANGELOG.md file.
