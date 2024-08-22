@@ -35,10 +35,12 @@ def validate_and_update_release(version):
         section_positions[section] = section_match.start()
         section_content = section_match.group(1).strip()
         
-        if section_content and section_content != "- No changes":
-            valid_sections.append(section)
-            if "- No changes" in section_content:
-                content = re.sub(section_pattern, f"### {section}\n{section_content.replace('- No changes\n', '')}", content, flags=re.DOTALL)
+        if section_content:
+            if section_content.strip() != "- No changes":
+                valid_sections.append(section)
+                content = re.sub(section_pattern, f"### {section}\n{section_content.strip()}\n", content, flags=re.DOTALL)
+            else:
+                content = re.sub(section_pattern, f"### {section}\n- No changes\n", content, flags=re.DOTALL)
         else:
             content = re.sub(section_pattern, f"### {section}\n- No changes\n", content, flags=re.DOTALL)
 
