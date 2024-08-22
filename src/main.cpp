@@ -32,6 +32,9 @@ ESP32Encoder encoder;
 int32_t lastEncoderValue = 0;
 int32_t encoderValue = 0;
 
+// Initialize EEPROM
+const int EEPROM_SIZE = 512;
+
 // Function to handle encoder changes
 void handleEncoderChange(int32_t newValue) {
     #ifdef DEBUG
