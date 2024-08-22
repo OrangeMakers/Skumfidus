@@ -5,91 +5,57 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.3.0-51] - 2024-08-22
-
-Test build, if it works as expected
-
-### Added
-- No changes
-
-### Changed
-- Nothing really changed, just a new push to see if build runs as expected
-
-### Deprecated
-- No changes
-
-### Removed
-- No changes
-
-### Fixed
-- No changes
-
-### Security
-- No changes
-
-## [0.3.0-16] - 2024-08-22
-
-Yet another release ... 
-
-### Added
-
-### Changed
-
-### Deprecated
-
-### Removed
-
-### Fixed
-- The replace was done wrong in the sections - should be updated now
-
-### Security
-
 ## [0.3.0-12] - 2024-08-22
 
 Updated the release template text, it was not that good..
 
 ### Added
+- No changes
 
 ### Changed
-
+- No changes
+  
 ### Deprecated
-
+- No changes
+  
 ### Removed
-
+- No changes
+  
 ### Fixed
 - Updated so the version is in the filename
 - Updated the body in release so its prettier
 
 ### Security
+- No changes
 
 ## [0.3.0-6] - 2024-08-22
 
 Updated the build process and simplified it
 
 ### Added
-- [Update Additions]
+- No changes
 
 ### Changed
-- Changed to maintained github actions
+- No changes
 
 ### Deprecated
-- [Update Deprecations]
+- No changes
 
 ### Removed
-- [Update Removals]
+- No changes
 
 ### Fixed
 - Fixed issue with version on GitVersion
 
 ### Security
-- [Update Security Fixes]
+- No changes
 
 ## [0.2.0] - 2024-08-22
 
 Test release.. 
 
 ### Added
-- [Update Additions]
+- No changes
   
 ### Changed
 - Updated GitHub Actions to use the newest current versions
@@ -97,18 +63,18 @@ Test release..
 - Added validation of the ChangeLog file to the GitHub Actions build process
 
 ### Deprecated
-- [Update Deprecations]
+- No changes
 
 ### Removed
-- [Update Removals]
+- No changes
 
 ### Fixed
 - Fixed a path in the semver action
 
 ### Security
-- [Update Security Fixes]
+- No changes
 
-## [] - 2024-08-22
+## [Initial] - 2024-08-22
 
 ### Added
 - Initial release of Marsh Mellow 2.0 project
