@@ -100,9 +100,6 @@ volatile SystemState currentSystemState = STARTUP;
 SystemState previousSystemState = STARTUP;
 bool stateJustChanged = true;
 
-// Flag to control LCD update task
-volatile bool lcdUpdateEnabled = false;
-
 // Error message
 String errorMessage = "";
 
