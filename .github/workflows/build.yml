@@ -10,30 +10,21 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0  # Fetch all history for all tags and branches
     
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v0.10.2
+      uses: gittools/actions/gitversion/setup@v3
       with:
-        versionSpec: '5.x'
+        versionSpec: '6.x'
     
     - name: Determine Version
       id: gitversion
-      uses: gittools/actions/gitversion/execute@v0.10.2
+      uses: gittools/actions/gitversion/execute@v3
       with:
         useConfigFile: true
-    
-    - name: Set up PlatformIO
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.x'
-    - run: pip install platformio
-    
-    - name: Build project
-      run: platformio run
-    
+
     - name: Check and update CHANGELOG.md format
       id: changelog
       run: |
@@ -67,7 +58,16 @@ jobs:
         
         # Update the [Unreleased] header with the new version
         sed -i "s/## \[Unreleased\]/## [${{ steps.gitversion.outputs.semVer }}] - $(date +'%Y-%m-%d')/" CHANGELOG.md
+
+    - name: Set up PlatformIO
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+    - run: pip install platformio
     
+    - name: Build project
+      run: platformio run
+        
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -81,7 +81,7 @@ jobs:
         prerelease: false
     
     - name: Upload Release Asset
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         files: ./.pio/build/esp32doit-devkit-v1/firmware.bin
         tag_name: v${{ steps.gitversion.outputs.semVer }}
