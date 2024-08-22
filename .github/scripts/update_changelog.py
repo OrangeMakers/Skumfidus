@@ -92,6 +92,9 @@ def validate_and_update_release(version):
     # Remove the version header from the content for the latest_entry output
     latest_entry = re.sub(r'^## \[.*?\] - .*?\n', '', content, 1).strip()
 
+    # Replace all "###" with "##" in the latest_entry
+    latest_entry = re.sub(r'###', '##', latest_entry)
+
     return latest_entry
 
 if __name__ == "__main__":
