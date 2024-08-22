@@ -5,39 +5,27 @@
     "sections": {
       "added": {
         "title": "Added",
-        "items": [
-          "[Update Added]"
-        ]
+        "items": []
       },
       "changed": {
         "title": "Changed",
-        "items": [
-          "[Update Changed]"
-        ]
+        "items": []
       },
       "deprecated": {
         "title": "Deprecated",
-        "items": [
-          "[Update Deprecated]"
-        ]
+        "items": []
       },
       "removed": {
         "title": "Removed",
-        "items": [
-          "[Update Removed]"
-        ]
+        "items": []
       },
       "fixed": {
         "title": "Fixed",
-        "items": [
-          "[Update Fixed]"
-        ]
+        "items": []
       },
       "security": {
         "title": "Security",
-        "items": [
-          "[Update Security]"
-        ]
+        "items": []
       }
     }
   }
