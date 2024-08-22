@@ -1,4 +1,4 @@
-#define DEBUG
+// #define DEBUG
 
 #include <Arduino.h>
 #include <Wire.h>
@@ -118,8 +118,6 @@ const float DISTANCE_PER_REV = 8.0;  // 8mm per revolution (lead of ACME rod)
 int TOTAL_STEPS;
 const float ACCELERATION = 3200.0;  // Adjust for smooth acceleration
 
-// We no longer need to save or load MAX_SPEED from EEPROM as it's handled by the Settings class
-
 // Define LCD update interval
 static unsigned long lastLCDUpdateTime = 0;
 const unsigned long LCD_UPDATE_INTERVAL = 250;  // 0.25 second in milliseconds
@@ -195,9 +193,6 @@ void setup() {
   // Initialize EEPROM
   EEPROM.begin(512);  // Initialize EEPROM with 512 bytes
 
-  // Load parameters from EEPROM
-  loadParametersFromEEPROM();
-
   // Initialize pins
   pinMode(BUILTIN_LED_PIN, OUTPUT);
   pinMode(ADDRESSABLE_LED_PIN, OUTPUT);
@@ -232,8 +227,6 @@ void setup() {
   // Initialize state
   changeState(STARTUP, millis());
 
-  // Save parameters to EEPROM (in case they were not present)
-  saveParametersToEEPROM();
 }
 
 void handleStartup(unsigned long currentTime) {
