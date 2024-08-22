@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'CHANGELOG.md'
+      - '.github\workflows\build.yml'
 
 jobs:
   build:
