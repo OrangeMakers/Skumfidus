@@ -15,13 +15,14 @@ jobs:
         fetch-depth: 0  # Fetch all history for all tags and branches
     
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v3
+      uses: gittools/actions/gitversion/setup@v3.0.0
       with:
         versionSpec: '6.x'
+        preferLatestVersion: true
     
     - name: Determine Version
       id: gitversion
-      uses: gittools/actions/gitversion/execute@v3
+      uses: gittools/actions/gitversion/execute@v3.0.0
       with:
         useConfigFile: true
 

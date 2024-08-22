@@ -22,7 +22,7 @@ Updated the build process and simplified it
 - [Update Removals]
 
 ### Fixed
-- [Update Fixes]
+- Fixed issue with version on GitVersion
 
 ### Security
 - [Update Security Fixes]
