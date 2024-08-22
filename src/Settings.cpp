@@ -9,7 +9,7 @@ const float SPEED_MAX = 3500.0f;
 
 Settings::Settings(MatrixDisplay& display, ESP32Encoder& encoder)
     : _display(display), _encoder(encoder), _isDone(false), _inEditMode(false), _currentMenuIndex(0), _lastEncoderValue(0),
-      _cookTime(30000), _totalDistance(50.0f), _speed((SPEED_MIN + SPEED_MAX) / 2), _totalSteps(0), _settingsChanged(false) {
+      _cookTime(30000), _totalDistance(50.0f), _speed(SPEED_MIN), _totalSteps(0), _settingsChanged(false) {
     initializeMenuItems();
     _totalSteps = (_totalDistance / DISTANCE_PER_REV) * STEPS_PER_REV;
     _initialCookTime = _cookTime;
