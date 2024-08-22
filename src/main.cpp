@@ -233,6 +233,7 @@ void setup() {
   pinMode(STEP_PIN, OUTPUT);
   pinMode(DIR_PIN, OUTPUT);
   pinMode(STEPPER_ENABLE_PIN, OUTPUT);
+  digitalWrite(STEPPER_ENABLE_PIN, HIGH);  // Set STEPPER_ENABLE_PIN to HIGH by default
   pinMode(RELAY_PIN, OUTPUT);
 
   // Initialize ButtonHandler objects
