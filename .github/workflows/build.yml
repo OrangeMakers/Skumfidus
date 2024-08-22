@@ -32,6 +32,11 @@ jobs:
       with:
         useConfigFile: true
 
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+
     - name: Check and update CHANGELOG.md format
       id: changelog
       run: |
@@ -67,11 +72,6 @@ jobs:
         
         # Update the [Unreleased] header with the new version
         sed -i "s/## \[Unreleased\]/## [${{ steps.gitversion.outputs.semVer }}] - $(date +'%Y-%m-%d')/" CHANGELOG.md
-
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.x'
 
     - name: Install PlatformIO
       run: pip install platformio
