@@ -393,7 +393,7 @@ void handleReturningToStart() {
 
   if (stateJustChanged) {
     stateJustChanged = false;
-    stepper.setMaxSpeed(settings.getMaxSpeed());  // Set the correct max speed
+    stepper.setMaxSpeed(settings.getSpeed());  // Set the correct max speed
     lastLCDUpdateTime = 0; // Force an immediate update
   }
 
