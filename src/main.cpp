@@ -49,7 +49,13 @@ void dumpDebug() {
         Serial.print(" Encoder:");
         Serial.print(encoderValue);
         Serial.print(" Direction:");
-        Serial.println(encoderValue > lastEncoderValue ? "CW" : (encoderValue < lastEncoderValue ? "CCW" : "No change"));
+        Serial.print(encoderValue > lastEncoderValue ? "CW" : (encoderValue < lastEncoderValue ? "CCW" : "No change"));
+        Serial.print(" CookTime:");
+        Serial.print(settings.getCookTime());
+        Serial.print(" MaxSpeed:");
+        Serial.print(settings.getMaxSpeed());
+        Serial.print(" TotalDistance:");
+        Serial.println(settings.getTotalDistance());
         lastDebugPrint = currentTime;
     }
 }
