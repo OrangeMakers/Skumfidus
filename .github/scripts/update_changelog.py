@@ -22,21 +22,32 @@ def validate_and_update_release(version):
 
     sections = ["Added", "Changed", "Deprecated", "Removed", "Fixed", "Security"]
     valid_sections = []
+    section_positions = {}
+
     for section in sections:
-        if f"### {section}" not in content:
+        section_pattern = rf'### {section}\s*(.*?)(?=\n###|\Z)'
+        section_match = re.search(section_pattern, content, re.DOTALL)
+        
+        if not section_match:
             validation_errors.append(f"### {section} section is missing in RELEASE.md")
             continue
 
-        section_pattern = rf'### {section}\s*(.*?)(?=\n###|\Z)'
-        section_match = re.search(section_pattern, content, re.DOTALL)
-        if section_match:
-            section_content = section_match.group(1).strip()
-            if section_content and section_content != "- No changes":
-                valid_sections.append(section)
-                if "- No changes" in section_content:
-                    content = re.sub(section_pattern, f"### {section}\n{section_content.replace('- No changes\n', '')}", content, flags=re.DOTALL)
-            else:
-                content = re.sub(section_pattern, f"### {section}\n- No changes\n", content, flags=re.DOTALL)
+        section_positions[section] = section_match.start()
+        section_content = section_match.group(1).strip()
+        
+        if section_content and section_content != "- No changes":
+            valid_sections.append(section)
+            if "- No changes" in section_content:
+                content = re.sub(section_pattern, f"### {section}\n{section_content.replace('- No changes\n', '')}", content, flags=re.DOTALL)
+        else:
+            content = re.sub(section_pattern, f"### {section}\n- No changes\n", content, flags=re.DOTALL)
+
+    # Check if sections are in the correct order
+    sorted_positions = sorted(section_positions.items(), key=lambda x: x[1])
+    correct_order = [section for section, _ in sorted_positions]
+    
+    if correct_order != sections:
+        validation_errors.append(f"Sections are not in the correct order. Expected: {', '.join(sections)}. Found: {', '.join(correct_order)}")
 
     if not valid_sections:
         validation_errors.append("At least one section must have changes in RELEASE.md")
