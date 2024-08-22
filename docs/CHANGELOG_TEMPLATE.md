@@ -3,19 +3,19 @@
 [Insert release description here]
 
 ### Added
-- [Update Additions]
+- [Update Added]
 
 ### Changed
-- [Update Changes]
+- [Update Changed]
 
 ### Deprecated
-- [Update Deprecations]
+- [Update Deprecated]
 
 ### Removed
-- [Update Removals]
+- [Update Removed]
 
 ### Fixed
-- [Update Fixes]
+- [Update Fixed]
 
 ### Security
-- [Update Security Fixes]
+- [Update Security]
