@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0-85] - 2024-08-22
+
+This release includes improvements to EEPROM usage and settings management.
+
+### Added
+- No changes
+
+### Changed
+- Improved EEPROM usage in Settings.cpp
+- Enhanced variable size and offset calculations for better maintainability
+
+### Deprecated
+- No changes
+
+### Removed
+- No changes
+
+### Fixed
+- Ensured EEPROM variable sizes fit allocated addresses
+
+### Security
+- No changes
+
 ## [0.3.0-12] - 2024-08-22
 
 Updated the release template text, it was not that good..
