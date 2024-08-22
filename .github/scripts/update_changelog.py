@@ -58,7 +58,7 @@ def validate_and_update_release(version):
             print(f"- {error}")
         sys.exit(1)
 
-    # Update the [Unreleased] header with the new version
+    # Update the header with the new version
     today = date.today().isoformat()
     new_version_header = f'## [{version}] - {today}'
     content = content.replace('## Description of next release', new_version_header, 1)
@@ -84,8 +84,8 @@ def validate_and_update_release(version):
         f.write(updated_changelog)
 
     # Delete RELEASE.md and create RELEASE_NEXT.md
-    os.remove('RELEASE.md')
-    shutil.copy('assets/RELEASE_TEMPLATE.md', 'RELEASE_NEXT.md')
+    # os.remove('RELEASE.md')
+    # shutil.copy('assets/RELEASE_TEMPLATE.md', 'RELEASE_NEXT.md')
 
     # Remove the version header from the content for the latest_entry output
     latest_entry = re.sub(r'^## \[.*?\] - .*?\n', '', content, 1).strip()
