@@ -5,12 +5,12 @@ extern ButtonHandler buttonRotarySwitch;
 
 Settings::Settings(MatrixDisplay& display, ESP32Encoder& encoder)
     : _display(display), _encoder(encoder), _isDone(false), _inEditMode(false), _currentMenuIndex(0), _lastEncoderValue(0),
-      _cookTime(30000), _totalDistance(50.0f), _maxSpeed(1600.0f), _totalSteps(0), _settingsChanged(false) {
+      _cookTime(30000), _totalDistance(50.0f), _speed(1600.0f), _totalSteps(0), _settingsChanged(false) {
     initializeMenuItems();
     _totalSteps = (_totalDistance / DISTANCE_PER_REV) * STEPS_PER_REV;
     _initialCookTime = _cookTime;
     _initialTotalDistance = _totalDistance;
-    _initialMaxSpeed = _maxSpeed;
+    _initialMaxSpeed = _speed;
 }
 
 Settings::~Settings() {
@@ -20,19 +20,19 @@ Settings::~Settings() {
 void Settings::loadSettingsFromEEPROM() {
     EEPROM.get(0, _cookTime);
     EEPROM.get(4, _totalDistance);
-    EEPROM.get(8, _maxSpeed);
+    EEPROM.get(8, _speed);
 
     // Validate loaded values
     if (_cookTime < 5000 || _cookTime > 120000) _cookTime = 30000;
     if (_totalDistance < 50.0f || _totalDistance > 120.0f) _totalDistance = 50.0f;
-    if (_maxSpeed < 800.0f || _maxSpeed > 2400.0f) _maxSpeed = 1600.0f;
+    if (_speed < 800.0f || _speed > 2400.0f) _speed = 1600.0f;
 
     // Recalculate _totalSteps
     _totalSteps = (_totalDistance / DISTANCE_PER_REV) * STEPS_PER_REV;
 
     _initialCookTime = _cookTime;
     _initialTotalDistance = _totalDistance;
-    _initialMaxSpeed = _maxSpeed;
+    _initialMaxSpeed = _speed;
     _settingsChanged = false;
     updateMenuVisibility();
 }
@@ -40,25 +40,25 @@ void Settings::loadSettingsFromEEPROM() {
 void Settings::saveSettingsToEEPROM() {
     EEPROM.put(0, _cookTime);
     EEPROM.put(4, _totalDistance);
-    EEPROM.put(8, _maxSpeed);
+    EEPROM.put(8, _speed);
     EEPROM.commit();
 
     _initialCookTime = _cookTime;
     _initialTotalDistance = _totalDistance;
-    _initialMaxSpeed = _maxSpeed;
+    _initialMaxSpeed = _speed;
     _settingsChanged = false;
     updateMenuVisibility();
 }
 
 unsigned long Settings::getCookTime() const { return _cookTime; }
 float Settings::getTotalDistance() const { return _totalDistance; }
-float Settings::getMaxSpeed() const { return _maxSpeed; }
+float Settings::getSpeed() const { return _speed; }
 int Settings::getTotalSteps() const { return _totalSteps; }
 
 void Settings::factoryReset() {
     _cookTime = 30000;
     _totalDistance = 50.0f;
-    _maxSpeed = 1600.0f;
+    _speed = 1600.0f;
     saveSettingsToEEPROM();
     updateDisplay();
     _settingsChanged = false;
@@ -275,9 +275,9 @@ void Settings::adjustTotalDistance(int8_t direction) {
 }
 
 void Settings::adjustMaxSpeed(int8_t direction) {
-    _maxSpeed += direction * 24.0f; // Adjust by 1% of 2400 steps/sec
-    if (_maxSpeed < 800.0f) _maxSpeed = 800.0f; // Minimum 33% (800 steps/sec)
-    if (_maxSpeed > 2400.0f) _maxSpeed = 2400.0f; // Maximum 100% (2400 steps/sec)
+    _speed += direction * 24.0f; // Adjust by 1% of 2400 steps/sec
+    if (_speed < 800.0f) _speed = 800.0f; // Minimum 33% (800 steps/sec)
+    if (_speed > 2400.0f) _speed = 2400.0f; // Maximum 100% (2400 steps/sec)
 }
 
 void Settings::updateDisplay() {
@@ -290,7 +290,7 @@ void Settings::updateDisplay() {
             value = String(_totalDistance, 1) + "mm";
             break;
         case MenuItem::MAX_SPEED:
-            value = String((_maxSpeed / 24.0f), 0) + "%";
+            value = String((_speed / 24.0f), 0) + "%";
             break;
         default:
             value = "";

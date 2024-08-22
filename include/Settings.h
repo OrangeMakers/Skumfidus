@@ -16,7 +16,7 @@ public:
     void saveSettingsToEEPROM();
     unsigned long getCookTime() const;
     float getTotalDistance() const;
-    float getMaxSpeed() const;
+    float getSpeed() const;
     int getTotalSteps() const;
     static constexpr float DISTANCE_PER_REV = 8.0f;
     static constexpr int STEPS_PER_REV = 1600;
@@ -76,7 +76,7 @@ private:
 
     unsigned long _cookTime;
     float _totalDistance;
-    float _maxSpeed;
+    float _speed;
 };
 
 #endif // SETTINGS_H
