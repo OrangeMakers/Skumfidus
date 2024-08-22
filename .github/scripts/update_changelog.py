@@ -9,18 +9,19 @@ def validate_and_update_release(version):
     with open('RELEASE.md', 'r') as f:
         content = f.read()
 
+    validation_errors = []
+
     # Check if there's a description
     description_match = re.search(r'^\[.*?\]\s*\n\n(.*?)\n\n###', content, re.MULTILINE | re.DOTALL)
     if not description_match or description_match.group(1).strip() == "[Insert release description here]":
-        print("Error: Release description is missing or has not been updated in RELEASE.md")
-        sys.exit(1)
+        validation_errors.append("Release description is missing or has not been updated in RELEASE.md")
 
     sections = ["Added", "Changed", "Deprecated", "Removed", "Fixed", "Security"]
     valid_sections = []
     for section in sections:
         if f"### {section}" not in content:
-            print(f"Error: ### {section} section is missing in RELEASE.md")
-            sys.exit(1)
+            validation_errors.append(f"### {section} section is missing in RELEASE.md")
+            continue
 
         section_pattern = rf'### {section}\s*(.*?)(?=\n###|\Z)'
         section_match = re.search(section_pattern, content, re.DOTALL)
@@ -34,7 +35,12 @@ def validate_and_update_release(version):
                 content = re.sub(section_pattern, f"### {section}\n- No changes\n", content, flags=re.DOTALL)
 
     if not valid_sections:
-        print("Error: At least one section must have changes in RELEASE.md")
+        validation_errors.append("At least one section must have changes in RELEASE.md")
+
+    if validation_errors:
+        print("Validation errors:")
+        for error in validation_errors:
+            print(f"- {error}")
         sys.exit(1)
 
     # Update the [Unreleased] header with the new version
