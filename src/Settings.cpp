@@ -275,7 +275,7 @@ void Settings::adjustTotalDistance(int8_t direction) {
 }
 
 void Settings::adjustMaxSpeed(int8_t direction) {
-    _maxSpeed += direction * 0.01f * 2400.0f; // Adjust by 1% of 2400 steps/sec
+    _maxSpeed += direction * 24.0f; // Adjust by 1% of 2400 steps/sec
     if (_maxSpeed < 800.0f) _maxSpeed = 800.0f; // Minimum 33% (800 steps/sec)
     if (_maxSpeed > 2400.0f) _maxSpeed = 2400.0f; // Maximum 100% (2400 steps/sec)
 }
@@ -290,7 +290,7 @@ void Settings::updateDisplay() {
             value = String(_totalDistance, 1) + "mm";
             break;
         case MenuItem::MAX_SPEED:
-            value = String((_maxSpeed / 2400.0f) * 100, 0) + "%";
+            value = String((_maxSpeed / 24.0f), 0) + "%";
             break;
         default:
             value = "";
