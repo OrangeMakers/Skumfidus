@@ -21,8 +21,10 @@ jobs:
     - run: pip install platformio
     
     - name: Install git-semver
-      run: npm install -g git-semver
-    
+      run: |
+        npm install -g git-semver
+        echo "$(npm bin -g)" >> $GITHUB_PATH
+
     - name: Calculate version
       id: semver
       run: echo "version=$(git-semver)" >> $GITHUB_OUTPUT
