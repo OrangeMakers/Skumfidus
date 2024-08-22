@@ -1,4 +1,4 @@
-## [Unreleased]
+## Description of next release
 
 [Insert release description here]
 

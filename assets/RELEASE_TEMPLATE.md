@@ -1,4 +1,4 @@
-## [Version] - YYYY-MM-DD
+## Description of next release
 
 [Insert release description here]
 
