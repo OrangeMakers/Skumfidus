@@ -8,12 +8,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Automated build process using GitHub Actions
-- Automatic version calculation based on commit history
-
-## [1.0.0] - 2024-08-22
-
-### Added
 - Initial release of Marsh Mellow 2.0 project
 - ESP32-based control system for stepper motor and relay
 - 16x2 I2C LCD screen for real-time information display
@@ -25,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Precise stepper motor control with TMC2209 driver
 - Periodic relay activation
 - Comprehensive documentation including System Overview, Hardware Setup, Software Architecture, User Interface, Configuration Guide, and Troubleshooting
+- Automated build process using GitHub Actions
+- Automatic version calculation based on commit history
 
 ### Changed
 - N/A (Initial release)
