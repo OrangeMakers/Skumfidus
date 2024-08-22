@@ -34,10 +34,17 @@ jobs:
     - name: Build project
       run: platformio run
     
-    - name: Extract release notes and update CHANGELOG.md
+    - name: Check CHANGELOG.md format and extract release notes
       id: changelog
       run: |
-        LATEST_ENTRY=$(sed -n '/^## \[Unreleased\]/,/^## /p' CHANGELOG.md | sed '$d' | tail -n +2)
+        TEMPLATE=$(cat docs/CHANGELOG_TEMPLATE.md)
+        UNRELEASED=$(sed -n '/^## \[Unreleased\]/,/^## /p' CHANGELOG.md | sed '$d')
+        if [ "$UNRELEASED" != "$TEMPLATE" ]; then
+          echo "Error: [Unreleased] section in CHANGELOG.md does not match the template."
+          echo "Please update the [Unreleased] section to match the template in docs/CHANGELOG_TEMPLATE.md"
+          exit 1
+        fi
+        LATEST_ENTRY=$(echo "$UNRELEASED" | tail -n +2)
         echo "latest_entry<<EOF" >> $GITHUB_OUTPUT
         echo "$LATEST_ENTRY" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
