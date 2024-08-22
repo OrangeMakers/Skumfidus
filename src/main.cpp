@@ -105,7 +105,6 @@ String errorMessage = "";
 
 // Timer variables
 Timer timer;
-unsigned long timerDuration = 30000; // 30 seconds, adjust as needed
 
 // Define motor states
 enum MotorState {
@@ -122,13 +121,11 @@ float MAX_SPEED = 1600;  // Maintains 2 revolutions per second (16 mm/second)
 const float ACCELERATION = 3200.0;  // Adjust for smooth acceleration
 
 // EEPROM addresses
-const int EEPROM_TIMER_DURATION_ADDR = 0;
 const int EEPROM_TOTAL_DISTANCE_ADDR = 4;
 const int EEPROM_MAX_SPEED_ADDR = 8;
 
 // Function to save parameters to EEPROM
 void saveParametersToEEPROM() {
-  EEPROM.put(EEPROM_TIMER_DURATION_ADDR, timerDuration);
   EEPROM.put(EEPROM_TOTAL_DISTANCE_ADDR, TOTAL_DISTANCE);
   EEPROM.put(EEPROM_MAX_SPEED_ADDR, MAX_SPEED);
   EEPROM.commit();
@@ -136,14 +133,12 @@ void saveParametersToEEPROM() {
 
 // Function to load parameters from EEPROM
 void loadParametersFromEEPROM() {
-  EEPROM.get(EEPROM_TIMER_DURATION_ADDR, timerDuration);
   EEPROM.get(EEPROM_TOTAL_DISTANCE_ADDR, TOTAL_DISTANCE);
   EEPROM.get(EEPROM_MAX_SPEED_ADDR, MAX_SPEED);
   
   // Check if values are valid (not NaN or infinity)
   if (isnan(TOTAL_DISTANCE) || isinf(TOTAL_DISTANCE)) TOTAL_DISTANCE = 120.0;
   if (isnan(MAX_SPEED) || isinf(MAX_SPEED)) MAX_SPEED = 1600;
-  if (timerDuration == 0xFFFFFFFF) timerDuration = 30000; // Default value if EEPROM is empty
   
   // Update TOTAL_STEPS based on loaded TOTAL_DISTANCE
   TOTAL_STEPS = (TOTAL_DISTANCE / DISTANCE_PER_REV) * STEPS_PER_REV;
@@ -355,7 +350,7 @@ void handleIdle() {
 
   if (buttonStart.isPressed()) {
     changeState(RUNNING, millis());
-    timer.start(timerDuration);
+    timer.start(settings.getCookTime());
     stepper.moveTo(-HOMING_DIRECTION * TOTAL_STEPS);  // Start moving in opposite direction of homing
     return;  // Exit the function immediately to start running
   }
@@ -381,7 +376,7 @@ void handleRunning(unsigned long currentTime) {
   if (stateJustChanged) {
     stateJustChanged = false;
     display.updateDisplay("Cooking", "Started");
-    timer.start(timerDuration);
+    timer.start(settings.getCookTime());
     currentState = MOVING;  // Ensure we start in the MOVING state
     stepper.moveTo(-HOMING_DIRECTION * TOTAL_STEPS);  // Set initial movement direction
     lastLCDUpdateTime = 0; // Force an immediate update
