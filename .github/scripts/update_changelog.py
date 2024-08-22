@@ -53,8 +53,8 @@ def validate_and_update_release(version):
         insert_position = match.start()
         updated_changelog = changelog_content[:insert_position] + content + "\n\n" + changelog_content[insert_position:]
     else:
-        # If no existing release is found, append to the end
-        updated_changelog = changelog_content + "\n\n" + content
+        print("Error: Unable to find the position to insert the new release in CHANGELOG.md")
+        sys.exit(1)
 
     with open('CHANGELOG.md', 'w') as f:
         f.write(updated_changelog)
