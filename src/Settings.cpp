@@ -215,7 +215,7 @@ void Settings::displayCurrentMenuItem() {
             bottomLine = String(_totalDistance, 1) + "mm";
             break;
         case MenuItem::MAX_SPEED:
-            bottomLine = String(((_speed - SPEED_MIN) / (SPEED_MAX - SPEED_MIN) * 100), 0) + "%";
+            bottomLine = String(map(_speed, SPEED_MIN, SPEED_MAX, 0, 100)) + "%";
             break;
         default:
             break;
@@ -281,8 +281,7 @@ void Settings::adjustTotalDistance(int8_t direction) {
 void Settings::adjustMaxSpeed(int8_t direction) {
     float step = (SPEED_MAX - SPEED_MIN) / 100.0f; // Adjust by 1% of the speed range
     _speed += direction * step;
-    if (_speed < SPEED_MIN) _speed = SPEED_MIN;
-    if (_speed > SPEED_MAX) _speed = SPEED_MAX;
+    _speed = constrain(_speed, SPEED_MIN, SPEED_MAX);
 }
 
 void Settings::updateDisplay() {
