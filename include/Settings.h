@@ -78,8 +78,8 @@ private:
     float _totalDistance;
     float _speed;
 
-    static constexpr float SPEED_MIN = 800.0f;
-    static constexpr float SPEED_MAX = 2400.0f;
+    static constexpr float SPEED_MIN = 500.0f;
+    static constexpr float SPEED_MAX = 3500.0f;
 };
 
 #endif // SETTINGS_H
