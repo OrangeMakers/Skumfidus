@@ -1,4 +1,5 @@
 name: Automated Build
+run-name: Build firmware and create release
 
 on:
   push:
@@ -62,11 +63,13 @@ jobs:
         # Update the [Unreleased] header with the new version
         sed -i "s/## \[Unreleased\]/## [${{ steps.gitversion.outputs.semVer }}] - $(date +'%Y-%m-%d')/" CHANGELOG.md
 
-    - name: Set up PlatformIO
+    - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.x'
-    - run: pip install platformio
+
+    - name: Install PlatformIO
+      run: pip install platformio
     
     - name: Build project
       run: platformio run
