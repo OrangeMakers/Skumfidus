@@ -44,10 +44,10 @@ jobs:
           fi
           
           SECTION_CONTENT=$(sed -n "/^### $SECTION/,/^###/p" CHANGELOG.md | sed '1d;$d' | sed '/^$/d')
-          if [ -z "$SECTION_CONTENT" ] || [ "$SECTION_CONTENT" = "- [Update ${SECTION}s]" ]; then
-            sed -i "/^### $SECTION/,/^###/c\### $SECTION\n- No new ${SECTION}" CHANGELOG.md
-          elif echo "$SECTION_CONTENT" | grep -q "^\- \[Update ${SECTION}s\]"; then
-            sed -i "/^### $SECTION/,/^###/{ /^\- \[Update ${SECTION}s\]/d; }" CHANGELOG.md
+          if [ -z "$SECTION_CONTENT" ] || [ "$SECTION_CONTENT" = "- [Update ${SECTION}]" ]; then
+            sed -i "/^### $SECTION/,/^###/c\### $SECTION\n- No changes" CHANGELOG.md
+          elif echo "$SECTION_CONTENT" | grep -q "^\- \[Update ${SECTION}\]"; then
+            sed -i "/^### $SECTION/,/^###/{ /^\- \[Update ${SECTION}\]/d; }" CHANGELOG.md
           fi
         done
         
