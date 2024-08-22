@@ -115,33 +115,28 @@ enum MotorState {
 // Movement and stepper motor parameters
 const int STEPS_PER_REV = 1600;  // 200 * 8 (for 8 microstepping)
 const float DISTANCE_PER_REV = 8.0;  // 8mm per revolution (lead of ACME rod)
-float TOTAL_DISTANCE = 120.0;  // 30mm in each direction
 int TOTAL_STEPS;
 float MAX_SPEED = 1600;  // Maintains 2 revolutions per second (16 mm/second)
 const float ACCELERATION = 3200.0;  // Adjust for smooth acceleration
 
 // EEPROM addresses
-const int EEPROM_TOTAL_DISTANCE_ADDR = 4;
 const int EEPROM_MAX_SPEED_ADDR = 8;
 
 // Function to save parameters to EEPROM
 void saveParametersToEEPROM() {
-  EEPROM.put(EEPROM_TOTAL_DISTANCE_ADDR, TOTAL_DISTANCE);
   EEPROM.put(EEPROM_MAX_SPEED_ADDR, MAX_SPEED);
   EEPROM.commit();
 }
 
 // Function to load parameters from EEPROM
 void loadParametersFromEEPROM() {
-  EEPROM.get(EEPROM_TOTAL_DISTANCE_ADDR, TOTAL_DISTANCE);
   EEPROM.get(EEPROM_MAX_SPEED_ADDR, MAX_SPEED);
   
   // Check if values are valid (not NaN or infinity)
-  if (isnan(TOTAL_DISTANCE) || isinf(TOTAL_DISTANCE)) TOTAL_DISTANCE = 120.0;
   if (isnan(MAX_SPEED) || isinf(MAX_SPEED)) MAX_SPEED = 1600;
   
-  // Update TOTAL_STEPS based on loaded TOTAL_DISTANCE
-  TOTAL_STEPS = (TOTAL_DISTANCE / DISTANCE_PER_REV) * STEPS_PER_REV;
+  // Update TOTAL_STEPS based on settings.getTotalDistance()
+  TOTAL_STEPS = (settings.getTotalDistance() / DISTANCE_PER_REV) * STEPS_PER_REV;
 }
 
 // Define LCD update interval
@@ -351,6 +346,7 @@ void handleIdle() {
   if (buttonStart.isPressed()) {
     changeState(RUNNING, millis());
     timer.start(settings.getCookTime());
+    TOTAL_STEPS = (settings.getTotalDistance() / DISTANCE_PER_REV) * STEPS_PER_REV;
     stepper.moveTo(-HOMING_DIRECTION * TOTAL_STEPS);  // Start moving in opposite direction of homing
     return;  // Exit the function immediately to start running
   }
@@ -378,6 +374,7 @@ void handleRunning(unsigned long currentTime) {
     display.updateDisplay("Cooking", "Started");
     timer.start(settings.getCookTime());
     currentState = MOVING;  // Ensure we start in the MOVING state
+    TOTAL_STEPS = (settings.getTotalDistance() / DISTANCE_PER_REV) * STEPS_PER_REV;
     stepper.moveTo(-HOMING_DIRECTION * TOTAL_STEPS);  // Set initial movement direction
     lastLCDUpdateTime = 0; // Force an immediate update
   }
@@ -409,6 +406,7 @@ void handleRunning(unsigned long currentTime) {
     case MOVING:
       if (stepper.distanceToGo() == 0) {
         // Change direction when reaching either end
+        TOTAL_STEPS = (settings.getTotalDistance() / DISTANCE_PER_REV) * STEPS_PER_REV;
         stepper.moveTo(stepper.currentPosition() == 0 ? -HOMING_DIRECTION * TOTAL_STEPS : (stepper.currentPosition() == -HOMING_DIRECTION * TOTAL_STEPS ? 0 : -HOMING_DIRECTION * TOTAL_STEPS));
         digitalWrite(BUILTIN_LED_PIN, !digitalRead(BUILTIN_LED_PIN));  // Toggle LED when changing direction
         currentState = CHANGING_DIRECTION;
