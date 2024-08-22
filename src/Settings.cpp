@@ -9,12 +9,10 @@ const float SPEED_MAX = 3500.0f;
 
 Settings::Settings(MatrixDisplay& display, ESP32Encoder& encoder)
     : _display(display), _encoder(encoder), _isDone(false), _inEditMode(false), _currentMenuIndex(0), _lastEncoderValue(0),
-      _cookTime(30000), _totalDistance(50.0f), _speed((SPEED_MIN + SPEED_MAX) / 2), _totalSteps(0), _settingsChanged(false) {
+      _totalSteps(0), _settingsChanged(false) {
     initializeMenuItems();
+    loadSettingsFromEEPROM();
     _totalSteps = (_totalDistance / DISTANCE_PER_REV) * STEPS_PER_REV;
-    _initialCookTime = _cookTime;
-    _initialTotalDistance = _totalDistance;
-    _initialSpeed = _speed;
 }
 
 Settings::~Settings() {
@@ -26,7 +24,7 @@ void Settings::loadSettingsFromEEPROM() {
     EEPROM.get(4, _totalDistance);
     EEPROM.get(8, _speed);
 
-    // Validate loaded values
+    // Validate loaded values and set defaults if necessary
     if (_cookTime < 5000 || _cookTime > 120000) _cookTime = 30000;
     if (_totalDistance < 50.0f || _totalDistance > 120.0f) _totalDistance = 50.0f;
     if (_speed < SPEED_MIN || _speed > SPEED_MAX) _speed = (SPEED_MIN + SPEED_MAX) / 2;
