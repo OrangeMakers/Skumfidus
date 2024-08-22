@@ -37,7 +37,7 @@ jobs:
       with:
         python-version: '3.x'
 
-    - name: Check and update CHANGELOG.md format
+    - name: Validate RELEASE.md and update CHANGELOG.md
       id: changelog
       run: |
         python .github/scripts/update_changelog.py "${{ steps.gitversion.outputs.semVer }}" >> $GITHUB_OUTPUT
@@ -65,9 +65,11 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Commit CHANGELOG.md changes
+    - name: Commit changes
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git commit -am "Update CHANGELOG.md for version ${{ steps.gitversion.outputs.semVer }}"
+        git add CHANGELOG.md RELEASE_NEXT.md
+        git rm RELEASE.md
+        git commit -m "Update CHANGELOG.md and create RELEASE_NEXT.md for version ${{ steps.gitversion.outputs.semVer }}"
         git push
