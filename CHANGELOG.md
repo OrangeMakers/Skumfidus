@@ -7,20 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
+Test release.. 
 
+### Added
+- [Update Additions]
+  
 ### Changed
 - Updated GitHub Actions to use the newest current versions
 - Switched to using GitVersion for automatic version calculation based on commit history
+- Added validation of the ChangeLog file to the GitHub Actions build process
 
 ### Deprecated
+- [Update Deprecations]
 
 ### Removed
+- [Update Removals]
 
 ### Fixed
 - Fixed a path in the semver action
 
 ### Security
+- [Update Security Fixes]
 
 ## [] - 2024-08-22
 
