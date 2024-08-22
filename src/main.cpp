@@ -172,10 +172,9 @@ void setup() {
 
   // Initialize EEPROM
   if (!EEPROM.begin(EEPROM_SIZE)) {
+    #ifdef DEBUG
     Serial.println("Failed to initialise EEPROM");
-    Serial.println("Restarting...");
-    delay(1000);
-    ESP.restart();
+    #endif
   }
 
   // Initialize pins
