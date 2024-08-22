@@ -10,12 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 0  # Fetch all history for all tags and branches
     
     - name: Set up PlatformIO
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: '3.x'
     - run: pip install platformio
@@ -25,7 +25,7 @@ jobs:
     
     - name: Calculate version
       id: semver
-      run: echo "::set-output name=version::$(git-semver)"
+      run: echo "version=$(git-semver)" >> $GITHUB_OUTPUT
     
     - name: Build project
       run: platformio run
@@ -53,14 +53,11 @@ jobs:
         prerelease: false
     
     - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ./.pio/build/esp32doit-devkit-v1/firmware.bin
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./.pio/build/esp32doit-devkit-v1/firmware.bin
-        asset_name: firmware-v${{ steps.semver.outputs.version }}.bin
-        asset_content_type: application/octet-stream
 
     - name: Commit CHANGELOG.md changes
       run: |
