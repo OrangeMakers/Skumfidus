@@ -215,7 +215,7 @@ void Settings::displayCurrentMenuItem() {
             bottomLine = String(_totalDistance, 1) + "mm";
             break;
         case MenuItem::MAX_SPEED:
-            bottomLine = String((_maxSpeed / 2400.0f) * 100, 0) + "%";
+            bottomLine = String(((_speed - SPEED_MIN) / (SPEED_MAX - SPEED_MIN) * 100), 0) + "%";
             break;
         default:
             break;
