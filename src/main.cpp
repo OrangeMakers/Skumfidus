@@ -32,35 +32,6 @@ ESP32Encoder encoder;
 int32_t lastEncoderValue = 0;
 int32_t encoderValue = 0;
 
-#ifdef DEBUG
-// Function to dump switch states and encoder value
-static unsigned long lastDebugPrint = 0;
-void dumpDebug() {
-    unsigned long currentTime = millis();
-
-    // Debug print every second
-    if (currentTime - lastDebugPrint > 1000) {
-        Serial.print("Start:");
-        Serial.print(buttonStart.getState());
-        Serial.print(" Limit:");
-        Serial.print(buttonLimitSwitch.getState());
-        Serial.print(" Rotary:");
-        Serial.print(buttonRotarySwitch.getState());
-        Serial.print(" Encoder:");
-        Serial.print(encoderValue);
-        Serial.print(" Direction:");
-        Serial.print(encoderValue > lastEncoderValue ? "CW" : (encoderValue < lastEncoderValue ? "CCW" : "No change"));
-        Serial.print(" CookTime:");
-        Serial.print(settings.getCookTime());
-        Serial.print(" MaxSpeed:");
-        Serial.print(settings.getMaxSpeed());
-        Serial.print(" TotalDistance:");
-        Serial.println(settings.getTotalDistance());
-        lastDebugPrint = currentTime;
-    }
-}
-#endif
-
 // Function to handle encoder changes
 void handleEncoderChange(int32_t newValue) {
     #ifdef DEBUG
@@ -454,6 +425,35 @@ void handleError() {
 
   // In ERROR state, we don't do anything else until the device is reset
 }
+
+#ifdef DEBUG
+// Function to dump switch states and encoder value
+static unsigned long lastDebugPrint = 0;
+void dumpDebug() {
+    unsigned long currentTime = millis();
+
+    // Debug print every second
+    if (currentTime - lastDebugPrint > 1000) {
+        Serial.print("Start:");
+        Serial.print(buttonStart.getState());
+        Serial.print(" Limit:");
+        Serial.print(buttonLimitSwitch.getState());
+        Serial.print(" Rotary:");
+        Serial.print(buttonRotarySwitch.getState());
+        Serial.print(" Encoder:");
+        Serial.print(encoderValue);
+        Serial.print(" Direction:");
+        Serial.print(encoderValue > lastEncoderValue ? "CW" : (encoderValue < lastEncoderValue ? "CCW" : "No change"));
+        Serial.print(" CookTime:");
+        Serial.print(settings.getCookTime());
+        Serial.print(" MaxSpeed:");
+        Serial.print(settings.getMaxSpeed());
+        Serial.print(" TotalDistance:");
+        Serial.println(settings.getTotalDistance());
+        lastDebugPrint = currentTime;
+    }
+}
+#endif
 
 void loop() {
   unsigned long currentTime = millis();
