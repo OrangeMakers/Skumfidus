@@ -1,18 +1,17 @@
 ## Description of next release
 
-[Insert release description here]
+Test 2 3 4
 
 ### Added
 - No changes
 
 ### Changed
-- No changes
+- Removed old section
 
 ### Deprecated
-- No changes
 
 ### Removed
-- No changes
+- Removed old section
 
 ### Fixed
 - No changes
