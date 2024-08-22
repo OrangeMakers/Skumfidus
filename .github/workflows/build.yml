@@ -34,15 +34,14 @@ jobs:
     - name: Build project
       run: platformio run
     
-    - name: Update CHANGELOG.md
-      run: |
-        sed -i "s/## \[Unreleased\]/## [${{ steps.gitversion.outputs.semVer }}] - $(date +'%Y-%m-%d')/" CHANGELOG.md
-    
-    - name: Get latest changelog entry
+    - name: Extract release notes and update CHANGELOG.md
       id: changelog
       run: |
-        LATEST_ENTRY=$(sed -n '/^## /,/^## /p' CHANGELOG.md | sed '$d' | tail -n +2)
-        echo "latest_entry=$LATEST_ENTRY" >> $GITHUB_OUTPUT
+        LATEST_ENTRY=$(sed -n '/^## \[Unreleased\]/,/^## /p' CHANGELOG.md | sed '$d' | tail -n +2)
+        echo "latest_entry<<EOF" >> $GITHUB_OUTPUT
+        echo "$LATEST_ENTRY" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+        sed -i "s/## \[Unreleased\]/## [${{ steps.gitversion.outputs.semVer }}] - $(date +'%Y-%m-%d')/" CHANGELOG.md
     
     - name: Create Release
       id: create_release
