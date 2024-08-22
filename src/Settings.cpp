@@ -24,8 +24,8 @@ void Settings::loadSettingsFromEEPROM() {
     float totalDistance, speed;
 
     EEPROM.get(0, cookTime);
-    EEPROM.get(4, totalDistance);
-    EEPROM.get(8, speed);
+    EEPROM.get(sizeof(unsigned long), totalDistance);
+    EEPROM.get(sizeof(unsigned long) + sizeof(float), speed);
 
     // Validate loaded values and set defaults if necessary
     _cookTime = (cookTime >= 5000 && cookTime <= 120000) ? cookTime : 30000;
@@ -44,8 +44,8 @@ void Settings::loadSettingsFromEEPROM() {
 
 void Settings::saveSettingsToEEPROM() {
     EEPROM.put(0, _cookTime);
-    EEPROM.put(4, _totalDistance);
-    EEPROM.put(8, _speed);
+    EEPROM.put(sizeof(unsigned long), _totalDistance);
+    EEPROM.put(sizeof(unsigned long) + sizeof(float), _speed);
     
     if (EEPROM.commit()) {
         _initialCookTime = _cookTime;
