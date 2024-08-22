@@ -1,0 +1,44 @@
+{
+  "unreleased": {
+    "title": "[Unreleased]",
+    "description": "[Insert release description here]",
+    "sections": {
+      "added": {
+        "title": "Added",
+        "items": [
+          "[Update Added]"
+        ]
+      },
+      "changed": {
+        "title": "Changed",
+        "items": [
+          "[Update Changed]"
+        ]
+      },
+      "deprecated": {
+        "title": "Deprecated",
+        "items": [
+          "[Update Deprecated]"
+        ]
+      },
+      "removed": {
+        "title": "Removed",
+        "items": [
+          "[Update Removed]"
+        ]
+      },
+      "fixed": {
+        "title": "Fixed",
+        "items": [
+          "[Update Fixed]"
+        ]
+      },
+      "security": {
+        "title": "Security",
+        "items": [
+          "[Update Security]"
+        ]
+      }
+    }
+  }
+}
