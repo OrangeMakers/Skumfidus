@@ -24,14 +24,17 @@ Settings::~Settings() {
 }
 
 void Settings::loadSettingsFromEEPROM() {
-    EEPROM.get(0, _cookTime);
-    EEPROM.get(4, _totalDistance);
-    EEPROM.get(8, _speed);
+    unsigned long cookTime;
+    float totalDistance, speed;
+
+    EEPROM.get(0, cookTime);
+    EEPROM.get(4, totalDistance);
+    EEPROM.get(8, speed);
 
     // Validate loaded values and set defaults if necessary
-    if (_cookTime < 5000 || _cookTime > 120000) _cookTime = 30000;
-    if (_totalDistance < 50.0f || _totalDistance > 120.0f) _totalDistance = 50.0f;
-    if (_speed < SPEED_MIN || _speed > SPEED_MAX) _speed = (SPEED_MIN + SPEED_MAX) / 2;
+    _cookTime = (cookTime >= 5000 && cookTime <= 120000) ? cookTime : 30000;
+    _totalDistance = (totalDistance >= 50.0f && totalDistance <= 120.0f) ? totalDistance : 50.0f;
+    _speed = (speed >= SPEED_MIN && speed <= SPEED_MAX) ? speed : (SPEED_MIN + SPEED_MAX) / 2;
 
     // Recalculate _totalSteps
     _totalSteps = (_totalDistance / DISTANCE_PER_REV) * STEPS_PER_REV;
@@ -47,13 +50,17 @@ void Settings::saveSettingsToEEPROM() {
     EEPROM.put(0, _cookTime);
     EEPROM.put(4, _totalDistance);
     EEPROM.put(8, _speed);
-    EEPROM.commit();
-
-    _initialCookTime = _cookTime;
-    _initialTotalDistance = _totalDistance;
-    _initialSpeed = _speed;
-    _settingsChanged = false;
-    updateMenuVisibility();
+    
+    if (EEPROM.commit()) {
+        _initialCookTime = _cookTime;
+        _initialTotalDistance = _totalDistance;
+        _initialSpeed = _speed;
+        _settingsChanged = false;
+        updateMenuVisibility();
+    } else {
+        // Handle EEPROM write failure
+        // You might want to set an error flag or display an error message
+    }
 }
 
 unsigned long Settings::getCookTime() const { return _cookTime; }
