@@ -7,6 +7,7 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <ESP32Encoder.h>
+#include <EEPROM.h>
 #include "MatrixDisplay.h"
 #include "Timer.h"
 #include "ButtonHandler.h"
@@ -166,6 +167,13 @@ void setup() {
   Serial.begin(115200);  // Initialize serial communication
   #endif
 
+  // Initialize EEPROM
+  if (!EEPROM.begin(EEPROM_SIZE)) {
+    Serial.println("Failed to initialise EEPROM");
+    Serial.println("Restarting...");
+    delay(1000);
+    ESP.restart();
+  }
 
   // Initialize pins
   pinMode(BUILTIN_LED_PIN, OUTPUT);
@@ -200,7 +208,6 @@ void setup() {
 
   // Initialize state
   changeState(STARTUP, millis());
-
 }
 
 void handleStartup(unsigned long currentTime) {
