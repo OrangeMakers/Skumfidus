@@ -303,6 +303,7 @@ void handleHoming(unsigned long currentTime) {
       waitingForConfirmation = false;
       homingStarted = true;
       stateStartTime = currentTime;  // Reset the start time for homing
+      digitalWrite(STEPPER_ENABLE_PIN, LOW);  // Enable the stepper motor
       stepper.setMaxSpeed(HOMING_SPEED);
       stepper.setAcceleration(ACCELERATION * 2);  // Set higher acceleration for more instant stop during homing
       homingSteps = HOMING_DIRECTION * 1000000;  // Large number to ensure continuous movement
