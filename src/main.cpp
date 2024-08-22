@@ -116,25 +116,9 @@ enum MotorState {
 const int STEPS_PER_REV = 1600;  // 200 * 8 (for 8 microstepping)
 const float DISTANCE_PER_REV = 8.0;  // 8mm per revolution (lead of ACME rod)
 int TOTAL_STEPS;
-float MAX_SPEED = 1600;  // Maintains 2 revolutions per second (16 mm/second)
 const float ACCELERATION = 3200.0;  // Adjust for smooth acceleration
 
-// EEPROM addresses
-const int EEPROM_MAX_SPEED_ADDR = 8;
-
-// Function to save parameters to EEPROM
-void saveParametersToEEPROM() {
-  EEPROM.put(EEPROM_MAX_SPEED_ADDR, MAX_SPEED);
-  EEPROM.commit();
-}
-
-// Function to load parameters from EEPROM
-void loadParametersFromEEPROM() {
-  EEPROM.get(EEPROM_MAX_SPEED_ADDR, MAX_SPEED);
-  
-  // Check if values are valid (not NaN or infinity)
-  if (isnan(MAX_SPEED) || isinf(MAX_SPEED)) MAX_SPEED = 1600;
-}
+// We no longer need to save or load MAX_SPEED from EEPROM as it's handled by the Settings class
 
 // Define LCD update interval
 static unsigned long lastLCDUpdateTime = 0;
@@ -237,7 +221,7 @@ void setup() {
   display.begin();
 
   // Configure stepper
-  stepper.setMaxSpeed(MAX_SPEED);
+  stepper.setMaxSpeed(settings.getMaxSpeed());
   stepper.setAcceleration(ACCELERATION);
   stepper.moveTo(0);  // Start at home position
 
@@ -319,7 +303,7 @@ void handleHoming(unsigned long currentTime) {
     if (stepper.distanceToGo() == 0) {
       // Finished moving away from switch
       stepper.setCurrentPosition(0);
-      stepper.setMaxSpeed(MAX_SPEED);  // Restore original max speed
+      stepper.setMaxSpeed(settings.getMaxSpeed());  // Restore original max speed
       #ifdef DEBUG
       Serial.println("Homing completed!");
       #endif
