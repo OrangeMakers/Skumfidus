@@ -1,7 +1,7 @@
 {
-  "unreleased": {
-    "title": "[Unreleased]",
-    "description": "[Insert release description here]",
+  "release": {
+    "title": "",
+    "description": "",
     "sections": {
       "added": {
         "title": "Added",
