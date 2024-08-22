@@ -86,8 +86,8 @@ def validate_and_update_release(version):
         f.write(updated_changelog)
 
     # Delete RELEASE.md and create RELEASE_NEXT.md
-    # os.remove('RELEASE.md')
-    # shutil.copy('assets/RELEASE_TEMPLATE.md', 'RELEASE_NEXT.md')
+    os.remove('RELEASE.md')
+    shutil.copy('assets/RELEASE_TEMPLATE.md', 'RELEASE_NEXT.md')
 
     # Remove the version header from the content for the latest_entry output
     latest_entry = re.sub(r'^## \[.*?\] - .*?\n', '', content, 1).strip()
