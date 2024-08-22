@@ -56,7 +56,7 @@ private:
     bool _settingsChanged;
     unsigned long _initialCookTime;
     float _initialTotalDistance;
-    float _initialMaxSpeed;
+    float _initialSpeed;
 
     void initializeMenuItems();
     void updateMenuVisibility();
@@ -77,6 +77,9 @@ private:
     unsigned long _cookTime;
     float _totalDistance;
     float _speed;
+
+    static constexpr float SPEED_MIN = 800.0f;
+    static constexpr float SPEED_MAX = 2400.0f;
 };
 
 #endif // SETTINGS_H
