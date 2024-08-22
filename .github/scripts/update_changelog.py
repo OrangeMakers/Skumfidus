@@ -1,4 +1,5 @@
 import re
+import re
 import sys
 import os
 from datetime import date
@@ -45,8 +46,15 @@ def validate_and_update_release(version):
     with open('CHANGELOG.md', 'r') as f:
         changelog_content = f.read()
 
-    insert_position = changelog_content.index('{Insert Release Here}') + len('{Insert Release Here}\n\n')
-    updated_changelog = changelog_content[:insert_position] + content + "\n\n" + changelog_content[insert_position:]
+    # Find the position of the first release header
+    release_pattern = r'## \[\d+\.\d+\.\d+(?:-\d+)?\] - \d{4}-\d{2}-\d{2}'
+    match = re.search(release_pattern, changelog_content)
+    if match:
+        insert_position = match.start()
+        updated_changelog = changelog_content[:insert_position] + content + "\n\n" + changelog_content[insert_position:]
+    else:
+        # If no existing release is found, append to the end
+        updated_changelog = changelog_content + "\n\n" + content
 
     with open('CHANGELOG.md', 'w') as f:
         f.write(updated_changelog)
