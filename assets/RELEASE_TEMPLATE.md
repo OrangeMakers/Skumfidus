@@ -1,21 +1,21 @@
-## [Unreleased]
+## [Version] - YYYY-MM-DD
 
 [Insert release description here]
 
 ### Added
-- [Update Added]
+- No changes
 
 ### Changed
-- [Update Changed]
+- No changes
 
 ### Deprecated
-- [Update Deprecated]
+- No changes
 
 ### Removed
-- [Update Removed]
+- No changes
 
 ### Fixed
-- [Update Fixed]
+- No changes
 
 ### Security
-- [Update Security]
+- No changes
