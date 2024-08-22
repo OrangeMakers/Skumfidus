@@ -11,8 +11,12 @@ def validate_and_update_release(version):
 
     validation_errors = []
 
-    # Check if there's a description
-    description_match = re.search(r'^\[.*?\]\s*\n\n(.*?)\n\n###', content, re.MULTILINE | re.DOTALL)
+    # Check if the first section is "## Description of next release"
+    if not content.startswith("## Description of next release"):
+        validation_errors.append("The first section in RELEASE.md should be '## Description of next release'")
+
+    # Check if there's a description and it's not the placeholder
+    description_match = re.search(r'## Description of next release\s*\n\n(.*?)\n\n##', content, re.MULTILINE | re.DOTALL)
     if not description_match or description_match.group(1).strip() == "[Insert release description here]":
         validation_errors.append("Release description is missing or has not been updated in RELEASE.md")
 
