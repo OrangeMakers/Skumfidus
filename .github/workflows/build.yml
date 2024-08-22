@@ -68,23 +68,15 @@ jobs:
     - name: Build project
       run: platformio run
         
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: v${{ steps.gitversion.outputs.semVer }}
-        release_name: Release v${{ steps.gitversion.outputs.semVer }}
-        body: ${{ steps.changelog.outputs.latest_entry }}
-        draft: false
-        prerelease: false
-    
-    - name: Upload Release Asset
+    - name: Create Release and Upload Asset
       uses: softprops/action-gh-release@v2
       with:
-        files: ./.pio/build/esp32doit-devkit-v1/firmware.bin
         tag_name: v${{ steps.gitversion.outputs.semVer }}
+        name: Release v${{ steps.gitversion.outputs.semVer }}
+        body: ${{ steps.changelog.outputs.latest_entry }}
+        files: ./.pio/build/esp32doit-devkit-v1/firmware.bin
+        draft: false
+        prerelease: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
