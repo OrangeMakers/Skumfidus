@@ -1,12 +1,13 @@
 ## Description of next release
 
-[Insert release description here]
+This release includes improvements to EEPROM usage and settings management.
 
 ### Added
 - No changes
 
 ### Changed
-- No changes
+- Improved EEPROM usage in Settings.cpp
+- Enhanced variable size and offset calculations for better maintainability
 
 ### Deprecated
 - No changes
@@ -15,7 +16,7 @@
 - No changes
 
 ### Fixed
-- No changes
+- Ensured EEPROM variable sizes fit allocated addresses
 
 ### Security
 - No changes
