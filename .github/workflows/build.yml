@@ -38,7 +38,7 @@ jobs:
       id: changelog
       run: |
         LATEST_ENTRY=$(sed -n '/^## /,/^## /p' CHANGELOG.md | sed '$d' | tail -n +2)
-        echo "::set-output name=latest_entry::$LATEST_ENTRY"
+        echo "latest_entry=$LATEST_ENTRY" >> $GITHUB_OUTPUT
     
     - name: Create Release
       id: create_release
@@ -56,6 +56,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: ./.pio/build/esp32doit-devkit-v1/firmware.bin
+        tag_name: v${{ steps.semver.outputs.version }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
