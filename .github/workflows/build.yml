@@ -40,38 +40,53 @@ jobs:
     - name: Check and update CHANGELOG.md format
       id: changelog
       run: |
-        # Check if [Unreleased] section exists and has a non-default description
-        DESCRIPTION=$(sed -n '/^## \[Unreleased\]/,/^###/p' CHANGELOG.md | sed '1d;$d' | tr -d '[:space:]')
-        if [ -z "$DESCRIPTION" ] || [ "$DESCRIPTION" = "[Insertreleasedescriptionhere]" ]; then
-          echo "Error: [Unreleased] section is missing or has not been updated in CHANGELOG.md"
-          exit 1
-        fi
-        
-        # Check and update each section
-        for SECTION in "Added" "Changed" "Deprecated" "Removed" "Fixed" "Security"; do
-          if ! grep -q "^### $SECTION" CHANGELOG.md; then
-            echo "Error: ### $SECTION section is missing in CHANGELOG.md"
-            exit 1
-          fi
-          
-          SECTION_CONTENT=$(sed -n "/^### $SECTION/,/^###/p" CHANGELOG.md | sed '1d;$d' | sed '/^$/d')
-          if [ -z "$SECTION_CONTENT" ]; then
-            sed -i "/^### $SECTION/,/^###/c\### $SECTION\n- No changes" CHANGELOG.md
-          elif [ "$SECTION_CONTENT" = "- [Update ${SECTION}]" ]; then
-            sed -i "/^### $SECTION/,/^###/c\### $SECTION\n- No changes" CHANGELOG.md
-          elif echo "$SECTION_CONTENT" | grep -q "^\- \[Update ${SECTION}\]"; then
-            sed -i "/^### $SECTION/,/^###/{ /^\- \[Update ${SECTION}\]/d; }" CHANGELOG.md
-          fi
-        done
-        
-        # Extract the latest entry
-        LATEST_ENTRY=$(sed -n '/^## \[Unreleased\]/,/^## /p' CHANGELOG.md | sed '$d' | sed '1d' | sed '/./,$!d')
-        echo "latest_entry<<EOF" >> $GITHUB_OUTPUT
-        echo "$LATEST_ENTRY" >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
-        
-        # Update the [Unreleased] header with the new version
-        sed -i "s/## \[Unreleased\]/## [${{ steps.gitversion.outputs.semVer }}] - $(date +'%Y-%m-%d')/" CHANGELOG.md
+        python - <<EOF
+        import re
+        import sys
+        from datetime import date
+
+        def check_and_update_changelog(version):
+            with open('CHANGELOG.md', 'r') as f:
+                content = f.read()
+
+            # Check if [Unreleased] section exists and has a non-default description
+            unreleased_match = re.search(r'^## \[Unreleased\]\s*\n(.*?)\n^###', content, re.MULTILINE | re.DOTALL)
+            if not unreleased_match or unreleased_match.group(1).strip() == "[Insert release description here]":
+                print("Error: [Unreleased] section is missing or has not been updated in CHANGELOG.md")
+                sys.exit(1)
+
+            sections = ["Added", "Changed", "Deprecated", "Removed", "Fixed", "Security"]
+            for section in sections:
+                if f"### {section}" not in content:
+                    print(f"Error: ### {section} section is missing in CHANGELOG.md")
+                    sys.exit(1)
+
+                section_pattern = rf'### {section}\s*(.*?)(?=\n###|\Z)'
+                section_match = re.search(section_pattern, content, re.DOTALL)
+                if section_match:
+                    section_content = section_match.group(1).strip()
+                    if not section_content or section_content == f"- [Update {section}]":
+                        content = re.sub(section_pattern, f"### {section}\n- No changes\n", content, flags=re.DOTALL)
+                    else:
+                        content = re.sub(rf'- \[Update {section}\]\s*\n', '', content)
+
+            # Extract the latest entry
+            latest_entry = re.search(r'^## \[Unreleased\](.*?)(?=^##|\Z)', content, re.MULTILINE | re.DOTALL).group(1).strip()
+
+            # Update the [Unreleased] header with the new version
+            today = date.today().isoformat()
+            content = re.sub(r'## \[Unreleased\]', f'## [{version}] - {today}', content, count=1)
+
+            with open('CHANGELOG.md', 'w') as f:
+                f.write(content)
+
+            return latest_entry
+
+        version = "${{ steps.gitversion.outputs.semVer }}"
+        latest_entry = check_and_update_changelog(version)
+        with open(r'$GITHUB_OUTPUT', 'a') as fh:
+            fh.write(f'latest_entry<<EOF\n{latest_entry}\nEOF\n')
+        EOF
 
     - name: Install PlatformIO
       run: pip install platformio
