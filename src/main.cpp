@@ -134,9 +134,6 @@ void loadParametersFromEEPROM() {
   
   // Check if values are valid (not NaN or infinity)
   if (isnan(MAX_SPEED) || isinf(MAX_SPEED)) MAX_SPEED = 1600;
-  
-  // Update TOTAL_STEPS based on settings.getTotalDistance()
-  TOTAL_STEPS = (settings.getTotalDistance() / DISTANCE_PER_REV) * STEPS_PER_REV;
 }
 
 // Define LCD update interval
