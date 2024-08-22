@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Updated GitHub Actions to use the newest current versions
+- Switched to using GitVersion for automatic version calculation based on commit history
 
 ### Deprecated
 
