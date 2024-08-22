@@ -307,11 +307,11 @@ void handleHoming(unsigned long currentTime) {
       stepper.setAcceleration(ACCELERATION * 2);  // Set higher acceleration for more instant stop during homing
       homingSteps = HOMING_DIRECTION * 1000000;  // Large number to ensure continuous movement
       stepper.moveTo(homingSteps);
-      display.updateDisplay("Homing:", "In progress", 500);
+      display.updateDisplay("Homing:", "In progress");
     }
   } else if (homingStarted && !movingAwayFromSwitch) {
     if (buttonLimitSwitch.getState()) {
-      display.updateDisplay("Homing:", "Triggered", 1000);
+      display.updateDisplay("Homing:", "Triggered");
       stepper.stop();  // Stop as fast as possible: sets new target
       stepper.runToPosition();  // Wait for the stepper to stop
       
@@ -323,7 +323,7 @@ void handleHoming(unsigned long currentTime) {
       homingSteps = -HOMING_DIRECTION * (HOMING_DISTANCE / DISTANCE_PER_REV) * STEPS_PER_REV;  // Move HOMING_DISTANCE in opposite direction
       stepper.move(homingSteps);
       movingAwayFromSwitch = true;
-      display.updateDisplay("Homing:", "Move to Zero", 1000);
+      display.updateDisplay("Homing:", "Move to Zero");
     } else if (currentTime - stateStartTime > HOMING_TIMEOUT) {
       // Homing timeout
       errorMessage = "Homing failed";

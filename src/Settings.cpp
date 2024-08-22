@@ -234,13 +234,11 @@ int8_t Settings::getEncoderDirection() {
 
 void Settings::enterEditMode() {
     _inEditMode = true;
-    invertDisplayColors();
     displayCurrentMenuItem();
 }
 
 void Settings::exitEditMode() {
     _inEditMode = false;
-    invertDisplayColors();
     displayCurrentMenuItem();
 }
 
@@ -299,10 +297,4 @@ void Settings::updateDisplay() {
             break;
     }
     _display.updateDisplay(_menuItems[_currentMenuIndex].displayName, value);
-}
-
-void Settings::invertDisplayColors() {
-    // This function is no longer needed with MatrixDisplay
-    // You may want to implement a visual indicator for edit mode in another way
-    // For now, we'll leave it empty
 }
