@@ -4,8 +4,8 @@
 extern ButtonHandler buttonRotarySwitch;
 
 // Define speed constants
-const float SPEED_MIN = 800.0f;
-const float SPEED_MAX = 2400.0f;
+const float SPEED_MIN = 500.0f;
+const float SPEED_MAX = 3500.0f;
 
 Settings::Settings(MatrixDisplay& display, ESP32Encoder& encoder)
     : _display(display), _encoder(encoder), _isDone(false), _inEditMode(false), _currentMenuIndex(0), _lastEncoderValue(0),
