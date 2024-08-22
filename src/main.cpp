@@ -193,7 +193,7 @@ void setup() {
   display.begin();
 
   // Configure stepper
-  stepper.setMaxSpeed(settings.getMaxSpeed());
+  stepper.setMaxSpeed(settings.getSpeed());
   stepper.setAcceleration(ACCELERATION);
   stepper.moveTo(0);  // Start at home position
 
@@ -273,7 +273,7 @@ void handleHoming(unsigned long currentTime) {
     if (stepper.distanceToGo() == 0) {
       // Finished moving away from switch
       stepper.setCurrentPosition(0);
-      stepper.setMaxSpeed(settings.getMaxSpeed());  // Restore original max speed
+      stepper.setMaxSpeed(settings.getSpeed());  // Restore original max speed
       #ifdef DEBUG
       Serial.println("Homing completed!");
       #endif
@@ -326,7 +326,7 @@ void handleRunning(unsigned long currentTime) {
     timer.start(settings.getCookTime());
     currentState = MOVING;  // Ensure we start in the MOVING state
     TOTAL_STEPS = (settings.getTotalDistance() / DISTANCE_PER_REV) * STEPS_PER_REV;
-    stepper.setMaxSpeed(settings.getMaxSpeed());  // Set the correct max speed
+    stepper.setMaxSpeed(settings.getSpeed());  // Set the correct max speed
     stepper.moveTo(-HOMING_DIRECTION * TOTAL_STEPS);  // Set initial movement direction
     lastLCDUpdateTime = 0; // Force an immediate update
   }
@@ -448,8 +448,8 @@ void dumpDebug() {
         Serial.print(encoderValue > lastEncoderValue ? "CW" : (encoderValue < lastEncoderValue ? "CCW" : "No change"));
         Serial.print(" CookTime:");
         Serial.print(settings.getCookTime());
-        Serial.print(" MaxSpeed:");
-        Serial.print(settings.getMaxSpeed());
+        Serial.print(" Speed:");
+        Serial.print(settings.getSpeed());
         Serial.print(" TotalDistance:");
         Serial.println(settings.getTotalDistance());
         lastDebugPrint = currentTime;
