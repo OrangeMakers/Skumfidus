@@ -3,9 +3,13 @@
 
 extern ButtonHandler buttonRotarySwitch;
 
+// Define speed constants
+const float SPEED_MIN = 800.0f;
+const float SPEED_MAX = 2400.0f;
+
 Settings::Settings(MatrixDisplay& display, ESP32Encoder& encoder)
     : _display(display), _encoder(encoder), _isDone(false), _inEditMode(false), _currentMenuIndex(0), _lastEncoderValue(0),
-      _cookTime(30000), _totalDistance(50.0f), _speed(1600.0f), _totalSteps(0), _settingsChanged(false) {
+      _cookTime(30000), _totalDistance(50.0f), _speed((SPEED_MIN + SPEED_MAX) / 2), _totalSteps(0), _settingsChanged(false) {
     initializeMenuItems();
     _totalSteps = (_totalDistance / DISTANCE_PER_REV) * STEPS_PER_REV;
     _initialCookTime = _cookTime;
@@ -25,7 +29,7 @@ void Settings::loadSettingsFromEEPROM() {
     // Validate loaded values
     if (_cookTime < 5000 || _cookTime > 120000) _cookTime = 30000;
     if (_totalDistance < 50.0f || _totalDistance > 120.0f) _totalDistance = 50.0f;
-    if (_speed < 800.0f || _speed > 2400.0f) _speed = 1600.0f;
+    if (_speed < SPEED_MIN || _speed > SPEED_MAX) _speed = (SPEED_MIN + SPEED_MAX) / 2;
 
     // Recalculate _totalSteps
     _totalSteps = (_totalDistance / DISTANCE_PER_REV) * STEPS_PER_REV;
@@ -58,7 +62,7 @@ int Settings::getTotalSteps() const { return _totalSteps; }
 void Settings::factoryReset() {
     _cookTime = 30000;
     _totalDistance = 50.0f;
-    _speed = 1600.0f;
+    _speed = (SPEED_MIN + SPEED_MAX) / 2;
     saveSettingsToEEPROM();
     updateDisplay();
     _settingsChanged = false;
@@ -275,9 +279,10 @@ void Settings::adjustTotalDistance(int8_t direction) {
 }
 
 void Settings::adjustMaxSpeed(int8_t direction) {
-    _speed += direction * 24.0f; // Adjust by 1% of 2400 steps/sec
-    if (_speed < 800.0f) _speed = 800.0f; // Minimum 33% (800 steps/sec)
-    if (_speed > 2400.0f) _speed = 2400.0f; // Maximum 100% (2400 steps/sec)
+    float step = (SPEED_MAX - SPEED_MIN) / 100.0f; // Adjust by 1% of the speed range
+    _speed += direction * step;
+    if (_speed < SPEED_MIN) _speed = SPEED_MIN;
+    if (_speed > SPEED_MAX) _speed = SPEED_MAX;
 }
 
 void Settings::updateDisplay() {
@@ -290,7 +295,7 @@ void Settings::updateDisplay() {
             value = String(_totalDistance, 1) + "mm";
             break;
         case MenuItem::MAX_SPEED:
-            value = String((_speed / 24.0f), 0) + "%";
+            value = String(((_speed - SPEED_MIN) / (SPEED_MAX - SPEED_MIN) * 100), 0) + "%";
             break;
         default:
             value = "";
