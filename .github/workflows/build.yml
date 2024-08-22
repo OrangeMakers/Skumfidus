@@ -69,13 +69,17 @@ jobs:
     - name: Build project
       run: platformio run
         
+    - name: Rename firmware file
+      run: |
+        mv ./.pio/build/esp32doit-devkit-v1/firmware.bin ./firmware-v${{ steps.gitversion.outputs.semVer }}.bin
+
     - name: Create Release and Upload Asset
       uses: softprops/action-gh-release@v2
       with:
         tag_name: v${{ steps.gitversion.outputs.semVer }}
         name: Release v${{ steps.gitversion.outputs.semVer }}
         body: ${{ steps.changelog.outputs.latest_entry }}
-        files: ./.pio/build/esp32doit-devkit-v1/firmware.bin
+        files: ./firmware-v${{ steps.gitversion.outputs.semVer }}.bin
         draft: false
         prerelease: false
       env:
