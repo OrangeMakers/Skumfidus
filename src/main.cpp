@@ -248,9 +248,6 @@ void setup() {
   encoder.attachHalfQuad(ROTARY_CLK_PIN, ROTARY_DT_PIN);
   encoder.setCount(0);
 
-  // Set STEPPER_ENABLE_PIN to LOW to enable the stepper driver
-  digitalWrite(STEPPER_ENABLE_PIN, LOW);
-
   // Initialize LCD
   display.begin();
 
