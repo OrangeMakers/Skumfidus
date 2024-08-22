@@ -27,12 +27,16 @@ def check_and_update_changelog(version):
             else:
                 content = re.sub(rf'- \[Update {section}\]\s*\n', '', content)
 
-    # Extract the latest entry
+    # Extract the latest entry including all sections
     latest_entry = re.search(r'^## \[Unreleased\](.*?)(?=^##|\Z)', content, re.MULTILINE | re.DOTALL).group(1).strip()
 
     # Update the [Unreleased] header with the new version
     today = date.today().isoformat()
-    content = re.sub(r'## \[Unreleased\]', f'## [{version}] - {today}', content, count=1)
+    new_version_header = f'## [{version}] - {today}'
+    content = content.replace('## [Unreleased]', new_version_header, 1)
+    
+    # Update the latest_entry with the new version header
+    latest_entry = f"{new_version_header}\n\n{latest_entry}"
 
     with open('CHANGELOG.md', 'w') as f:
         f.write(content)
