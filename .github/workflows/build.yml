@@ -34,20 +34,44 @@ jobs:
     - name: Build project
       run: platformio run
     
-    - name: Check CHANGELOG.md format and extract release notes
+    - name: Check and update CHANGELOG.md format
       id: changelog
       run: |
-        TEMPLATE=$(cat docs/CHANGELOG_TEMPLATE.md)
-        UNRELEASED=$(sed -n '/^## \[Unreleased\]/,/^## /p' CHANGELOG.md | sed '$d')
-        if [ "$UNRELEASED" != "$TEMPLATE" ]; then
-          echo "Error: [Unreleased] section in CHANGELOG.md does not match the template."
-          echo "Please update the [Unreleased] section to match the template in docs/CHANGELOG_TEMPLATE.md"
+        # Check if [Unreleased] section exists
+        if ! grep -q "^## \[Unreleased\]" CHANGELOG.md; then
+          echo "Error: [Unreleased] section is missing in CHANGELOG.md"
           exit 1
         fi
-        LATEST_ENTRY=$(echo "$UNRELEASED" | tail -n +2)
+        
+        # Check if there's a description after [Unreleased]
+        DESCRIPTION=$(sed -n '/^## \[Unreleased\]/,/^### Added/p' CHANGELOG.md | sed '1d;$d' | tr -d '[:space:]')
+        if [ -z "$DESCRIPTION" ] || [ "$DESCRIPTION" = "[Insertreleasedescriptionhere]" ]; then
+          echo "Error: Release description is missing or not updated in CHANGELOG.md"
+          exit 1
+        fi
+        
+        # Check and update each section
+        for SECTION in "Added" "Changed" "Deprecated" "Removed" "Fixed" "Security"; do
+          if ! grep -q "^### $SECTION" CHANGELOG.md; then
+            echo "Error: ### $SECTION section is missing in CHANGELOG.md"
+            exit 1
+          fi
+          
+          SECTION_CONTENT=$(sed -n "/^### $SECTION/,/^###/p" CHANGELOG.md | sed '1d;$d' | sed '/^$/d')
+          if [ -z "$SECTION_CONTENT" ] || [ "$SECTION_CONTENT" = "- [Update ${SECTION}s]" ]; then
+            sed -i "/^### $SECTION/,/^###/c\### $SECTION\n- No new ${SECTION}" CHANGELOG.md
+          elif echo "$SECTION_CONTENT" | grep -q "^\- \[Update ${SECTION}s\]"; then
+            sed -i "/^### $SECTION/,/^###/{ /^\- \[Update ${SECTION}s\]/d; }" CHANGELOG.md
+          fi
+        done
+        
+        # Extract the latest entry
+        LATEST_ENTRY=$(sed -n '/^## \[Unreleased\]/,/^## /p' CHANGELOG.md | sed '$d')
         echo "latest_entry<<EOF" >> $GITHUB_OUTPUT
         echo "$LATEST_ENTRY" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
+        
+        # Update the [Unreleased] header with the new version
         sed -i "s/## \[Unreleased\]/## [${{ steps.gitversion.outputs.semVer }}] - $(date +'%Y-%m-%d')/" CHANGELOG.md
     
     - name: Create Release
