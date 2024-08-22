@@ -14,7 +14,7 @@ Settings::Settings(MatrixDisplay& display, ESP32Encoder& encoder)
     _totalSteps = (_totalDistance / DISTANCE_PER_REV) * STEPS_PER_REV;
     _initialCookTime = _cookTime;
     _initialTotalDistance = _totalDistance;
-    _initialMaxSpeed = _speed;
+    _initialSpeed = _speed;
 }
 
 Settings::~Settings() {
@@ -36,7 +36,7 @@ void Settings::loadSettingsFromEEPROM() {
 
     _initialCookTime = _cookTime;
     _initialTotalDistance = _totalDistance;
-    _initialMaxSpeed = _speed;
+    _initialSpeed = _speed;
     _settingsChanged = false;
     updateMenuVisibility();
 }
@@ -49,7 +49,7 @@ void Settings::saveSettingsToEEPROM() {
 
     _initialCookTime = _cookTime;
     _initialTotalDistance = _totalDistance;
-    _initialMaxSpeed = _speed;
+    _initialSpeed = _speed;
     _settingsChanged = false;
     updateMenuVisibility();
 }
@@ -187,7 +187,7 @@ void Settings::initializeMenuItems() {
 void Settings::updateMenuVisibility() {
     _settingsChanged = (_cookTime != _initialCookTime) ||
                        (_totalDistance != _initialTotalDistance) ||
-                       (_maxSpeed != _initialMaxSpeed);
+                       (_speed != _initialSpeed);
 
     for (auto& item : _menuItems) {
         switch (item.item) {
