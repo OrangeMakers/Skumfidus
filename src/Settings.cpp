@@ -1,6 +1,9 @@
 #include "Settings.h"
 #include <EEPROM.h>
 
+// Initialize EEPROM with 512 bytes
+const int EEPROM_SIZE = 512;
+
 extern ButtonHandler buttonRotarySwitch;
 
 // Define speed constants
@@ -10,6 +13,7 @@ const float SPEED_MAX = 3500.0f;
 Settings::Settings(MatrixDisplay& display, ESP32Encoder& encoder)
     : _display(display), _encoder(encoder), _isDone(false), _inEditMode(false), _currentMenuIndex(0), _lastEncoderValue(0),
       _totalSteps(0), _settingsChanged(false) {
+    EEPROM.begin(EEPROM_SIZE);
     initializeMenuItems();
     loadSettingsFromEEPROM();
     _totalSteps = (_totalDistance / DISTANCE_PER_REV) * STEPS_PER_REV;

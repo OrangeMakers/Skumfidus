@@ -6,7 +6,6 @@
 #include <AccelStepper.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
-#include <EEPROM.h>
 #include <ESP32Encoder.h>
 #include "MatrixDisplay.h"
 #include "Timer.h"
@@ -167,8 +166,6 @@ void setup() {
   Serial.begin(115200);  // Initialize serial communication
   #endif
 
-  // Initialize EEPROM
-  EEPROM.begin(512);  // Initialize EEPROM with 512 bytes
 
   // Initialize pins
   pinMode(BUILTIN_LED_PIN, OUTPUT);
