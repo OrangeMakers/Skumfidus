@@ -1,12 +1,12 @@
 ## Description of next release
 
-Test build, if it works as expected
+[Insert release description here]
 
 ### Added
 - No changes
 
 ### Changed
-- Nothing really changed, just a new push to see if build runs as expected
+- No changes
 
 ### Deprecated
 - No changes
