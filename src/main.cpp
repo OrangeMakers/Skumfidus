@@ -495,9 +495,19 @@ void handleParking() {
   }
 }
 
-void setup() {
+// Function to initialize and turn on LED strip
+void initializeLEDStrip() {
+  FastLED.addLeds<LED_TYPE, ADDRESSABLE_LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);
+  fill_solid(leds, NUM_LEDS, CRGB::Orange);
+  FastLED.setBrightness(255);  // Set to full brightness
+  FastLED.show();
+}
 
+void setup() {
   settings.loadSettingsFromPreferences();
+
+  // Initialize LED strip
+  initializeLEDStrip();
 
   // Init if debug
   #ifdef DEBUG
