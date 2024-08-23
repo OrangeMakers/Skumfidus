@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0-134] - 2024-08-23
+
+This update includes improvements in the installation process and documentation.
+
+### Added
+- Added instructions for debug firmware in INSTALL.md
+
+### Changed
+- Updated INSTALL.md with detailed instructions for installing Python and esptool on both Windows and Linux
+- Changed firmware distribution to use zip files (firmware.zip and firmware-debug.zip) instead of individual files
+- Updated installation scripts (Install_Firmware.cmd, Install_Firmware.ps1, and Install_Firmware.sh) to handle automatic port scanning
+
+### Deprecated
+- No changes
+
+### Removed
+- No changes
+
+### Fixed
+- No changes
+
+### Security
+- No changes
+
 ## [0.3.0-120] - 2024-08-23
 
 This release introduces debug firmware and updates the release naming convention.
