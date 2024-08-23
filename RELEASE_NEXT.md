@@ -1,12 +1,13 @@
 ## Description of next release
 
-[Insert release description here]
+This update includes improvements in the release process and documentation.
 
 ### Added
 - No changes
 
 ### Changed
-- No changes
+- Updated RELEASE_NEXT.md to reflect the latest changes in English
+- Improved the release process to include automatic translation of release notes
 
 ### Deprecated
 - No changes
