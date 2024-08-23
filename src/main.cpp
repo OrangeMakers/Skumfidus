@@ -59,7 +59,7 @@ void handleEncoderChange(int32_t newValue) {
 
 // Define homing parameters
 #define HOMING_DISTANCE 125.0 // Distance to move back after hitting the switch (in mm)
-#define HOMING_SPEED 800.0 // Speed for homing movement
+#define HOMING_SPEED 1400.0 // Speed for homing movement
 #define MOVE_TO_ZERO_SPEED 3000.0 // Speed for moving to zero position after homing
 
 // Define system states
