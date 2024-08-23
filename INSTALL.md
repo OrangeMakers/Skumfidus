@@ -69,6 +69,17 @@ pip3 install esptool
 
 Denne metode sikrer, at alle nødvendige firmware-komponenter bliver flashet korrekt til din Skumfidus-enhed.
 
+### Debug Firmware
+
+Hvis du oplever problemer med din Skumfidus-enhed, kan du bruge debug-firmwaren for at få mere detaljeret information:
+
+1. Download `firmware-debug.zip` i stedet for den normale `firmware.zip`.
+2. Udpak og flash denne firmware som beskrevet ovenfor.
+3. Efter flashning, åbn en seriel monitor (f.eks. Arduino IDE's serielle monitor) med en baud rate på 115200.
+4. Du vil nu se detaljerede debug-informationer på den serielle monitor.
+
+Bemærk: Debug-firmwaren bør kun bruges til fejlfinding, da den kan påvirke enhedens ydeevne.
+
 ## Fejlfinding
 
 Hvis du oplever problemer under installationen eller flashning-processen, kan du prøve følgende:
