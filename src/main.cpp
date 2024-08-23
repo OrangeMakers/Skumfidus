@@ -265,49 +265,30 @@ void handleHoming(unsigned long currentTime) {
 }
 
 void handleIdle() {
-  static unsigned long buttonPressStartTime = 0;
   const unsigned long LONG_PRESS_DURATION = 5000; // 5 seconds for long press
   const unsigned long SETTINGS_PRESS_DURATION = 1000; // 1 second for settings
 
   if (stateJustChanged) {
     display.updateDisplay("Idle..", "Press Start");
     stateJustChanged = false;
-    buttonPressStartTime = 0; // Reset the button press time when entering IDLE state
   }
 
-  if (buttonStart.isPressed()) {
-    buttonPressStartTime = millis();
-  }
-
-  if (buttonStart.getState()) {
-    unsigned long pressDuration = millis() - buttonPressStartTime;
-    if (pressDuration >= LONG_PRESS_DURATION) {
-      changeState(PARKING, millis());
-      buttonPressStartTime = 0;
-    }
+  unsigned long startPressDuration = buttonStart.isPressedForMs();
+  if (startPressDuration >= LONG_PRESS_DURATION) {
+    changeState(PARKING, millis());
   } else if (buttonStart.isReleased()) {
-    unsigned long pressDuration = millis() - buttonPressStartTime;
-    if (pressDuration < LONG_PRESS_DURATION) {
+    if (startPressDuration > 0 && startPressDuration < LONG_PRESS_DURATION) {
       changeState(RUNNING, millis());
       timer.start(settings.getCookTime());
       TOTAL_STEPS = (settings.getTotalDistance() / DISTANCE_PER_REV) * STEPS_PER_REV;
       stepper.moveTo(DIRECTION_RUN * TOTAL_STEPS);
     }
-    buttonPressStartTime = 0;
   }
 
-  if (buttonRotarySwitch.isPressed()) {
-    buttonPressStartTime = millis();
-  }
-
-  if (buttonRotarySwitch.getState()) {
-    if (millis() - buttonPressStartTime >= SETTINGS_PRESS_DURATION) {
-      changeState(SETTINGS_MENU, millis());
-      enterSettingsMenu();
-      buttonPressStartTime = 0;  // Reset the press start time
-    }
-  } else {
-    buttonPressStartTime = 0;  // Reset the press start time if button is released before SETTINGS_PRESS_DURATION
+  unsigned long rotarySwitchPressDuration = buttonRotarySwitch.isPressedForMs();
+  if (rotarySwitchPressDuration >= SETTINGS_PRESS_DURATION) {
+    changeState(SETTINGS_MENU, millis());
+    enterSettingsMenu();
   }
 
   stepper.stop();
