@@ -388,6 +388,11 @@ void startHeater() {
   digitalWrite(BUILTIN_LED_PIN, HIGH);
 }
 
+void stopHeater() {
+  digitalWrite(RELAY_PIN, LOW);
+  digitalWrite(BUILTIN_LED_PIN, LOW);
+}
+
 #ifdef DEBUG
 // Function to dump switch states and encoder value
 static unsigned long lastDebugPrint = 0;
