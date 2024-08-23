@@ -89,6 +89,8 @@ void Settings::enter() {
 void Settings::exit() {
     _isDone = true;
     _inEditMode = false;
+    _display.updateDisplay("Exiting...", "");
+    delay(1000);  // Show "Exiting..." for 1 second
     _display.updateDisplay("", "");  // Clear the display
 }
 
