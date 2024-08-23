@@ -22,11 +22,33 @@ For at flashe firmwaren skal du bruge esptool.py via kommandolinjen. Denne metod
 4. Åbn en terminal eller kommandoprompt og naviger til mappen, der indeholder de downloadede firmware-filer.
 
 5. Kør følgende kommando for at flashe firmwaren (erstat COM3 med din faktiske COM-port hvis nødvendigt):
+
+   For Windows (kør i cmd):
    ```
-   esptool --chip esp32 --port "COM3" --baud 460800 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size 4MB 0x1000 bootloader.bin 0x8000 partitions.bin 0xe000 boot_app0.bin 0x10000 firmware.bin
+   esptool --chip esp32 --port "COM3" --baud 460800 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size 4MB ^
+   0x1000 bootloader.bin ^
+   0x8000 partitions.bin ^
+   0xe000 boot_app0.bin ^
+   0x10000 firmware.bin
    ```
 
-   Bemærk: Hvis kommandoen er for lang til din terminal, kan du dele den op ved at bruge `^` på Windows eller `\` på Unix-systemer ved slutningen af hver linje.
+   For Windows (kør i PowerShell):
+   ```
+   esptool --chip esp32 --port "COM3" --baud 460800 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size 4MB `
+   0x1000 bootloader.bin `
+   0x8000 partitions.bin `
+   0xe000 boot_app0.bin `
+   0x10000 firmware.bin
+   ```
+
+   For Unix-systemer:
+   ```
+   esptool --chip esp32 --port "/dev/ttyUSB0" --baud 460800 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size 4MB \
+   0x1000 bootloader.bin \
+   0x8000 partitions.bin \
+   0xe000 boot_app0.bin \
+   0x10000 firmware.bin
+   ```
 
 6. Vent på at processen er færdig. Du skulle gerne se en succesmeddelelse.
 
