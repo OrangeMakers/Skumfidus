@@ -1,7 +1,7 @@
 #include "ButtonHandler.h"
 
 ButtonHandler::ButtonHandler(uint8_t pin, const char* name, bool activeLow)
-    : _pin(pin), _name(name), _activeLow(activeLow), _lastState(false), _currentState(false), _changed(false), _lastDebounceTime(0)
+    : _pin(pin), _name(name), _activeLow(activeLow), _lastState(false), _currentState(false), _changed(false), _lastDebounceTime(0), _pressStartTime(0)
 {}
 
 void ButtonHandler::begin() {
@@ -20,6 +20,9 @@ void ButtonHandler::update() {
         if (reading != _currentState) {
             _currentState = reading;
             _changed = true;
+            if (_currentState) {
+                _pressStartTime = millis();
+            }
             #ifdef DEBUG
             Serial.print(_name);
             Serial.print(" button ");
@@ -49,4 +52,11 @@ bool ButtonHandler::getState() {
 
 void ButtonHandler::reset() {
     _changed = false;
+}
+
+unsigned long ButtonHandler::isPressedForMs() {
+    if (_currentState) {
+        return millis() - _pressStartTime;
+    }
+    return 0;
 }

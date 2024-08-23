@@ -13,6 +13,7 @@ public:
     bool stateChanged();
     bool getState();
     void reset();
+    unsigned long isPressedForMs();
 
 private:
     uint8_t _pin;
@@ -22,6 +23,7 @@ private:
     bool _currentState;
     bool _changed;
     unsigned long _lastDebounceTime;
+    unsigned long _pressStartTime;
     static const unsigned long DEBOUNCE_DELAY = 50;  // 50ms debounce time
 };
 
