@@ -52,6 +52,7 @@ jobs:
         cp ./.pio/build/esp32doit-devkit-v1-debug/partitions.bin ./firmware-debug/partitions.bin
         cp ~/.platformio/packages/framework-arduinoespressif32/tools/partitions/boot_app0.bin ./firmware-debug/boot_app0.bin
         cp ./.pio/build/esp32doit-devkit-v1-debug/firmware.bin ./firmware-debug/firmware.bin
+        cd ./firmware-debug && zip ../firmware-debug.zip * && cd ..
 
     - name: Build release firmware
       run: platformio run --environment esp32doit-devkit-v1
