@@ -463,6 +463,37 @@ void displayCurrentSettings() {
 }
 #endif
 
+void handleParking() {
+  static bool parkingStarted = false;
+
+  if (stateJustChanged) {
+    stateJustChanged = false;
+    parkingStarted = false;
+    display.updateDisplay("Parking", "Please wait");
+    digitalWrite(STEPPER_ENABLE_PIN, LOW);  // Enable the stepper motor
+    stepper.setMaxSpeed(settings.getSpeed());
+    stepper.setAcceleration(ACCELERATION);
+    float parkDistance = 120.0;  // 120mm parking distance
+    long parkSteps = (parkDistance / DISTANCE_PER_REV) * STEPS_PER_REV;
+    stepper.moveTo(DIRECTION_HOME * parkSteps);
+    parkingStarted = true;
+  }
+
+  if (parkingStarted) {
+    if (stepper.distanceToGo() == 0) {
+      // Parking completed
+      digitalWrite(STEPPER_ENABLE_PIN, HIGH);  // Disable the stepper motor
+      display.updateDisplay("Please turn off", "The power");
+      while (true) {
+        // Infinite loop to stop all processing
+        delay(1000);
+      }
+    } else {
+      stepper.run();
+    }
+  }
+}
+
 void setup() {
 
   settings.loadSettingsFromPreferences();
@@ -581,34 +612,4 @@ void loop() {
   buttonStart.reset();
   buttonLimitSwitch.reset();
   buttonRotarySwitch.reset();
-}
-void handleParking() {
-  static bool parkingStarted = false;
-
-  if (stateJustChanged) {
-    stateJustChanged = false;
-    parkingStarted = false;
-    display.updateDisplay("Parking", "Please wait");
-    digitalWrite(STEPPER_ENABLE_PIN, LOW);  // Enable the stepper motor
-    stepper.setMaxSpeed(settings.getSpeed());
-    stepper.setAcceleration(ACCELERATION);
-    float parkDistance = 120.0;  // 120mm parking distance
-    long parkSteps = (parkDistance / DISTANCE_PER_REV) * STEPS_PER_REV;
-    stepper.moveTo(DIRECTION_HOME * parkSteps);
-    parkingStarted = true;
-  }
-
-  if (parkingStarted) {
-    if (stepper.distanceToGo() == 0) {
-      // Parking completed
-      digitalWrite(STEPPER_ENABLE_PIN, HIGH);  // Disable the stepper motor
-      display.updateDisplay("Please turn off", "The power");
-      while (true) {
-        // Infinite loop to stop all processing
-        delay(1000);
-      }
-    } else {
-      stepper.run();
-    }
-  }
 }
