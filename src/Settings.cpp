@@ -245,11 +245,13 @@ int8_t Settings::getEncoderDirection() {
 
 void Settings::enterEditMode() {
     _inEditMode = true;
+    updateMenuVisibility();
     displayCurrentMenuItem();
 }
 
 void Settings::exitEditMode() {
     _inEditMode = false;
+    updateMenuVisibility();
     displayCurrentMenuItem();
 }
 
@@ -268,6 +270,7 @@ void Settings::adjustValue(int8_t direction) {
             break;
     }
     updateDisplay();
+    updateMenuVisibility();
 }
 
 void Settings::adjustCookTime(int8_t direction) {
