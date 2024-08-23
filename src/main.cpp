@@ -12,12 +12,19 @@
 #include "ButtonHandler.h"
 #include "Settings.h"
 #include "MatrixDisplay.h"
+#include "FastLED.h"
 
 #define START_BUTTON_PIN 15   // Start button pin
 #define HOMING_SWITCH_PIN 16  // Homing switch pin
 #define ROTARY_CLK_PIN 17     // Rotary encoder CLK pin
 #define ROTARY_DT_PIN 18      // Rotary encoder DT pin
 #define ROTARY_SW_PIN 19      // Rotary encoder switch pin
+
+#define NUM_LEDS 36
+#define LED_TYPE WS2812B
+#define COLOR_ORDER GRB
+
+CRGB leds[NUM_LEDS];
 
 // Initialize ButtonHandler objects
 ButtonHandler buttonStart(START_BUTTON_PIN, "Start");
@@ -488,9 +495,19 @@ void handleParking() {
   }
 }
 
-void setup() {
+// Function to initialize and turn on LED strip
+void initializeLEDStrip() {
+  FastLED.addLeds<LED_TYPE, ADDRESSABLE_LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);
+  fill_solid(leds, NUM_LEDS, CRGB::Orange);
+  FastLED.setBrightness(255);  // Set to full brightness
+  FastLED.show();
+}
 
+void setup() {
   settings.loadSettingsFromPreferences();
+
+  // Initialize LED strip
+  initializeLEDStrip();
 
   // Init if debug
   #ifdef DEBUG
