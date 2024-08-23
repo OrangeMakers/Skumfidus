@@ -285,6 +285,7 @@ void handleRunning(unsigned long currentTime) {
     stepper.setMaxSpeed(settings.getSpeed());  // Set the correct max speed
     stepper.moveTo(DIRECTION_RUN * TOTAL_STEPS);  // Set initial movement direction
     lastLCDUpdateTime = 0; // Force an immediate update
+    startHeater(); // Start the heater when entering the running state
   }
 
   if (buttonStart.isPressed()) {
