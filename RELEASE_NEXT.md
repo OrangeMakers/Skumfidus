@@ -1,12 +1,12 @@
 ## Description of next release
 
-[Insert release description here]
+This release introduces debug firmware and updates the release naming convention.
 
 ### Added
-- No changes
+- Debug firmware is now included in releases as a separate zip file.
 
 ### Changed
-- No changes
+- Release naming convention updated to use semantic versioning (e.g., v1.2.3).
 
 ### Deprecated
 - No changes
