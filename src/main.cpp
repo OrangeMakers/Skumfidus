@@ -458,6 +458,7 @@ void dumpDebug() {
 #endif
 
 // Function to display current settings
+#ifdef DEBUG
 void displayCurrentSettings() {
   Serial.println("Current Settings:");
   Serial.print("Cook Time: ");
@@ -470,6 +471,7 @@ void displayCurrentSettings() {
   Serial.print(settings.getSpeed());
   Serial.println(" steps/second");
 }
+#endif
 
 void loop() {
   unsigned long currentTime = millis();
