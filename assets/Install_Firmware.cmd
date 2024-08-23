@@ -30,12 +30,16 @@ for %%f in (%files%) do (
     )
 )
 
-:: Set COM port
-set /p COM_PORT="Enter the COM port (e.g., COM3): "
+:: Set COM port or use auto-detection
+set /p COM_PORT="Enter the COM port (e.g., COM3) or press Enter for auto-detection: "
 
 :: Flash firmware
 echo Flashing firmware...
-esptool --chip esp32 --port %COM_PORT% --baud 115200 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size 4MB ^
+if not defined COM_PORT (
+    esptool --chip esp32 --baud 115200 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size 4MB ^
+) else (
+    esptool --chip esp32 --port %COM_PORT% --baud 115200 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size 4MB ^
+)
 0x1000 bootloader.bin ^
 0x8000 partitions.bin ^
 0xe000 boot_app0.bin ^

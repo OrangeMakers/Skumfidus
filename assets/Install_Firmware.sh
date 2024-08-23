@@ -30,12 +30,16 @@ do
     fi
 done
 
-# Set COM port
-read -p "Enter the serial port (e.g., /dev/ttyUSB0): " SERIAL_PORT
+# Set COM port or use auto-detection
+read -p "Enter the serial port (e.g., /dev/ttyUSB0) or press Enter for auto-detection: " SERIAL_PORT
 
 # Flash firmware
 echo "Flashing firmware..."
-esptool --chip esp32 --port "$SERIAL_PORT" --baud 115200 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size 4MB \
+if [ -z "$SERIAL_PORT" ]; then
+    esptool --chip esp32 --baud 115200 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size 4MB \
+else
+    esptool --chip esp32 --port "$SERIAL_PORT" --baud 115200 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size 4MB \
+fi
 0x1000 bootloader.bin \
 0x8000 partitions.bin \
 0xe000 boot_app0.bin \
