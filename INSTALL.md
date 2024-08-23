@@ -8,9 +8,9 @@
 
 ## Flashning af Firmware
 
-Hvis du foretrækker at bruge kommandolinjen, kan du bruge esptool.py til at flashe firmwaren. Denne metode kræver, at Python er installeret på dit system.
+For at flashe firmwaren skal du bruge esptool.py via kommandolinjen. Denne metode kræver, at Python er installeret på dit system.
 
-1. Installer esptool.py, hvis du ikke allerede har gjort det:
+1. Installer esptool.py ved at køre følgende kommando:
    ```
    pip install esptool
    ```
