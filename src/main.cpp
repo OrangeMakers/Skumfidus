@@ -53,7 +53,7 @@ void handleEncoderChange(int32_t newValue) {
 #define RELAY_PIN 14  // Relay control pin
 
 // Define homing direction (1 for positive, -1 for negative)
-#define HOMING_DIRECTION 1
+#define HOMING_DIRECTION -1
 
 // Define homing parameters
 #define HOMING_DISTANCE 125.0 // Distance to move back after hitting the switch (in mm)
@@ -252,7 +252,7 @@ void handleIdle() {
     changeState(RUNNING, millis());
     timer.start(settings.getCookTime());
     TOTAL_STEPS = (settings.getTotalDistance() / DISTANCE_PER_REV) * STEPS_PER_REV;
-    stepper.moveTo(-HOMING_DIRECTION * TOTAL_STEPS);  // Start moving in opposite direction of homing
+    stepper.moveTo(HOMING_DIRECTION * TOTAL_STEPS);  // Start moving in the same direction as homing
     return;  // Exit the function immediately to start running
   }
 
@@ -313,7 +313,7 @@ void handleRunning(unsigned long currentTime) {
       if (stepper.distanceToGo() == 0) {
         // Change direction when reaching either end
         TOTAL_STEPS = (settings.getTotalDistance() / DISTANCE_PER_REV) * STEPS_PER_REV;
-        stepper.moveTo(stepper.currentPosition() == 0 ? -HOMING_DIRECTION * TOTAL_STEPS : (stepper.currentPosition() == -HOMING_DIRECTION * TOTAL_STEPS ? 0 : -HOMING_DIRECTION * TOTAL_STEPS));
+        stepper.moveTo(stepper.currentPosition() == 0 ? HOMING_DIRECTION * TOTAL_STEPS : (stepper.currentPosition() == HOMING_DIRECTION * TOTAL_STEPS ? 0 : HOMING_DIRECTION * TOTAL_STEPS));
         digitalWrite(BUILTIN_LED_PIN, !digitalRead(BUILTIN_LED_PIN));  // Toggle LED when changing direction
         currentState = CHANGING_DIRECTION;
         stateStartTime = currentTime;
