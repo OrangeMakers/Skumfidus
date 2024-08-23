@@ -273,20 +273,29 @@ void handleIdle() {
     stateJustChanged = false;
   }
 
-  unsigned long startPressDuration = buttonStart.isPressedForMs();
-  if (startPressDuration >= LONG_PRESS_DURATION) {
-    changeState(PARKING, millis());
-  } else if (buttonStart.isReleased()) {
-    if (startPressDuration > 0 && startPressDuration < LONG_PRESS_DURATION) {
+  static bool startButtonWasPressed = false;
+  static unsigned long startPressStartTime = 0;
+
+  if (buttonStart.isPressed()) {
+    startButtonWasPressed = true;
+    startPressStartTime = millis();
+  }
+
+  if (startButtonWasPressed) {
+    unsigned long pressDuration = millis() - startPressStartTime;
+    if (pressDuration >= LONG_PRESS_DURATION) {
+      changeState(PARKING, millis());
+      startButtonWasPressed = false;
+    } else if (buttonStart.isReleased()) {
       changeState(RUNNING, millis());
       timer.start(settings.getCookTime());
       TOTAL_STEPS = (settings.getTotalDistance() / DISTANCE_PER_REV) * STEPS_PER_REV;
       stepper.moveTo(DIRECTION_RUN * TOTAL_STEPS);
+      startButtonWasPressed = false;
     }
   }
 
-  unsigned long rotarySwitchPressDuration = buttonRotarySwitch.isPressedForMs();
-  if (rotarySwitchPressDuration >= SETTINGS_PRESS_DURATION) {
+  if (buttonRotarySwitch.isPressedForMs() >= SETTINGS_PRESS_DURATION) {
     changeState(SETTINGS_MENU, millis());
     enterSettingsMenu();
   }
