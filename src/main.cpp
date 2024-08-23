@@ -7,7 +7,6 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <ESP32Encoder.h>
-#include <EEPROM.h>
 #include "MatrixDisplay.h"
 #include "Timer.h"
 #include "ButtonHandler.h"
@@ -31,9 +30,6 @@ ESP32Encoder encoder;
 // Variables for encoder
 int32_t lastEncoderValue = 0;
 int32_t encoderValue = 0;
-
-// Initialize EEPROM
-const int EEPROM_SIZE = 512;
 
 // Function to handle encoder changes
 void handleEncoderChange(int32_t newValue) {
@@ -162,50 +158,6 @@ void changeState(SystemState newState, unsigned long currentTime = 0) {
   currentSystemState = newState;
   stateStartTime = currentTime == 0 ? millis() : currentTime;
   stateJustChanged = true;
-}
-
-void setup() {
-  // Init if debug
-  #ifdef DEBUG
-  Serial.begin(115200);  // Initialize serial communication
-  
-  // Print initial settings
-  displayCurrentSettings();
-  #endif
-
-  // Initialize pins
-  pinMode(BUILTIN_LED_PIN, OUTPUT);
-  pinMode(ADDRESSABLE_LED_PIN, OUTPUT);
-  pinMode(STEP_PIN, OUTPUT);
-  pinMode(DIR_PIN, OUTPUT);
-  pinMode(STEPPER_ENABLE_PIN, OUTPUT);
-  digitalWrite(STEPPER_ENABLE_PIN, HIGH);  // Set STEPPER_ENABLE_PIN to HIGH by default
-  pinMode(RELAY_PIN, OUTPUT);
-
-  // Initialize ButtonHandler objects
-  buttonStart.begin();
-  buttonLimitSwitch.begin();
-  buttonRotarySwitch.begin();
-
-  // Initialize ESP32Encoder
-  ESP32Encoder::useInternalWeakPullResistors=UP;
-  encoder.attachHalfQuad(ROTARY_CLK_PIN, ROTARY_DT_PIN);
-  encoder.setCount(0);
-
-  // Initialize LCD
-  display.begin();
-
-  // Configure stepper
-  stepper.setMaxSpeed(settings.getSpeed());
-  stepper.setAcceleration(ACCELERATION);
-  stepper.moveTo(0);  // Start at home position
-
-  // Initialize and start MatrixDisplay update thread
-  display.begin();
-  display.startUpdateThread();
-
-  // Initialize state
-  changeState(STARTUP, millis());
 }
 
 void handleStartup(unsigned long currentTime) {
@@ -474,6 +426,53 @@ void displayCurrentSettings() {
   Serial.println(" steps/second");
 }
 #endif
+
+void setup() {
+
+  settings.loadSettingsFromPreferences();
+
+  // Init if debug
+  #ifdef DEBUG
+  Serial.begin(115200);  // Initialize serial communication
+  
+  // Print initial settings
+  displayCurrentSettings();
+  #endif
+
+  // Initialize pins
+  pinMode(BUILTIN_LED_PIN, OUTPUT);
+  pinMode(ADDRESSABLE_LED_PIN, OUTPUT);
+  pinMode(STEP_PIN, OUTPUT);
+  pinMode(DIR_PIN, OUTPUT);
+  pinMode(STEPPER_ENABLE_PIN, OUTPUT);
+  digitalWrite(STEPPER_ENABLE_PIN, HIGH);  // Set STEPPER_ENABLE_PIN to HIGH by default
+  pinMode(RELAY_PIN, OUTPUT);
+
+  // Initialize ButtonHandler objects
+  buttonStart.begin();
+  buttonLimitSwitch.begin();
+  buttonRotarySwitch.begin();
+
+  // Initialize ESP32Encoder
+  ESP32Encoder::useInternalWeakPullResistors=UP;
+  encoder.attachHalfQuad(ROTARY_CLK_PIN, ROTARY_DT_PIN);
+  encoder.setCount(0);
+
+  // Initialize LCD
+  display.begin();
+
+  // Configure stepper
+  stepper.setMaxSpeed(settings.getSpeed());
+  stepper.setAcceleration(ACCELERATION);
+  stepper.moveTo(0);  // Start at home position
+
+  // Initialize and start MatrixDisplay update thread
+  display.begin();
+  display.startUpdateThread();
+
+  // Initialize state
+  changeState(STARTUP, millis());
+}
 
 void loop() {
   unsigned long currentTime = millis();
