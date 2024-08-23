@@ -269,30 +269,34 @@ void handleIdle() {
     stateJustChanged = false;
   }
 
+  if (buttonStart.isPressed()) {
+    buttonPressStartTime = millis();
+  }
+
   if (buttonStart.getState()) {
-    if (buttonPressStartTime == 0) {
-      buttonPressStartTime = millis();
-    } else if (millis() - buttonPressStartTime >= LONG_PRESS_DURATION) {
+    if (millis() - buttonPressStartTime >= LONG_PRESS_DURATION) {
       changeState(PARKING, millis());
       buttonPressStartTime = 0;
       return;
     }
   } else {
-    if (buttonPressStartTime != 0 && millis() - buttonPressStartTime < LONG_PRESS_DURATION) {
-      changeState(RUNNING, millis());
-      timer.start(settings.getCookTime());
-      TOTAL_STEPS = (settings.getTotalDistance() / DISTANCE_PER_REV) * STEPS_PER_REV;
-      stepper.moveTo(DIRECTION_RUN * TOTAL_STEPS);
+    if (buttonPressStartTime != 0) {
+      if (millis() - buttonPressStartTime < LONG_PRESS_DURATION) {
+        changeState(RUNNING, millis());
+        timer.start(settings.getCookTime());
+        TOTAL_STEPS = (settings.getTotalDistance() / DISTANCE_PER_REV) * STEPS_PER_REV;
+        stepper.moveTo(DIRECTION_RUN * TOTAL_STEPS);
+      }
       buttonPressStartTime = 0;
-      return;
     }
-    buttonPressStartTime = 0;
+  }
+
+  if (buttonRotarySwitch.isPressed()) {
+    buttonPressStartTime = millis();
   }
 
   if (buttonRotarySwitch.getState()) {
-    if (buttonPressStartTime == 0) {
-      buttonPressStartTime = millis();
-    } else if (millis() - buttonPressStartTime >= SETTINGS_PRESS_DURATION) {
+    if (millis() - buttonPressStartTime >= SETTINGS_PRESS_DURATION) {
       changeState(SETTINGS_MENU, millis());
       enterSettingsMenu();
       buttonPressStartTime = 0;
