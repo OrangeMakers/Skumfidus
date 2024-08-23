@@ -1,4 +1,4 @@
-#define DEBUG
+// #define DEBUG
 
 #include <Arduino.h>
 #include <Wire.h>
@@ -7,7 +7,6 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <ESP32Encoder.h>
-#include <EEPROM.h>
 #include "MatrixDisplay.h"
 #include "Timer.h"
 #include "ButtonHandler.h"
@@ -32,9 +31,6 @@ ESP32Encoder encoder;
 int32_t lastEncoderValue = 0;
 int32_t encoderValue = 0;
 
-// Initialize EEPROM
-const int EEPROM_SIZE = 512;
-
 // Function to handle encoder changes
 void handleEncoderChange(int32_t newValue) {
     #ifdef DEBUG
@@ -56,12 +52,14 @@ void handleEncoderChange(int32_t newValue) {
 #define ADDRESSABLE_LED_PIN 4  // New pin for Addressable LED
 #define RELAY_PIN 14  // Relay control pin
 
-// Define homing direction (1 for positive, -1 for negative)
-#define HOMING_DIRECTION 1
+// Define direction constants
+#define DIRECTION_HOME 1
+#define DIRECTION_RUN 1
+#define DIRECTION_ZERO -1
 
 // Define homing parameters
 #define HOMING_DISTANCE 125.0 // Distance to move back after hitting the switch (in mm)
-#define HOMING_SPEED 800.0 // Speed for homing movement
+#define HOMING_SPEED 1400.0 // Speed for homing movement
 #define MOVE_TO_ZERO_SPEED 3000.0 // Speed for moving to zero position after homing
 
 // Define system states
@@ -72,7 +70,8 @@ enum SystemState {
   RUNNING,
   RETURNING_TO_START,
   ERROR,
-  SETTINGS_MENU
+  SETTINGS_MENU,
+  PARKING  // New state
 };
 
 // Global variable to track system state
@@ -115,6 +114,22 @@ Settings settings(display, encoder);
 MotorState currentState = MOVING;
 const unsigned long DIRECTION_CHANGE_DELAY = 500; // 500ms delay when changing direction
 
+void startHeater() {
+  digitalWrite(RELAY_PIN, HIGH);
+  digitalWrite(BUILTIN_LED_PIN, HIGH);
+  #ifdef DEBUG
+  Serial.println("Heater started");
+  #endif
+}
+
+void stopHeater() {
+  digitalWrite(RELAY_PIN, LOW);
+  digitalWrite(BUILTIN_LED_PIN, LOW);
+  #ifdef DEBUG
+  Serial.println("Heater stopped");
+  #endif
+}
+
 // Function to enter Settings menu
 void enterSettingsMenu() {
   settings.enter();  // Enter settings menu
@@ -140,6 +155,7 @@ const char* getStateName(SystemState state) {
     case RETURNING_TO_START: return "RETURNING_TO_START";
     case ERROR: return "ERROR";
     case SETTINGS_MENU: return "SETTINGS_MENU";
+    case PARKING: return "PARKING";
     default: return "UNKNOWN";
   }
 }
@@ -162,54 +178,6 @@ void changeState(SystemState newState, unsigned long currentTime = 0) {
   currentSystemState = newState;
   stateStartTime = currentTime == 0 ? millis() : currentTime;
   stateJustChanged = true;
-}
-
-void setup() {
-  // Init if debug
-  #ifdef DEBUG
-  Serial.begin(115200);  // Initialize serial communication
-  #endif
-
-  // Initialize EEPROM
-  if (!EEPROM.begin(EEPROM_SIZE)) {
-    #ifdef DEBUG
-    Serial.println("Failed to initialise EEPROM");
-    #endif
-  }
-
-  // Initialize pins
-  pinMode(BUILTIN_LED_PIN, OUTPUT);
-  pinMode(ADDRESSABLE_LED_PIN, OUTPUT);
-  pinMode(STEP_PIN, OUTPUT);
-  pinMode(DIR_PIN, OUTPUT);
-  pinMode(STEPPER_ENABLE_PIN, OUTPUT);
-  digitalWrite(STEPPER_ENABLE_PIN, HIGH);  // Set STEPPER_ENABLE_PIN to HIGH by default
-  pinMode(RELAY_PIN, OUTPUT);
-
-  // Initialize ButtonHandler objects
-  buttonStart.begin();
-  buttonLimitSwitch.begin();
-  buttonRotarySwitch.begin();
-
-  // Initialize ESP32Encoder
-  ESP32Encoder::useInternalWeakPullResistors=UP;
-  encoder.attachHalfQuad(ROTARY_CLK_PIN, ROTARY_DT_PIN);
-  encoder.setCount(0);
-
-  // Initialize LCD
-  display.begin();
-
-  // Configure stepper
-  stepper.setMaxSpeed(settings.getSpeed());
-  stepper.setAcceleration(ACCELERATION);
-  stepper.moveTo(0);  // Start at home position
-
-  // Initialize and start MatrixDisplay update thread
-  display.begin();
-  display.startUpdateThread();
-
-  // Initialize state
-  changeState(STARTUP, millis());
 }
 
 void handleStartup(unsigned long currentTime) {
@@ -248,7 +216,7 @@ void handleHoming(unsigned long currentTime) {
       digitalWrite(STEPPER_ENABLE_PIN, LOW);  // Enable the stepper motor
       stepper.setMaxSpeed(HOMING_SPEED);
       stepper.setAcceleration(ACCELERATION * 2);  // Set higher acceleration for more instant stop during homing
-      homingSteps = HOMING_DIRECTION * 1000000;  // Large number to ensure continuous movement
+      homingSteps = DIRECTION_HOME * 1000000;  // Large number to ensure continuous movement
       stepper.moveTo(homingSteps);
       display.updateDisplay("Homing:", "In progress");
     }
@@ -263,7 +231,7 @@ void handleHoming(unsigned long currentTime) {
       
       stepper.setMaxSpeed(MOVE_TO_ZERO_SPEED);
       stepper.setAcceleration(ACCELERATION);  // Restore original acceleration
-      homingSteps = -HOMING_DIRECTION * (HOMING_DISTANCE / DISTANCE_PER_REV) * STEPS_PER_REV;  // Move HOMING_DISTANCE in opposite direction
+      homingSteps = DIRECTION_ZERO * (HOMING_DISTANCE / DISTANCE_PER_REV) * STEPS_PER_REV;  // Move HOMING_DISTANCE in run direction
       stepper.move(homingSteps);
       movingAwayFromSwitch = true;
       display.updateDisplay("Homing:", "Move to Zero");
@@ -293,7 +261,8 @@ void handleHoming(unsigned long currentTime) {
 
 void handleIdle() {
   static unsigned long buttonPressStartTime = 0;
-  const unsigned long LONG_PRESS_DURATION = 1000; // 1 second for long press
+  const unsigned long LONG_PRESS_DURATION = 5000; // 5 seconds for long press
+  const unsigned long SETTINGS_PRESS_DURATION = 1000; // 1 second for settings
 
   if (stateJustChanged) {
     display.updateDisplay("Idle..", "Press Start");
@@ -301,23 +270,35 @@ void handleIdle() {
   }
 
   if (buttonStart.isPressed()) {
-    changeState(RUNNING, millis());
-    timer.start(settings.getCookTime());
-    TOTAL_STEPS = (settings.getTotalDistance() / DISTANCE_PER_REV) * STEPS_PER_REV;
-    stepper.moveTo(-HOMING_DIRECTION * TOTAL_STEPS);  // Start moving in opposite direction of homing
-    return;  // Exit the function immediately to start running
+    buttonPressStartTime = millis();
   }
 
-  if (buttonRotarySwitch.getState()) {
-    if (buttonPressStartTime == 0) {
-      buttonPressStartTime = millis();
-    } else if (millis() - buttonPressStartTime >= LONG_PRESS_DURATION) {
+  if (buttonStart.getState()) {
+    unsigned long pressDuration = millis() - buttonPressStartTime;
+    if (pressDuration >= LONG_PRESS_DURATION) {
+      changeState(PARKING, millis());
+      buttonPressStartTime = 0;
+    }
+  } else if (buttonStart.isReleased()) {
+    unsigned long pressDuration = millis() - buttonPressStartTime;
+    if (pressDuration < LONG_PRESS_DURATION) {
+      changeState(RUNNING, millis());
+      timer.start(settings.getCookTime());
+      TOTAL_STEPS = (settings.getTotalDistance() / DISTANCE_PER_REV) * STEPS_PER_REV;
+      stepper.moveTo(DIRECTION_RUN * TOTAL_STEPS);
+    }
+    buttonPressStartTime = 0;
+  }
+
+  if (buttonRotarySwitch.isPressed()) {
+    buttonPressStartTime = millis();
+  }
+
+  if (buttonRotarySwitch.isReleased()) {
+    if (millis() - buttonPressStartTime >= SETTINGS_PRESS_DURATION) {
       changeState(SETTINGS_MENU, millis());
       enterSettingsMenu();
-      buttonPressStartTime = 0;
-      return;
     }
-  } else {
     buttonPressStartTime = 0;
   }
 
@@ -333,11 +314,13 @@ void handleRunning(unsigned long currentTime) {
     currentState = MOVING;  // Ensure we start in the MOVING state
     TOTAL_STEPS = (settings.getTotalDistance() / DISTANCE_PER_REV) * STEPS_PER_REV;
     stepper.setMaxSpeed(settings.getSpeed());  // Set the correct max speed
-    stepper.moveTo(-HOMING_DIRECTION * TOTAL_STEPS);  // Set initial movement direction
+    stepper.moveTo(DIRECTION_RUN * TOTAL_STEPS);  // Set initial movement direction
     lastLCDUpdateTime = 0; // Force an immediate update
+    startHeater(); // Start the heater when entering the running state
   }
 
   if (buttonStart.isPressed()) {
+    stopHeater(); // Stop the heater
     changeState(RETURNING_TO_START, currentTime);
     display.updateDisplay("Cooking", "Aborted");
     stepper.moveTo(0);  // Set target to start position
@@ -346,6 +329,7 @@ void handleRunning(unsigned long currentTime) {
   }
 
   if (timer.hasExpired()) {
+    stopHeater(); // Stop the heater
     changeState(RETURNING_TO_START, currentTime);
     display.updateDisplay("Cooking", "Done");
     stepper.moveTo(0);  // Set target to start position
@@ -355,6 +339,7 @@ void handleRunning(unsigned long currentTime) {
 
   // Check if homing switch is triggered
   if (buttonLimitSwitch.getState()) {
+    stopHeater(); // Stop the heater
     changeState(ERROR, currentTime);
     errorMessage = "Endstop trigger";
     return;
@@ -365,8 +350,7 @@ void handleRunning(unsigned long currentTime) {
       if (stepper.distanceToGo() == 0) {
         // Change direction when reaching either end
         TOTAL_STEPS = (settings.getTotalDistance() / DISTANCE_PER_REV) * STEPS_PER_REV;
-        stepper.moveTo(stepper.currentPosition() == 0 ? -HOMING_DIRECTION * TOTAL_STEPS : (stepper.currentPosition() == -HOMING_DIRECTION * TOTAL_STEPS ? 0 : -HOMING_DIRECTION * TOTAL_STEPS));
-        digitalWrite(BUILTIN_LED_PIN, !digitalRead(BUILTIN_LED_PIN));  // Toggle LED when changing direction
+        stepper.moveTo(stepper.currentPosition() == 0 ? DIRECTION_RUN * TOTAL_STEPS : (stepper.currentPosition() == DIRECTION_RUN * TOTAL_STEPS ? 0 : DIRECTION_RUN * TOTAL_STEPS));
         currentState = CHANGING_DIRECTION;
         stateStartTime = currentTime;
       } else {
@@ -401,6 +385,7 @@ void handleReturningToStart() {
     stateJustChanged = false;
     stepper.setMaxSpeed(settings.getSpeed());  // Set the correct max speed
     lastLCDUpdateTime = 0; // Force an immediate update
+    stopHeater(); // Stop the heater when returning to start
   }
 
   if (stepper.distanceToGo() == 0) {
@@ -424,7 +409,7 @@ void handleError() {
   if (stateJustChanged) {
     // Set STEPPER_ENABLE_PIN to HIGH to disable the stepper driver
     digitalWrite(STEPPER_ENABLE_PIN, HIGH);
-
+    stopHeater(); // Stop the heater in case of an error
     stateJustChanged = false;
   }
   
@@ -462,6 +447,101 @@ void dumpDebug() {
     }
 }
 #endif
+
+// Function to display current settings
+#ifdef DEBUG
+void displayCurrentSettings() {
+  Serial.println("Current Settings:");
+  Serial.print("Cook Time: ");
+  Serial.print(settings.getCookTime());
+  Serial.println(" ms");
+  Serial.print("Total Distance: ");
+  Serial.print(settings.getTotalDistance());
+  Serial.println(" mm");
+  Serial.print("Speed: ");
+  Serial.print(settings.getSpeed());
+  Serial.println(" steps/second");
+}
+#endif
+
+void handleParking() {
+  static bool parkingStarted = false;
+
+  if (stateJustChanged) {
+    stateJustChanged = false;
+    parkingStarted = false;
+    display.updateDisplay("Parking", "Please wait");
+    digitalWrite(STEPPER_ENABLE_PIN, LOW);  // Enable the stepper motor
+    stepper.setMaxSpeed(settings.getSpeed());
+    stepper.setAcceleration(ACCELERATION);
+    float parkDistance = 120.0;  // 120mm parking distance
+    long parkSteps = (parkDistance / DISTANCE_PER_REV) * STEPS_PER_REV;
+    stepper.moveTo(DIRECTION_HOME * parkSteps);
+    parkingStarted = true;
+  }
+
+  if (parkingStarted) {
+    if (stepper.distanceToGo() == 0) {
+      // Parking completed
+      digitalWrite(STEPPER_ENABLE_PIN, HIGH);  // Disable the stepper motor
+      display.updateDisplay("Please turn off", "The power");
+      while (true) {
+        // Infinite loop to stop all processing
+        delay(1000);
+      }
+    } else {
+      stepper.run();
+    }
+  }
+}
+
+void setup() {
+
+  settings.loadSettingsFromPreferences();
+
+  // Init if debug
+  #ifdef DEBUG
+  Serial.begin(115200);  // Initialize serial communication
+  
+  // Print initial settings
+  displayCurrentSettings();
+  #endif
+
+  // Initialize pins
+  pinMode(BUILTIN_LED_PIN, OUTPUT);
+  pinMode(ADDRESSABLE_LED_PIN, OUTPUT);
+  pinMode(STEP_PIN, OUTPUT);
+  pinMode(DIR_PIN, OUTPUT);
+  pinMode(STEPPER_ENABLE_PIN, OUTPUT);
+  digitalWrite(STEPPER_ENABLE_PIN, HIGH);  // Set STEPPER_ENABLE_PIN to HIGH by default
+  pinMode(RELAY_PIN, OUTPUT);
+  digitalWrite(RELAY_PIN, LOW);  // Set RELAY_PIN to LOW by default
+
+  // Initialize ButtonHandler objects
+  buttonStart.begin();
+  buttonLimitSwitch.begin();
+  buttonRotarySwitch.begin();
+
+  // Initialize ESP32Encoder
+  ESP32Encoder::useInternalWeakPullResistors=UP;
+  encoder.attachHalfQuad(ROTARY_CLK_PIN, ROTARY_DT_PIN);
+  encoder.setCount(0);
+
+  // Initialize LCD
+  display.begin();
+
+  // Configure stepper
+  stepper.setMaxSpeed(settings.getSpeed());
+  stepper.setAcceleration(ACCELERATION);
+  stepper.moveTo(0);  // Start at home position
+
+  // Initialize and start MatrixDisplay update thread
+  display.begin();
+  display.startUpdateThread();
+
+  // Initialize state
+  changeState(STARTUP, millis());
+}
 
 void loop() {
   unsigned long currentTime = millis();
@@ -523,6 +603,9 @@ void loop() {
         exitSettingsMenu();
         changeState(IDLE, currentTime);
       }
+      break;
+    case PARKING:
+      handleParking();
       break;
   }
 
