@@ -20,6 +20,12 @@
 #define ROTARY_DT_PIN 18      // Rotary encoder DT pin
 #define ROTARY_SW_PIN 19      // Rotary encoder switch pin
 
+#define NUM_LEDS 36
+#define LED_TYPE WS2812B
+#define COLOR_ORDER GRB
+
+CRGB leds[NUM_LEDS];
+
 // Initialize ButtonHandler objects
 ButtonHandler buttonStart(START_BUTTON_PIN, "Start");
 ButtonHandler buttonLimitSwitch(HOMING_SWITCH_PIN, "Limit", false);
