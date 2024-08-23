@@ -10,22 +10,26 @@
 
 For at flashe firmwaren skal du bruge esptool.py via kommandolinjen. Denne metode kræver, at Python er installeret på dit system.
 
-1. Installer esptool.py ved at køre følgende kommando:
+1. Download alle firmware-filer (bootloader.bin, partitions.bin, boot_app0.bin, og firmware.bin) fra release-siden og gem dem i samme mappe.
+
+2. Installer esptool.py ved at køre følgende kommando:
    ```
    pip install esptool
    ```
 
-2. Tilslut dit ESP32-board til din computer via USB.
+3. Tilslut dit ESP32-board til din computer via USB.
 
-3. Åbn en terminal eller kommandoprompt og naviger til mappen, der indeholder den downloadede firmware-fil.
+4. Åbn en terminal eller kommandoprompt og naviger til mappen, der indeholder de downloadede firmware-filer.
 
-4. Kør følgende kommando for at flashe firmwaren (erstat COM_PORT med din faktiske COM-port, og FIRMWARE_FILE.bin med det faktiske filnavn):
+5. Kør følgende kommando for at flashe firmwaren (erstat COM3 med din faktiske COM-port hvis nødvendigt):
    ```
-   esptool --chip esp32 --port COM_PORT --baud 115200 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size detect 0x10000 FIRMWARE_FILE.bin
+   esptool --chip esp32 --port "COM3" --baud 460800 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size 4MB 0x1000 bootloader.bin 0x8000 partitions.bin 0xe000 boot_app0.bin 0x10000 firmware.bin
    ```
 
-5. Vent på at processen er færdig. Du skulle gerne se en succesmeddelelse.
+   Bemærk: Hvis kommandoen er for lang til din terminal, kan du dele den op ved at bruge `^` på Windows eller `\` på Unix-systemer ved slutningen af hver linje.
 
-6. Nulstil dit ESP32-board.
+6. Vent på at processen er færdig. Du skulle gerne se en succesmeddelelse.
 
-Denne metode giver en mere fleksibel og skriptbar tilgang til at flashe din Skumfidus-enhed.
+7. Nulstil dit ESP32-board.
+
+Denne metode sikrer, at alle nødvendige firmware-komponenter bliver flashet korrekt til din Skumfidus-enhed.
