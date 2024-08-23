@@ -7,6 +7,7 @@ This release introduces WS2812B LED strip functionality to the project, enhancin
 - Added LED strip initialization to setup function
 - Added constant definitions for WS2812B LED strip (NUM_LEDS, LED_TYPE, COLOR_ORDER)
 - Added FastLED library integration for controlling the LED strip
+- Added functions to set LED strip color to green, yellow, and red
 
 ### Changed
 - Updated CONVENTIONS.md with guidance for working with WS2812B LED strip

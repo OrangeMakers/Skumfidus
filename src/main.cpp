@@ -503,6 +503,24 @@ void initializeLEDStrip() {
   FastLED.show();
 }
 
+// Function to set LED strip to green
+void setLEDGreen() {
+  fill_solid(leds, NUM_LEDS, CRGB::Green);
+  FastLED.show();
+}
+
+// Function to set LED strip to yellow
+void setLEDYellow() {
+  fill_solid(leds, NUM_LEDS, CRGB::Yellow);
+  FastLED.show();
+}
+
+// Function to set LED strip to red
+void setLEDRed() {
+  fill_solid(leds, NUM_LEDS, CRGB::Red);
+  FastLED.show();
+}
+
 void setup() {
   settings.loadSettingsFromPreferences();
 
