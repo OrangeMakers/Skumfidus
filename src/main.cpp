@@ -612,9 +612,7 @@ void loop() {
     case SETTINGS_MENU:
       settings.update();
       if (settings.isDone()) {
-        exitSettingsMenu();
         changeState(IDLE, currentTime);
-        settings.enter(); // Reset the settings state for next time
       }
       break;
     case PARKING:

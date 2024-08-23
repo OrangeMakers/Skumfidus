@@ -79,7 +79,7 @@ void Settings::factoryReset() {
 void Settings::enter() {
     _isDone = false;
     _inEditMode = false;
-    _currentMenuIndex = 0;  // Always start at the first menu item (COOK_TIME)
+    _currentMenuIndex = 0;
     _lastEncoderValue = _encoder.getCount();
     updateMenuVisibility();
     displayCurrentMenuItem();
@@ -88,6 +88,8 @@ void Settings::enter() {
 void Settings::exit() {
     _isDone = true;
     _inEditMode = false;
+    _currentMenuIndex = 0;  // Reset menu index
+    _lastEncoderValue = _encoder.getCount();  // Reset encoder value
 }
 
 void Settings::update() {
