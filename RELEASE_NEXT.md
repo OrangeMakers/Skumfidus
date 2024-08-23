@@ -1,12 +1,13 @@
 ## Description of next release
 
-[Insert release description here]
+This release includes improvements to the ButtonHandler class, enhancing its functionality and debugging capabilities.
 
 ### Added
-- No changes
+- New method `isPressedForMs()` in ButtonHandler class to check how long a button has been pressed.
 
 ### Changed
-- No changes
+- Updated ButtonHandler class to track press start time.
+- Improved debugging output in ButtonHandler class.
 
 ### Deprecated
 - No changes
