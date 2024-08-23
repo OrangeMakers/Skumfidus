@@ -7,9 +7,6 @@ on:
       - main
     paths:
       - 'RELEASE.md'
-  pull_request:
-    branches:
-      - main
       
 jobs:
   build:
