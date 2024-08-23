@@ -139,10 +139,11 @@ void Settings::handleMenuSelection() {
                 saveSettingsToPreferences();
                 _display.updateDisplay("Settings Saved", "");
                 delay(1000);
+                exit();
             }
             break;
         case MenuItem::EXIT:
-            _isDone = true;
+            exit();
             break;
         case MenuItem::FACTORY_RESET:
             if (confirmAction("Factory Reset?")) {
