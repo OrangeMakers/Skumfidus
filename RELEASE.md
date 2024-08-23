@@ -18,7 +18,7 @@ This release introduces an alternative firmware flashing method using esptool.py
 - No changes
 
 ### Fixed
-- No changes
+- Wrong homefolder location in build file
 
 ### Security
 - No changes
