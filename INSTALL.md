@@ -25,3 +25,27 @@ To flash the firmware, you'll need the ESP32 Flash Download Tool. If you don't h
 Your Skumfidus device should now be running the latest firmware!
 
 Note: Always ensure you're using the latest firmware version for the best performance and features.
+
+## Alternative Method: Using esptool.py
+
+If you prefer using the command line, you can use esptool.py to flash the firmware. This method requires Python to be installed on your system.
+
+1. Install esptool.py if you haven't already:
+   ```
+   pip install esptool
+   ```
+
+2. Connect your ESP32 board to your computer via USB.
+
+3. Open a terminal or command prompt and navigate to the directory containing the downloaded firmware file.
+
+4. Run the following command to flash the firmware (replace COM_PORT with your actual COM port, and FIRMWARE_FILE.bin with the actual filename):
+   ```
+   esptool.py --chip esp32 --port COM_PORT --baud 115200 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size detect 0x10000 FIRMWARE_FILE.bin
+   ```
+
+5. Wait for the process to complete. You should see a success message.
+
+6. Reset your ESP32 board.
+
+This method provides a more flexible and scriptable approach to flashing your Skumfidus device.

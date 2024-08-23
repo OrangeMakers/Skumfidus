@@ -3,7 +3,7 @@
 [Insert release description here]
 
 ### Added
-- No changes
+- Alternative firmware flashing method using esptool.py in INSTALL.md
 
 ### Changed
 - No changes
