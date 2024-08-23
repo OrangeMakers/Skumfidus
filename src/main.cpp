@@ -610,7 +610,9 @@ void loop() {
       handleError();
       break;
     case SETTINGS_MENU:
-      settings.update();
+      if (!settings.isDone()) {
+        settings.update();
+      }
       if (settings.isDone()) {
         changeState(IDLE, currentTime);
       }
