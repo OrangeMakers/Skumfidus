@@ -1,51 +1,51 @@
-# Installation Instructions for Skumfidus Firmware
+# Installationsvejledning til Skumfidus Firmware
 
-## Downloading the Firmware
+## Download af Firmware
 
-1. Go to the [Skumfidus Releases page](https://github.com/OrangeMakers/Skumfidus/releases) on GitHub.
-2. Find the latest release (e.g., v0.3.0-87).
-3. Download the firmware file (e.g., `firmware-v0.3.0-87.bin`).
+1. Gå til [Skumfidus Releases-siden](https://github.com/OrangeMakers/Skumfidus/releases) på GitHub.
+2. Find den seneste udgivelse (f.eks. v0.3.0-87).
+3. Download firmware-filen (f.eks. `firmware-v0.3.0-87.bin`).
 
-## Flashing the Firmware
+## Flashning af Firmware
 
-To flash the firmware, you'll need the ESP32 Flash Download Tool. If you don't have it, you can download it from the [Espressif website](https://www.espressif.com/en/support/download/other-tools).
+For at flashe firmwaren skal du bruge ESP32 Flash Download Tool. Hvis du ikke har det, kan du downloade det fra [Espressif-hjemmesiden](https://www.espressif.com/en/support/download/other-tools).
 
-1. Connect your ESP32 board to your computer via USB.
-2. Open the ESP32 Flash Download Tool.
-3. In the tool:
-   - Select the COM port your ESP32 is connected to.
-   - Set the baud rate to 115200.
-   - Click on the "..." button next to the first empty field and select the downloaded firmware file.
-   - Set the address to 0x10000.
-   - Check the box next to the firmware file.
-4. Click "Start" to begin flashing.
-5. Wait for the process to complete. The tool will show "FINISH" when done.
-6. Reset your ESP32 board.
+1. Tilslut dit ESP32-board til din computer via USB.
+2. Åbn ESP32 Flash Download Tool.
+3. I værktøjet:
+   - Vælg den COM-port, som din ESP32 er tilsluttet.
+   - Indstil baud-raten til 115200.
+   - Klik på "..." knappen ved siden af det første tomme felt og vælg den downloadede firmware-fil.
+   - Indstil adressen til 0x10000.
+   - Marker boksen ved siden af firmware-filen.
+4. Klik på "Start" for at begynde flashningen.
+5. Vent på at processen er færdig. Værktøjet vil vise "FINISH", når det er færdigt.
+6. Nulstil dit ESP32-board.
 
-Your Skumfidus device should now be running the latest firmware!
+Din Skumfidus-enhed skulle nu køre med den seneste firmware!
 
-Note: Always ensure you're using the latest firmware version for the best performance and features.
+Bemærk: Sørg altid for at bruge den seneste firmware-version for at få den bedste ydeevne og funktioner.
 
-## Alternative Method: Using esptool.py
+## Alternativ Metode: Brug af esptool.py
 
-If you prefer using the command line, you can use esptool.py to flash the firmware. This method requires Python to be installed on your system.
+Hvis du foretrækker at bruge kommandolinjen, kan du bruge esptool.py til at flashe firmwaren. Denne metode kræver, at Python er installeret på dit system.
 
-1. Install esptool.py if you haven't already:
+1. Installer esptool.py, hvis du ikke allerede har gjort det:
    ```
    pip install esptool
    ```
 
-2. Connect your ESP32 board to your computer via USB.
+2. Tilslut dit ESP32-board til din computer via USB.
 
-3. Open a terminal or command prompt and navigate to the directory containing the downloaded firmware file.
+3. Åbn en terminal eller kommandoprompt og naviger til mappen, der indeholder den downloadede firmware-fil.
 
-4. Run the following command to flash the firmware (replace COM_PORT with your actual COM port, and FIRMWARE_FILE.bin with the actual filename):
+4. Kør følgende kommando for at flashe firmwaren (erstat COM_PORT med din faktiske COM-port, og FIRMWARE_FILE.bin med det faktiske filnavn):
    ```
    esptool.py --chip esp32 --port COM_PORT --baud 115200 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size detect 0x10000 FIRMWARE_FILE.bin
    ```
 
-5. Wait for the process to complete. You should see a success message.
+5. Vent på at processen er færdig. Du skulle gerne se en succesmeddelelse.
 
-6. Reset your ESP32 board.
+6. Nulstil dit ESP32-board.
 
-This method provides a more flexible and scriptable approach to flashing your Skumfidus device.
+Denne metode giver en mere fleksibel og skriptbar tilgang til at flashe din Skumfidus-enhed.

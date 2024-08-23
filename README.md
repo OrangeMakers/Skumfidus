@@ -42,6 +42,8 @@ Projektet er udviklet ved hjælp af PlatformIO og Arduino framework. Det bruger 
 2. Installer PlatformIO i din foretrukne IDE
 3. Åbn projektet og upload koden til ESP32
 
+For detaljerede instruktioner om installation af firmware, se venligst [INSTALL.md](INSTALL.md).
+
 ## Brug
 Efter upload vil systemet:
 1. Vise en velkomstbesked på LCD-skærmen
