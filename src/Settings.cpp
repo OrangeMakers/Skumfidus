@@ -137,7 +137,7 @@ void Settings::handleMenuSelection() {
         case MenuItem::SAVE_EEPROM:
             if (confirmAction("Save Settings?")) {
                 saveSettingsToPreferences();
-                _display.updateDisplay("Save Settings?","Saved...");
+                _display.updateDisplay("Settings","Saved...");
                 delay(1000);
                 exit();
             }
