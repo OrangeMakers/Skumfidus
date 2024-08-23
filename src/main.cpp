@@ -155,6 +155,7 @@ const char* getStateName(SystemState state) {
     case RETURNING_TO_START: return "RETURNING_TO_START";
     case ERROR: return "ERROR";
     case SETTINGS_MENU: return "SETTINGS_MENU";
+    case PARKING: return "PARKING";
     default: return "UNKNOWN";
   }
 }
