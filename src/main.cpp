@@ -53,8 +53,9 @@ void handleEncoderChange(int32_t newValue) {
 #define RELAY_PIN 14  // Relay control pin
 
 // Define direction constants
-#define DIRECTION_HOME -1
+#define DIRECTION_HOME 1
 #define DIRECTION_RUN 1
+#define DIRECTION_ZERO -1
 
 // Define homing parameters
 #define HOMING_DISTANCE 125.0 // Distance to move back after hitting the switch (in mm)
@@ -212,7 +213,7 @@ void handleHoming(unsigned long currentTime) {
       
       stepper.setMaxSpeed(MOVE_TO_ZERO_SPEED);
       stepper.setAcceleration(ACCELERATION);  // Restore original acceleration
-      homingSteps = DIRECTION_RUN * (HOMING_DISTANCE / DISTANCE_PER_REV) * STEPS_PER_REV;  // Move HOMING_DISTANCE in run direction
+      homingSteps = DIRECTION_ZERO * (HOMING_DISTANCE / DISTANCE_PER_REV) * STEPS_PER_REV;  // Move HOMING_DISTANCE in run direction
       stepper.move(homingSteps);
       movingAwayFromSwitch = true;
       display.updateDisplay("Homing:", "Move to Zero");
@@ -282,7 +283,7 @@ void handleRunning(unsigned long currentTime) {
     currentState = MOVING;  // Ensure we start in the MOVING state
     TOTAL_STEPS = (settings.getTotalDistance() / DISTANCE_PER_REV) * STEPS_PER_REV;
     stepper.setMaxSpeed(settings.getSpeed());  // Set the correct max speed
-    stepper.moveTo(-HOMING_DIRECTION * TOTAL_STEPS);  // Set initial movement direction
+    stepper.moveTo(DIRECTION_RUN * TOTAL_STEPS);  // Set initial movement direction
     lastLCDUpdateTime = 0; // Force an immediate update
   }
 
