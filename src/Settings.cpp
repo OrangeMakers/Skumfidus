@@ -82,16 +82,12 @@ void Settings::enter() {
     _currentMenuIndex = 0;  // Always start at the first menu item (COOK_TIME)
     _lastEncoderValue = _encoder.getCount();
     updateMenuVisibility();
-    _display.updateDisplay("", "");  // Clear the display
     displayCurrentMenuItem();
 }
 
 void Settings::exit() {
     _isDone = true;
     _inEditMode = false;
-    _display.updateDisplay("Exiting...", "");
-    delay(1000);  // Show "Exiting..." for 1 second
-    _display.updateDisplay("", "");  // Clear the display
 }
 
 void Settings::update() {
