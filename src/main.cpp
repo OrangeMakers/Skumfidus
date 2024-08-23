@@ -519,6 +519,11 @@ void setup() {
   pinMode(RELAY_PIN, OUTPUT);
   digitalWrite(RELAY_PIN, LOW);  // Set RELAY_PIN to LOW by default
 
+  // Rotary Encoder
+  pinMode(ROTARY_CLK_PIN, INPUT_PULLUP);
+  pinMode(ROTARY_DT_PIN, INPUT_PULLUP);
+  pinMode(ROTARY_SW_PIN, INPUT_PULLUP);
+
   // Initialize ButtonHandler objects
   buttonStart.begin();
   buttonLimitSwitch.begin();
