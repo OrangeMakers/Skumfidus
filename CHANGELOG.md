@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0-143] - 2024-08-23
+
+This release introduces WS2812B LED strip functionality to the project, enhancing visual feedback and user experience. The LED strip is initialized to display a solid orange color at full brightness when the system starts up. This addition provides a clear visual indicator that the system is powered on and ready for operation.
+
+### Added
+- Added functions to set LED strip color to green, yellow, and red
+
+### Changed
+- Updated LED strip color to indicate system state: yellow for homing, green for idle, red for running
+
+### Deprecated
+- No changes
+
+### Removed
+- No changes
+
+### Fixed
+- No changes
+
+### Security
+- No changes
+
 ## [0.3.0-141] - 2024-08-23
 
 This release introduces WS2812B LED strip functionality to the project, enhancing visual feedback and user experience. The LED strip is initialized to display a solid orange color at full brightness when the system starts up. This addition provides a clear visual indicator that the system is powered on and ready for operation.
