@@ -124,26 +124,26 @@ const unsigned long DIRECTION_CHANGE_DELAY = 500; // 500ms delay when changing d
 // Function to initialize and turn on LED strip
 void initializeLEDStrip() {
   FastLED.addLeds<LED_TYPE, ADDRESSABLE_LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);
-  fill_solid(leds, NUM_LEDS, CRGB::Orange);
+  fill_solid(leds, NUM_LEDS, CRGB(255, 150, 0));  // RGB for orange
   FastLED.setBrightness(255);  // Set to full brightness
   FastLED.show();
 }
 
-// Function to set LED strip to green
+// Function to set LED strip to green (0, 255, 0)
 void setLEDGreen() {
-  fill_solid(leds, NUM_LEDS, CRGB::Green);
+  fill_solid(leds, NUM_LEDS, CRGB(0, 255, 0));
   FastLED.show();
 }
 
-// Function to set LED strip to yellow
+// Function to set LED strip to yellow (255, 255, 0)
 void setLEDYellow() {
-  fill_solid(leds, NUM_LEDS, CRGB::Yellow);
+  fill_solid(leds, NUM_LEDS, CRGB(255, 255, 0));
   FastLED.show();
 }
 
-// Function to set LED strip to red
+// Function to set LED strip to red (255, 0, 0)
 void setLEDRed() {
-  fill_solid(leds, NUM_LEDS, CRGB::Red);
+  fill_solid(leds, NUM_LEDS, CRGB(255, 0, 0));
   FastLED.show();
 }
 
@@ -415,6 +415,7 @@ void handleReturningToStart() {
     stepper.setMaxSpeed(settings.getSpeed());  // Set the correct max speed
     lastLCDUpdateTime = 0; // Force an immediate update
     stopHeater(); // Stop the heater when returning to start
+    setLEDYellow(); // Set LED to yellow when returning to start
   }
 
   if (stepper.distanceToGo() == 0) {
