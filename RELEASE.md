@@ -6,7 +6,7 @@ This release introduces WS2812B LED strip functionality to the project, enhancin
 - Added functions to set LED strip color to green, yellow, and red
 
 ### Changed
-- No changes
+- Updated LED strip color to indicate system state: yellow for homing, green for idle, red for running
 
 ### Deprecated
 - No changes

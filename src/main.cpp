@@ -213,6 +213,7 @@ void handleHoming(unsigned long currentTime) {
     display.updateDisplay("To start homing", "press rotary");
     stateJustChanged = false;
     lastHomingUpdateTime = 0; // Reset the update time when state changes
+    setLEDYellow(); // Set LED to yellow when homing begins
   }
 
   if (waitingForConfirmation) {
@@ -273,6 +274,7 @@ void handleIdle() {
   if (stateJustChanged) {
     display.updateDisplay("Idle..", "Press Start");
     stateJustChanged = false;
+    setLEDGreen(); // Set LED to green when idle
   }
 
   static bool startButtonWasPressed = false;
@@ -317,6 +319,7 @@ void handleRunning(unsigned long currentTime) {
     stepper.moveTo(DIRECTION_RUN * TOTAL_STEPS);  // Set initial movement direction
     lastLCDUpdateTime = 0; // Force an immediate update
     startHeater(); // Start the heater when entering the running state
+    setLEDRed(); // Set LED to red when running
   }
 
   if (buttonStart.isPressed()) {
