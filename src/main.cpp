@@ -169,6 +169,9 @@ void setup() {
   #ifdef DEBUG
   Serial.begin(115200);  // Initialize serial communication
   
+  // Print initial settings
+  Serial.println("Initial Settings:");
+  displayCurrentSettings();
   #endif
 
   // Initialize pins
