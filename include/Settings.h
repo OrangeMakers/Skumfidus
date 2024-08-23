@@ -12,8 +12,8 @@ extern ButtonHandler buttonRotarySwitch;
 class Settings {
 public:
     Settings(MatrixDisplay& display, ESP32Encoder& encoder);
-    void loadSettingsFromEEPROM();
-    void saveSettingsToEEPROM();
+    void loadSettingsFromPreferences();
+    void saveSettingsToPreferences();
     unsigned long getCookTime() const;
     float getTotalDistance() const;
     float getSpeed() const;
