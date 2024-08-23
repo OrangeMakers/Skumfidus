@@ -137,7 +137,7 @@ void Settings::handleMenuSelection() {
         case MenuItem::SAVE_EEPROM:
             if (confirmAction("Save Settings?")) {
                 saveSettingsToPreferences();
-                _display.updateDisplay("Settings Saved", "");
+                _display.updateDisplay("Save Settings?","Saved...");
                 delay(1000);
                 exit();
             }
@@ -148,7 +148,7 @@ void Settings::handleMenuSelection() {
         case MenuItem::FACTORY_RESET:
             if (confirmAction("Factory Reset?")) {
                 factoryReset();
-                _display.updateDisplay("Factory Reset", "Complete");
+                _display.updateDisplay("Factory Reset", "Complete..");
                 delay(2000);
             }
             break;
