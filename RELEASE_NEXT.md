@@ -3,7 +3,7 @@
 [Insert release description here]
 
 ### Added
-- No changes
+- Added `startHeater` function to control the relay and built-in LED for heating
 
 ### Changed
 - Implemented generic direction constants `DIRECTION_HOME` and `DIRECTION_RUN` for improved code clarity and maintainability

@@ -384,6 +384,11 @@ void handleError() {
   // In ERROR state, we don't do anything else until the device is reset
 }
 
+void startHeater() {
+  digitalWrite(RELAY_PIN, HIGH);
+  digitalWrite(BUILTIN_LED_PIN, HIGH);
+}
+
 #ifdef DEBUG
 // Function to dump switch states and encoder value
 static unsigned long lastDebugPrint = 0;
