@@ -38,7 +38,7 @@ Projektet er udviklet ved hjælp af PlatformIO og Arduino framework. Det bruger 
 - FreeRTOS til multitasking
 
 ## Opsætning
-1. Tilslut hardwaren som beskrevet i `PINS.md`
+1. Tilslut hardwaren som beskrevet i `docs/Hardware_Setup.md`
 2. Installer PlatformIO i din foretrukne IDE
 3. Åbn projektet og upload koden til ESP32
 
