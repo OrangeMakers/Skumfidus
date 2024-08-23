@@ -272,6 +272,7 @@ void handleIdle() {
   if (stateJustChanged) {
     display.updateDisplay("Idle..", "Press Start");
     stateJustChanged = false;
+    buttonPressStartTime = 0; // Reset the button press time when entering IDLE state
   }
 
   if (buttonStart.isPressed()) {
