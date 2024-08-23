@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0-141] - 2024-08-23
+
+This release introduces WS2812B LED strip functionality to the project, enhancing visual feedback and user experience. The LED strip is initialized to display a solid orange color at full brightness when the system starts up. This addition provides a clear visual indicator that the system is powered on and ready for operation.
+
+### Added
+- Added function to initialize and turn on WS2812B LED strip
+- Added LED strip initialization to setup function
+- Added constant definitions for WS2812B LED strip (NUM_LEDS, LED_TYPE, COLOR_ORDER)
+- Added FastLED library integration for controlling the LED strip
+
+### Changed
+- Updated CONVENTIONS.md with guidance for working with WS2812B LED strip
+- Modified setup() function to initialize the LED strip
+
+### Deprecated
+- No changes
+
+### Removed
+- No changes
+
+### Fixed
+- No changes
+
+### Security
+- No changes
+
 ## [0.3.0-139] - 2024-08-23
 
 This update includes a fix for an issue in the installation files.
