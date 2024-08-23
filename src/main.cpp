@@ -289,6 +289,7 @@ void handleRunning(unsigned long currentTime) {
   }
 
   if (buttonStart.isPressed()) {
+    stopHeater(); // Stop the heater
     changeState(RETURNING_TO_START, currentTime);
     display.updateDisplay("Cooking", "Aborted");
     stepper.moveTo(0);  // Set target to start position
@@ -297,6 +298,7 @@ void handleRunning(unsigned long currentTime) {
   }
 
   if (timer.hasExpired()) {
+    stopHeater(); // Stop the heater
     changeState(RETURNING_TO_START, currentTime);
     display.updateDisplay("Cooking", "Done");
     stepper.moveTo(0);  // Set target to start position
@@ -306,6 +308,7 @@ void handleRunning(unsigned long currentTime) {
 
   // Check if homing switch is triggered
   if (buttonLimitSwitch.getState()) {
+    stopHeater(); // Stop the heater
     changeState(ERROR, currentTime);
     errorMessage = "Endstop trigger";
     return;
@@ -351,6 +354,7 @@ void handleReturningToStart() {
     stateJustChanged = false;
     stepper.setMaxSpeed(settings.getSpeed());  // Set the correct max speed
     lastLCDUpdateTime = 0; // Force an immediate update
+    stopHeater(); // Stop the heater when returning to start
   }
 
   if (stepper.distanceToGo() == 0) {
@@ -374,7 +378,7 @@ void handleError() {
   if (stateJustChanged) {
     // Set STEPPER_ENABLE_PIN to HIGH to disable the stepper driver
     digitalWrite(STEPPER_ENABLE_PIN, HIGH);
-
+    stopHeater(); // Stop the heater in case of an error
     stateJustChanged = false;
   }
   

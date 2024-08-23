@@ -10,6 +10,7 @@
 
 ### Changed
 - Implemented generic direction constants `DIRECTION_HOME` and `DIRECTION_RUN` for improved code clarity and maintainability
+- Enhanced safety by ensuring the heater is stopped when cooking process is interrupted, completed, or an error occurs
 
 ### Deprecated
 - No changes
