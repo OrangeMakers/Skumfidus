@@ -6,7 +6,7 @@
 - No changes
 
 ### Changed
-- No changes
+- Implemented generic direction constants `DIRECTION_HOME` and `DIRECTION_RUN` for improved code clarity and maintainability
 
 ### Deprecated
 - No changes
