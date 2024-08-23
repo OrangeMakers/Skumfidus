@@ -294,12 +294,14 @@ void handleIdle() {
     buttonPressStartTime = millis();
   }
 
-  if (buttonRotarySwitch.isReleased()) {
+  if (buttonRotarySwitch.getState()) {
     if (millis() - buttonPressStartTime >= SETTINGS_PRESS_DURATION) {
       changeState(SETTINGS_MENU, millis());
       enterSettingsMenu();
+      buttonPressStartTime = 0;  // Reset the press start time
     }
-    buttonPressStartTime = 0;
+  } else {
+    buttonPressStartTime = 0;  // Reset the press start time if button is released before SETTINGS_PRESS_DURATION
   }
 
   stepper.stop();
