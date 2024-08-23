@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0-147] - 2024-08-23
+
+This release includes updates to the project documentation, specifically the RELEASE_NEXT.md file. The changes improve the tracking and communication of project modifications.
+
+### Added
+- Added a description for the next release in RELEASE_NEXT.md
+
+### Changed
+- Updated the structure of RELEASE_NEXT.md to include a brief description of the upcoming release
+
+### Deprecated
+- No changes
+
+### Removed
+- No changes
+
+### Fixed
+- No changes
+
+### Security
+- No changes
+
 ## [0.3.0-143] - 2024-08-23
 
 This release introduces WS2812B LED strip functionality to the project, enhancing visual feedback and user experience. The LED strip is initialized to display a solid orange color at full brightness when the system starts up. This addition provides a clear visual indicator that the system is powered on and ready for operation.
