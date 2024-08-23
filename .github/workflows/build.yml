@@ -42,28 +42,40 @@ jobs:
     - name: Install PlatformIO
       run: pip install platformio
     
-    - name: Build project
-      run: platformio run
-        
-    - name: Create firmware directory and copy firmware files
+    - name: Build debug firmware
+      run: platformio run --environment esp32doit-devkit-v1-debug
+
+    - name: Prepare debug firmware files
+      run: |
+        mkdir -p ./firmware-debug
+        cp ./.pio/build/esp32doit-devkit-v1-debug/bootloader.bin ./firmware-debug/bootloader.bin
+        cp ./.pio/build/esp32doit-devkit-v1-debug/partitions.bin ./firmware-debug/partitions.bin
+        cp ~/.platformio/packages/framework-arduinoespressif32/tools/partitions/boot_app0.bin ./firmware-debug/boot_app0.bin
+        cp ./.pio/build/esp32doit-devkit-v1-debug/firmware.bin ./firmware-debug/firmware.bin
+
+    - name: Build release firmware
+      run: platformio run --environment esp32doit-devkit-v1
+
+    - name: Prepare release firmware files
       run: |
         mkdir -p ./firmware
         cp ./.pio/build/esp32doit-devkit-v1/bootloader.bin ./firmware/bootloader.bin
         cp ./.pio/build/esp32doit-devkit-v1/partitions.bin ./firmware/partitions.bin
         cp ~/.platformio/packages/framework-arduinoespressif32/tools/partitions/boot_app0.bin ./firmware/boot_app0.bin
         cp ./.pio/build/esp32doit-devkit-v1/firmware.bin ./firmware/firmware.bin
-
+      
     - name: Create Release and Upload Assets
       uses: softprops/action-gh-release@v2
       with:
         tag_name: v${{ steps.gitversion.outputs.semVer }}
-        name: Release v${{ steps.gitversion.outputs.semVer }}
+        name: v${{ steps.gitversion.outputs.semVer }}
         body: ${{ steps.changelog.outputs.latest_entry }}
         files: |
           ./firmware/bootloader.bin
           ./firmware/partitions.bin
           ./firmware/boot_app0.bin
           ./firmware/firmware.bin
+          ./firmware-debug.zip
         draft: false
         prerelease: false
       env:
