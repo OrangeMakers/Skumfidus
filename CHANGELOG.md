@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0-139] - 2024-08-23
+
+This update includes a fix for an issue in the installation files.
+
+### Added
+- No changes
+
+### Changed
+- No changes
+
+### Deprecated
+- No changes
+
+### Removed
+- No changes
+
+### Fixed
+- Resolved an issue in the installation files (Install_Firmware.cmd, Install_Firmware.ps1, and Install_Firmware.sh)
+
+### Security
+- No changes
+
 ## [0.3.0-134] - 2024-08-23
 
 This update includes improvements in the installation process and documentation.
