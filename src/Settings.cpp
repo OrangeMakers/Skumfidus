@@ -1,5 +1,5 @@
 #include "Settings.h"
-#include <EEPROM.h>
+#include <Preferences.h>
 
 extern ButtonHandler buttonRotarySwitch;
 
@@ -11,7 +11,7 @@ Settings::Settings(MatrixDisplay& display, ESP32Encoder& encoder)
     : _display(display), _encoder(encoder), _isDone(false), _inEditMode(false), _currentMenuIndex(0), _lastEncoderValue(0),
       _totalSteps(0), _settingsChanged(false) {
     initializeMenuItems();
-    loadSettingsFromEEPROM();
+    loadSettingsFromPreferences();
     _totalSteps = (_totalDistance / DISTANCE_PER_REV) * STEPS_PER_REV;
 }
 
@@ -19,18 +19,20 @@ Settings::~Settings() {
     // Destructor implementation (if needed)
 }
 
-void Settings::loadSettingsFromEEPROM() {
-    unsigned long cookTime;
-    float totalDistance, speed;
+void Settings::loadSettingsFromPreferences() {
+    Preferences preferences;
+    preferences.begin("settings", false);
 
-    EEPROM.get(0, cookTime);
-    EEPROM.get(sizeof(unsigned long), totalDistance);
-    EEPROM.get(sizeof(unsigned long) + sizeof(float), speed);
+    _cookTime = preferences.getULong("cookTime", 30000);
+    _totalDistance = preferences.getFloat("totalDistance", 50.0f);
+    _speed = preferences.getFloat("speed", (SPEED_MIN + SPEED_MAX) / 2);
 
     // Validate loaded values and set defaults if necessary
-    _cookTime = (cookTime >= 5000 && cookTime <= 120000) ? cookTime : 30000;
-    _totalDistance = (totalDistance >= 50.0f && totalDistance <= 120.0f) ? totalDistance : 50.0f;
-    _speed = (speed >= SPEED_MIN && speed <= SPEED_MAX) ? speed : (SPEED_MIN + SPEED_MAX) / 2;
+    _cookTime = (_cookTime >= 5000 && _cookTime <= 120000) ? _cookTime : 30000;
+    _totalDistance = (_totalDistance >= 50.0f && _totalDistance <= 120.0f) ? _totalDistance : 50.0f;
+    _speed = (_speed >= SPEED_MIN && _speed <= SPEED_MAX) ? _speed : (SPEED_MIN + SPEED_MAX) / 2;
+
+    preferences.end();
 
     // Recalculate _totalSteps
     _totalSteps = (_totalDistance / DISTANCE_PER_REV) * STEPS_PER_REV;
@@ -42,21 +44,21 @@ void Settings::loadSettingsFromEEPROM() {
     updateMenuVisibility();
 }
 
-void Settings::saveSettingsToEEPROM() {
-    EEPROM.put(0, _cookTime);
-    EEPROM.put(sizeof(unsigned long), _totalDistance);
-    EEPROM.put(sizeof(unsigned long) + sizeof(float), _speed);
-    
-    if (EEPROM.commit()) {
-        _initialCookTime = _cookTime;
-        _initialTotalDistance = _totalDistance;
-        _initialSpeed = _speed;
-        _settingsChanged = false;
-        updateMenuVisibility();
-    } else {
-        // Handle EEPROM write failure
-        // You might want to set an error flag or display an error message
-    }
+void Settings::saveSettingsToPreferences() {
+    Preferences preferences;
+    preferences.begin("settings", false);
+
+    preferences.putULong("cookTime", _cookTime);
+    preferences.putFloat("totalDistance", _totalDistance);
+    preferences.putFloat("speed", _speed);
+
+    preferences.end();
+
+    _initialCookTime = _cookTime;
+    _initialTotalDistance = _totalDistance;
+    _initialSpeed = _speed;
+    _settingsChanged = false;
+    updateMenuVisibility();
 }
 
 unsigned long Settings::getCookTime() const { return _cookTime; }
@@ -128,13 +130,13 @@ void Settings::handleMenuSelection() {
             enterEditMode();
             break;
         case MenuItem::LOAD_EEPROM:
-            loadSettingsFromEEPROM();
+            loadSettingsFromPreferences();
             _display.updateDisplay("Settings Loaded", "");
             delay(1000);
             break;
         case MenuItem::SAVE_EEPROM:
             if (confirmAction("Save Settings?")) {
-                saveSettingsToEEPROM();
+                saveSettingsToPreferences();
                 _display.updateDisplay("Settings Saved", "");
                 delay(1000);
             }
