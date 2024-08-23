@@ -113,6 +113,22 @@ Settings settings(display, encoder);
 MotorState currentState = MOVING;
 const unsigned long DIRECTION_CHANGE_DELAY = 500; // 500ms delay when changing direction
 
+void startHeater() {
+  digitalWrite(RELAY_PIN, HIGH);
+  digitalWrite(BUILTIN_LED_PIN, HIGH);
+  #ifdef DEBUG
+  Serial.println("Heater started");
+  #endif
+}
+
+void stopHeater() {
+  digitalWrite(RELAY_PIN, LOW);
+  digitalWrite(BUILTIN_LED_PIN, LOW);
+  #ifdef DEBUG
+  Serial.println("Heater stopped");
+  #endif
+}
+
 // Function to enter Settings menu
 void enterSettingsMenu() {
   settings.enter();  // Enter settings menu
@@ -386,22 +402,6 @@ void handleError() {
   display.updateDisplay("Error", errorMessage);
 
   // In ERROR state, we don't do anything else until the device is reset
-}
-
-void startHeater() {
-  digitalWrite(RELAY_PIN, HIGH);
-  digitalWrite(BUILTIN_LED_PIN, HIGH);
-  #ifdef DEBUG
-  Serial.println("Heater started");
-  #endif
-}
-
-void stopHeater() {
-  digitalWrite(RELAY_PIN, LOW);
-  digitalWrite(BUILTIN_LED_PIN, LOW);
-  #ifdef DEBUG
-  Serial.println("Heater stopped");
-  #endif
 }
 
 #ifdef DEBUG
