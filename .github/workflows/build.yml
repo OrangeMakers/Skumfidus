@@ -52,6 +52,9 @@ jobs:
         cp ./.pio/build/esp32doit-devkit-v1-debug/partitions.bin ./firmware-debug/partitions.bin
         cp ~/.platformio/packages/framework-arduinoespressif32/tools/partitions/boot_app0.bin ./firmware-debug/boot_app0.bin
         cp ./.pio/build/esp32doit-devkit-v1-debug/firmware.bin ./firmware-debug/firmware.bin
+        cp ./assets/Install_Firmware.cmd ./firmware-debug/Install_Firmware.cmd
+        cp ./assets/Install_Firmware.ps1 ./firmware-debug/Install_Firmware.ps1
+        cp ./assets/Install_Firmware.sh ./firmware-debug/Install_Firmware.sh
         cd ./firmware-debug && zip ../firmware-debug.zip * && cd ..
 
     - name: Build release firmware
@@ -64,6 +67,9 @@ jobs:
         cp ./.pio/build/esp32doit-devkit-v1/partitions.bin ./firmware/partitions.bin
         cp ~/.platformio/packages/framework-arduinoespressif32/tools/partitions/boot_app0.bin ./firmware/boot_app0.bin
         cp ./.pio/build/esp32doit-devkit-v1/firmware.bin ./firmware/firmware.bin
+        cp ./assets/Install_Firmware.cmd ./firmware/Install_Firmware.cmd
+        cp ./assets/Install_Firmware.ps1 ./firmware/Install_Firmware.ps1
+        cp ./assets/Install_Firmware.sh ./firmware/Install_Firmware.sh
         cd ./firmware && zip ../firmware.zip * && cd ..
       
     - name: Create Release and Upload Assets
