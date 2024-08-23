@@ -170,7 +170,6 @@ void setup() {
   Serial.begin(115200);  // Initialize serial communication
   
   // Print initial settings
-  Serial.println("Initial Settings:");
   displayCurrentSettings();
   #endif
 
