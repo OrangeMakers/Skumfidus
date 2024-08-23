@@ -70,7 +70,8 @@ enum SystemState {
   RUNNING,
   RETURNING_TO_START,
   ERROR,
-  SETTINGS_MENU
+  SETTINGS_MENU,
+  PARKING  // New state
 };
 
 // Global variable to track system state
@@ -259,25 +260,38 @@ void handleHoming(unsigned long currentTime) {
 
 void handleIdle() {
   static unsigned long buttonPressStartTime = 0;
-  const unsigned long LONG_PRESS_DURATION = 1000; // 1 second for long press
+  const unsigned long LONG_PRESS_DURATION = 5000; // 5 seconds for long press
+  const unsigned long SETTINGS_PRESS_DURATION = 1000; // 1 second for settings
 
   if (stateJustChanged) {
     display.updateDisplay("Idle..", "Press Start");
     stateJustChanged = false;
   }
 
-  if (buttonStart.isPressed()) {
-    changeState(RUNNING, millis());
-    timer.start(settings.getCookTime());
-    TOTAL_STEPS = (settings.getTotalDistance() / DISTANCE_PER_REV) * STEPS_PER_REV;
-    stepper.moveTo(DIRECTION_RUN * TOTAL_STEPS);  // Start moving in the run direction
-    return;  // Exit the function immediately to start running
+  if (buttonStart.getState()) {
+    if (buttonPressStartTime == 0) {
+      buttonPressStartTime = millis();
+    } else if (millis() - buttonPressStartTime >= LONG_PRESS_DURATION) {
+      changeState(PARKING, millis());
+      buttonPressStartTime = 0;
+      return;
+    }
+  } else {
+    if (buttonPressStartTime != 0 && millis() - buttonPressStartTime < LONG_PRESS_DURATION) {
+      changeState(RUNNING, millis());
+      timer.start(settings.getCookTime());
+      TOTAL_STEPS = (settings.getTotalDistance() / DISTANCE_PER_REV) * STEPS_PER_REV;
+      stepper.moveTo(DIRECTION_RUN * TOTAL_STEPS);
+      buttonPressStartTime = 0;
+      return;
+    }
+    buttonPressStartTime = 0;
   }
 
   if (buttonRotarySwitch.getState()) {
     if (buttonPressStartTime == 0) {
       buttonPressStartTime = millis();
-    } else if (millis() - buttonPressStartTime >= LONG_PRESS_DURATION) {
+    } else if (millis() - buttonPressStartTime >= SETTINGS_PRESS_DURATION) {
       changeState(SETTINGS_MENU, millis());
       enterSettingsMenu();
       buttonPressStartTime = 0;
@@ -558,10 +572,43 @@ void loop() {
         changeState(IDLE, currentTime);
       }
       break;
+    case PARKING:
+      handleParking();
+      break;
   }
 
   // Reset changed states after handling
   buttonStart.reset();
   buttonLimitSwitch.reset();
   buttonRotarySwitch.reset();
+}
+void handleParking() {
+  static bool parkingStarted = false;
+
+  if (stateJustChanged) {
+    stateJustChanged = false;
+    parkingStarted = false;
+    display.updateDisplay("Parking", "Please wait");
+    digitalWrite(STEPPER_ENABLE_PIN, LOW);  // Enable the stepper motor
+    stepper.setMaxSpeed(settings.getSpeed());
+    stepper.setAcceleration(ACCELERATION);
+    float parkDistance = 120.0;  // 120mm parking distance
+    long parkSteps = (parkDistance / DISTANCE_PER_REV) * STEPS_PER_REV;
+    stepper.moveTo(DIRECTION_HOME * parkSteps);
+    parkingStarted = true;
+  }
+
+  if (parkingStarted) {
+    if (stepper.distanceToGo() == 0) {
+      // Parking completed
+      digitalWrite(STEPPER_ENABLE_PIN, HIGH);  // Disable the stepper motor
+      display.updateDisplay("Please turn off", "The power");
+      while (true) {
+        // Infinite loop to stop all processing
+        delay(1000);
+      }
+    } else {
+      stepper.run();
+    }
+  }
 }
