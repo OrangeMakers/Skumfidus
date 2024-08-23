@@ -316,7 +316,6 @@ void handleRunning(unsigned long currentTime) {
         // Change direction when reaching either end
         TOTAL_STEPS = (settings.getTotalDistance() / DISTANCE_PER_REV) * STEPS_PER_REV;
         stepper.moveTo(stepper.currentPosition() == 0 ? DIRECTION_RUN * TOTAL_STEPS : (stepper.currentPosition() == DIRECTION_RUN * TOTAL_STEPS ? 0 : DIRECTION_RUN * TOTAL_STEPS));
-        digitalWrite(BUILTIN_LED_PIN, !digitalRead(BUILTIN_LED_PIN));  // Toggle LED when changing direction
         currentState = CHANGING_DIRECTION;
         stateStartTime = currentTime;
       } else {
