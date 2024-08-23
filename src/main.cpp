@@ -449,6 +449,7 @@ void setup() {
   pinMode(STEPPER_ENABLE_PIN, OUTPUT);
   digitalWrite(STEPPER_ENABLE_PIN, HIGH);  // Set STEPPER_ENABLE_PIN to HIGH by default
   pinMode(RELAY_PIN, OUTPUT);
+  digitalWrite(RELAY_PIN, LOW);  // Set RELAY_PIN to LOW by default
 
   // Initialize ButtonHandler objects
   buttonStart.begin();
