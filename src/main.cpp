@@ -457,6 +457,20 @@ void dumpDebug() {
 }
 #endif
 
+// Function to display current settings
+void displayCurrentSettings() {
+  Serial.println("Current Settings:");
+  Serial.print("Cook Time: ");
+  Serial.print(settings.getCookTime());
+  Serial.println(" ms");
+  Serial.print("Total Distance: ");
+  Serial.print(settings.getTotalDistance());
+  Serial.println(" mm");
+  Serial.print("Speed: ");
+  Serial.print(settings.getSpeed());
+  Serial.println(" steps/second");
+}
+
 void loop() {
   unsigned long currentTime = millis();
 
