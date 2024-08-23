@@ -1,14 +1,14 @@
 ## Description of next release
 
-Denne opdatering inkluderer forbedringer i installationsprocessen og dokumentationen.
+This update includes improvements in the installation process and documentation.
 
 ### Added
-- Tilføjet instruktioner for debug firmware i INSTALL.md
+- Added instructions for debug firmware in INSTALL.md
 
 ### Changed
-- Opdateret INSTALL.md med detaljerede instruktioner for installation af Python og esptool på både Windows og Linux
-- Ændret firmware distribution til at bruge zip-filer (firmware.zip og firmware-debug.zip) i stedet for individuelle filer
-- Opdateret installationsscripts (Install_Firmware.cmd, Install_Firmware.ps1, og Install_Firmware.sh) til at håndtere automatisk port-scanning
+- Updated INSTALL.md with detailed instructions for installing Python and esptool on both Windows and Linux
+- Changed firmware distribution to use zip files (firmware.zip and firmware-debug.zip) instead of individual files
+- Updated installation scripts (Install_Firmware.cmd, Install_Firmware.ps1, and Install_Firmware.sh) to handle automatic port scanning
 
 ### Deprecated
 - No changes
