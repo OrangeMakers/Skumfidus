@@ -163,17 +163,33 @@ bool Settings::confirmAction(const char* message) {
     bool confirmed = true;
     int32_t lastConfirmEncoderValue = _encoder.getCount();
     
-    while (!buttonRotarySwitch.isPressed()) {
+    // Wait for button release
+    while (buttonRotarySwitch.getState()) {
+        buttonRotarySwitch.update();
+        delay(10);
+    }
+    
+    while (true) {
+        buttonRotarySwitch.update();
+        
         int32_t newEncoderValue = _encoder.getCount();
         if (newEncoderValue != lastConfirmEncoderValue) {
             confirmed = !confirmed;
             _display.updateDisplay(message, confirmed ? "Yes" : "No");
             lastConfirmEncoderValue = newEncoderValue;
         }
-        buttonRotarySwitch.update();
+        
+        if (buttonRotarySwitch.isPressed()) {
+            // Wait for button release
+            while (buttonRotarySwitch.getState()) {
+                buttonRotarySwitch.update();
+                delay(10);
+            }
+            return confirmed;
+        }
+        
+        delay(10);  // Small delay to prevent excessive CPU usage
     }
-    
-    return confirmed;
 }
 
 bool Settings::isDone() const {
