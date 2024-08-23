@@ -273,11 +273,15 @@ void handleIdle() {
     buttonPressStartTime = millis();
   }
 
-  if (buttonStart.isReleased()) {
+  if (buttonStart.getState()) {
     unsigned long pressDuration = millis() - buttonPressStartTime;
     if (pressDuration >= LONG_PRESS_DURATION) {
       changeState(PARKING, millis());
-    } else {
+      buttonPressStartTime = 0;
+    }
+  } else if (buttonStart.isReleased()) {
+    unsigned long pressDuration = millis() - buttonPressStartTime;
+    if (pressDuration < LONG_PRESS_DURATION) {
       changeState(RUNNING, millis());
       timer.start(settings.getCookTime());
       TOTAL_STEPS = (settings.getTotalDistance() / DISTANCE_PER_REV) * STEPS_PER_REV;
