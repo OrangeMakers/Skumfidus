@@ -1,13 +1,12 @@
 ## Description of next release
 
-This update includes improvements in the release process and documentation.
+This update includes a fix for an issue in the installation files.
 
 ### Added
 - No changes
 
 ### Changed
-- Updated RELEASE_NEXT.md to reflect the latest changes in English
-- Improved the release process to include automatic translation of release notes
+- No changes
 
 ### Deprecated
 - No changes
@@ -16,7 +15,7 @@ This update includes improvements in the release process and documentation.
 - No changes
 
 ### Fixed
-- No changes
+- Resolved an issue in the installation files (Install_Firmware.cmd, Install_Firmware.ps1, and Install_Firmware.sh)
 
 ### Security
 - No changes
