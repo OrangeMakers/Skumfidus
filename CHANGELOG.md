@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0-115] - 2024-08-23
+
+This release includes improvements to the ButtonHandler class, enhancing its functionality and debugging capabilities.
+
+### Added
+- New method `isPressedForMs()` in ButtonHandler class to check how long a button has been pressed.
+
+### Changed
+- Updated ButtonHandler class to track press start time.
+- Improved debugging output in ButtonHandler class.
+
+### Deprecated
+- No changes
+
+### Removed
+- No changes
+
+### Fixed
+- No changes
+
+### Security
+- No changes
+
 ## [0.3.0-96] - 2024-08-23
 
 This release introduces an alternative firmware flashing method using esptool.py, providing users with a more flexible and robust way to update their Skumfidus devices. The INSTALL.md file has been significantly updated with detailed instructions for flashing firmware on various operating systems, including Windows (using both cmd and PowerShell) and Unix-based systems. This update aims to improve the user experience and make the firmware update process more accessible to a wider range of users. Additionally, extra files have been copied to the assets in the release for improved accessibility.
