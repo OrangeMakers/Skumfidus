@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0-120] - 2024-08-23
+
+This release introduces debug firmware and updates the release naming convention.
+
+### Added
+- Debug firmware is now included in releases as a separate zip file.
+
+### Changed
+- Release naming convention updated to use semantic versioning (e.g., v1.2.3).
+
+### Deprecated
+- No changes
+
+### Removed
+- No changes
+
+### Fixed
+- No changes
+
+### Security
+- No changes
+
 ## [0.3.0-115] - 2024-08-23
 
 This release includes improvements to the ButtonHandler class, enhancing its functionality and debugging capabilities.
