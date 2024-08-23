@@ -168,14 +168,8 @@ void setup() {
   // Init if debug
   #ifdef DEBUG
   Serial.begin(115200);  // Initialize serial communication
+  
   #endif
-
-  // Initialize EEPROM
-  if (!EEPROM.begin(EEPROM_SIZE)) {
-    #ifdef DEBUG
-    Serial.println("Failed to initialise EEPROM");
-    #endif
-  }
 
   // Initialize pins
   pinMode(BUILTIN_LED_PIN, OUTPUT);
