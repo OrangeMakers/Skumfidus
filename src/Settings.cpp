@@ -70,7 +70,7 @@ void Settings::factoryReset() {
     _cookTime = 30000;
     _totalDistance = 50.0f;
     _speed = (SPEED_MIN + SPEED_MAX) / 2;
-    saveSettingsToEEPROM();
+    saveSettingsToPreferences();
     updateDisplay();
     _settingsChanged = false;
     updateMenuVisibility();
