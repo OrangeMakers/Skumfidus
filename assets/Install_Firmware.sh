@@ -36,14 +36,11 @@ read -p "Enter the serial port (e.g., /dev/ttyUSB0) or press Enter for auto-dete
 # Flash firmware
 echo "Flashing firmware..."
 if [ -z "$SERIAL_PORT" ]; then
-    esptool --chip esp32 --baud 115200 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size 4MB \
+    esptool --chip esp32 --baud 115200 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size 4MB 0x1000 bootloader.bin 0x8000 partitions.bin 0xe000 boot_app0.bin 0x10000 firmware.bin
 else
-    esptool --chip esp32 --port "$SERIAL_PORT" --baud 115200 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size 4MB \
+    esptool --chip esp32 --port "$SERIAL_PORT" --baud 115200 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size 4MB 0x1000 bootloader.bin 0x8000 partitions.bin 0xe000 boot_app0.bin 0x10000 firmware.bin
 fi
-0x1000 bootloader.bin \
-0x8000 partitions.bin \
-0xe000 boot_app0.bin \
-0x10000 firmware.bin
+
 
 if [ $? -ne 0 ]; then
     echo "An error occurred while flashing the firmware."
