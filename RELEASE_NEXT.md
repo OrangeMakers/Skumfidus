@@ -3,10 +3,11 @@
 [Insert release description here]
 
 ### Added
-- No changes
+- Added function to initialize and turn on WS2812B LED strip
+- Added LED strip initialization to setup function
 
 ### Changed
-- No changes
+- Updated CONVENTIONS.md with guidance for working with WS2812B LED strip
 
 ### Deprecated
 - No changes
