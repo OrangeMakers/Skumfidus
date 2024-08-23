@@ -11,7 +11,7 @@ Settings::Settings(MatrixDisplay& display, ESP32Encoder& encoder)
     : _display(display), _encoder(encoder), _isDone(false), _inEditMode(false), _currentMenuIndex(0), _lastEncoderValue(0),
       _totalSteps(0), _settingsChanged(false) {
     initializeMenuItems();
-    loadSettingsFromPreferences();
+    // loadSettingsFromPreferences();
     _totalSteps = (_totalDistance / DISTANCE_PER_REV) * STEPS_PER_REV;
 }
 
