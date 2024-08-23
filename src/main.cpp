@@ -121,6 +121,32 @@ Settings settings(display, encoder);
 MotorState currentState = MOVING;
 const unsigned long DIRECTION_CHANGE_DELAY = 500; // 500ms delay when changing direction
 
+// Function to initialize and turn on LED strip
+void initializeLEDStrip() {
+  FastLED.addLeds<LED_TYPE, ADDRESSABLE_LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);
+  fill_solid(leds, NUM_LEDS, CRGB::Orange);
+  FastLED.setBrightness(255);  // Set to full brightness
+  FastLED.show();
+}
+
+// Function to set LED strip to green
+void setLEDGreen() {
+  fill_solid(leds, NUM_LEDS, CRGB::Green);
+  FastLED.show();
+}
+
+// Function to set LED strip to yellow
+void setLEDYellow() {
+  fill_solid(leds, NUM_LEDS, CRGB::Yellow);
+  FastLED.show();
+}
+
+// Function to set LED strip to red
+void setLEDRed() {
+  fill_solid(leds, NUM_LEDS, CRGB::Red);
+  FastLED.show();
+}
+
 void startHeater() {
   digitalWrite(RELAY_PIN, HIGH);
   digitalWrite(BUILTIN_LED_PIN, HIGH);
@@ -213,6 +239,7 @@ void handleHoming(unsigned long currentTime) {
     display.updateDisplay("To start homing", "press rotary");
     stateJustChanged = false;
     lastHomingUpdateTime = 0; // Reset the update time when state changes
+    setLEDYellow(); // Set LED to yellow when homing begins
   }
 
   if (waitingForConfirmation) {
@@ -273,6 +300,7 @@ void handleIdle() {
   if (stateJustChanged) {
     display.updateDisplay("Idle..", "Press Start");
     stateJustChanged = false;
+    setLEDGreen(); // Set LED to green when idle
   }
 
   static bool startButtonWasPressed = false;
@@ -317,6 +345,7 @@ void handleRunning(unsigned long currentTime) {
     stepper.moveTo(DIRECTION_RUN * TOTAL_STEPS);  // Set initial movement direction
     lastLCDUpdateTime = 0; // Force an immediate update
     startHeater(); // Start the heater when entering the running state
+    setLEDRed(); // Set LED to red when running
   }
 
   if (buttonStart.isPressed()) {
@@ -493,14 +522,6 @@ void handleParking() {
       stepper.run();
     }
   }
-}
-
-// Function to initialize and turn on LED strip
-void initializeLEDStrip() {
-  FastLED.addLeds<LED_TYPE, ADDRESSABLE_LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);
-  fill_solid(leds, NUM_LEDS, CRGB::Orange);
-  FastLED.setBrightness(255);  // Set to full brightness
-  FastLED.show();
 }
 
 void setup() {
