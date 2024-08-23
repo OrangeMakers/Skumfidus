@@ -386,11 +386,17 @@ void handleError() {
 void startHeater() {
   digitalWrite(RELAY_PIN, HIGH);
   digitalWrite(BUILTIN_LED_PIN, HIGH);
+  #ifdef DEBUG
+  Serial.println("Heater started");
+  #endif
 }
 
 void stopHeater() {
   digitalWrite(RELAY_PIN, LOW);
   digitalWrite(BUILTIN_LED_PIN, LOW);
+  #ifdef DEBUG
+  Serial.println("Heater stopped");
+  #endif
 }
 
 #ifdef DEBUG
