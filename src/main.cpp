@@ -17,10 +17,15 @@
 #include <ESPmDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
+#include <DNSServer.h>
 
-const char* ssid = "Skumfidus";
-const char* password = "OragenMakers";
+const char* ap_ssid = "Skumfidus";
+const char* ap_password = "OragenMakers";
 const char* ota_password = "OrangeMakers";
+
+// DNS server
+const byte DNS_PORT = 53;
+DNSServer dnsServer;
 
 #define START_BUTTON_PIN 15   // Start button pin
 #define HOMING_SWITCH_PIN 16  // Homing switch pin
@@ -568,21 +573,21 @@ void setup() {
   // Initialize state
   changeState(STARTUP, millis());
 
-  // Connect to Wi-Fi
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
-  while (WiFi.waitForConnectResult() != WL_CONNECTED) {
-    delay(5000);
-    ESP.restart();
-  }
+  // Set up Access Point
+  WiFi.mode(WIFI_AP);
+  WiFi.softAP(ap_ssid, ap_password);
 
-  // Port defaults to 3232
-  // ArduinoOTA.setPort(3232);
+  // Configure DNS server to redirect all domains to the ESP's IP
+  dnsServer.start(DNS_PORT, "*", WiFi.softAPIP());
 
-  // Hostname defaults to esp3232-[MAC]
+  #ifdef DEBUG
+  Serial.println("Access Point Started");
+  Serial.print("AP IP address: ");
+  Serial.println(WiFi.softAPIP());
+  #endif
+
+  // Configure OTA
   ArduinoOTA.setHostname("Skumfidus-OTA");
-
-  // No authentication by default
   ArduinoOTA.setPassword(ota_password);
 
   ArduinoOTA
@@ -593,7 +598,6 @@ void setup() {
       else // U_SPIFFS
         type = "filesystem";
 
-      // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
       #ifdef DEBUG
       Serial.println("Start updating " + type);
       #endif
@@ -623,13 +627,12 @@ void setup() {
 
   #ifdef DEBUG
   Serial.println("OTA Ready");
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
   #endif
 }
 
 void loop() {
   ArduinoOTA.handle();
+  dnsServer.processNextRequest();
 
   unsigned long currentTime = millis();
 
