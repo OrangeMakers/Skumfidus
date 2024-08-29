@@ -633,9 +633,11 @@ void setup() {
 
   ArduinoOTA.begin();
 
+  #ifdef DEBUG
   Serial.println("OTA Ready");
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
+  #endif
 }
 
 void loop() {
