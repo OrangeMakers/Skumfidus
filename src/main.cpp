@@ -20,7 +20,7 @@
 #include <DNSServer.h>
 
 const char* ap_ssid = "Skumfidus";
-const char* ap_password = "OragenMakers";
+const char* ap_password = "OrangeMakers";
 const char* ota_password = "OrangeMakers";
 
 // DNS server
