@@ -158,17 +158,11 @@ void setLEDRed() {
 void startHeater() {
   digitalWrite(RELAY_PIN, HIGH);
   digitalWrite(BUILTIN_LED_PIN, HIGH);
-  #ifdef DEBUG
-  Serial.println("Heater started");
-  #endif
 }
 
 void stopHeater() {
   digitalWrite(RELAY_PIN, LOW);
   digitalWrite(BUILTIN_LED_PIN, LOW);
-  #ifdef DEBUG
-  Serial.println("Heater stopped");
-  #endif
 }
 
 // Function to enter Settings menu
@@ -203,18 +197,6 @@ const char* getStateName(SystemState state) {
 
 // New function to handle state changes
 void changeState(SystemState newState, unsigned long currentTime = 0) {
-  #ifdef DEBUG
-  if(newState != previousSystemState){
-    Serial.print("State changed from ");
-    Serial.print(getStateName(previousSystemState));
-    Serial.print(" to ");
-    Serial.println(getStateName(newState));
-  } else {
-    Serial.print("Current state ");
-    Serial.println(getStateName(newState));
-  }
-  #endif
-  
   previousSystemState = currentSystemState;
   currentSystemState = newState;
   stateStartTime = currentTime == 0 ? millis() : currentTime;
@@ -590,9 +572,6 @@ void setup() {
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   while (WiFi.waitForConnectResult() != WL_CONNECTED) {
-    #ifdef DEBUG
-    Serial.println("Connection Failed! Rebooting...");
-    #endif
     delay(5000);
     ESP.restart();
   }
@@ -615,21 +594,29 @@ void setup() {
         type = "filesystem";
 
       // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+      #ifdef DEBUG
       Serial.println("Start updating " + type);
+      #endif
     })
     .onEnd([]() {
+      #ifdef DEBUG
       Serial.println("\nEnd");
+      #endif
     })
     .onProgress([](unsigned int progress, unsigned int total) {
+      #ifdef DEBUG
       Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+      #endif
     })
     .onError([](ota_error_t error) {
+      #ifdef DEBUG
       Serial.printf("Error[%u]: ", error);
       if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
       else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
       else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
       else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
       else if (error == OTA_END_ERROR) Serial.println("End Failed");
+      #endif
     });
 
   ArduinoOTA.begin();
