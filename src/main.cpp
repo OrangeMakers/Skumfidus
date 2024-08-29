@@ -539,7 +539,6 @@ void setup() {
   // Initialize LED strip
   initializeLEDStrip();
 
-  // Init if debug
   #ifdef DEBUG
   Serial.begin(115200);  // Initialize serial communication
   
@@ -591,7 +590,9 @@ void setup() {
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   while (WiFi.waitForConnectResult() != WL_CONNECTED) {
+    #ifdef DEBUG
     Serial.println("Connection Failed! Rebooting...");
+    #endif
     delay(5000);
     ESP.restart();
   }
