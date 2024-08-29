@@ -102,7 +102,7 @@ enum MotorState {
 const int STEPS_PER_REV = 1600;  // 200 * 8 (for 8 microstepping)
 const float DISTANCE_PER_REV = 8.0;  // 8mm per revolution (lead of ACME rod)
 int TOTAL_STEPS;
-const float ACCELERATION = 3200.0;  // Adjust for smooth acceleration
+const float ACCELERATION = 5000.0;  // Adjust for smooth acceleration
 
 // Define LCD update interval
 static unsigned long lastLCDUpdateTime = 0;
@@ -119,13 +119,13 @@ Settings settings(display, encoder);
 
 // Variables for state machine
 MotorState currentState = MOVING;
-const unsigned long DIRECTION_CHANGE_DELAY = 500; // 500ms delay when changing direction
+const unsigned long DIRECTION_CHANGE_DELAY = 50; // 50ms delay when changing direction
 
 // Function to initialize and turn on LED strip
 void initializeLEDStrip() {
   FastLED.addLeds<LED_TYPE, ADDRESSABLE_LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);
-  fill_solid(leds, NUM_LEDS, CRGB(255, 150, 0));  // RGB for orange
-  FastLED.setBrightness(255);  // Set to full brightness
+  fill_solid(leds, NUM_LEDS, CRGB(255, 80, 0));  // RGB for orange
+  FastLED.setBrightness(100);  // Set to full brightness
   FastLED.show();
 }
 
@@ -137,7 +137,7 @@ void setLEDGreen() {
 
 // Function to set LED strip to yellow (255, 255, 0)
 void setLEDYellow() {
-  fill_solid(leds, NUM_LEDS, CRGB(255, 255, 0));
+  fill_solid(leds, NUM_LEDS, CRGB(216, 216, 0));
   FastLED.show();
 }
 
