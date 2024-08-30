@@ -13,6 +13,19 @@
 #include "Settings.h"
 #include "MatrixDisplay.h"
 #include "FastLED.h"
+#include <WiFi.h>
+#include <ESPmDNS.h>
+#include <WiFiUdp.h>
+#include <ArduinoOTA.h>
+#include <DNSServer.h>
+
+const char* ap_ssid = "Skumfidus";
+const char* ap_password = "OrangeMakers";
+const char* ota_password = "OrangeMakers";
+
+// DNS server
+const byte DNS_PORT = 53;
+DNSServer dnsServer;
 
 #define START_BUTTON_PIN 15   // Start button pin
 #define HOMING_SWITCH_PIN 16  // Homing switch pin
@@ -102,7 +115,7 @@ enum MotorState {
 const int STEPS_PER_REV = 1600;  // 200 * 8 (for 8 microstepping)
 const float DISTANCE_PER_REV = 8.0;  // 8mm per revolution (lead of ACME rod)
 int TOTAL_STEPS;
-const float ACCELERATION = 3200.0;  // Adjust for smooth acceleration
+const float ACCELERATION = 5000.0;  // Adjust for smooth acceleration
 
 // Define LCD update interval
 static unsigned long lastLCDUpdateTime = 0;
@@ -119,13 +132,13 @@ Settings settings(display, encoder);
 
 // Variables for state machine
 MotorState currentState = MOVING;
-const unsigned long DIRECTION_CHANGE_DELAY = 500; // 500ms delay when changing direction
+const unsigned long DIRECTION_CHANGE_DELAY = 50; // 50ms delay when changing direction
 
 // Function to initialize and turn on LED strip
 void initializeLEDStrip() {
   FastLED.addLeds<LED_TYPE, ADDRESSABLE_LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);
-  fill_solid(leds, NUM_LEDS, CRGB(255, 150, 0));  // RGB for orange
-  FastLED.setBrightness(255);  // Set to full brightness
+  fill_solid(leds, NUM_LEDS, CRGB(255, 80, 0));  // RGB for orange
+  FastLED.setBrightness(100);  // Set to full brightness
   FastLED.show();
 }
 
@@ -137,7 +150,7 @@ void setLEDGreen() {
 
 // Function to set LED strip to yellow (255, 255, 0)
 void setLEDYellow() {
-  fill_solid(leds, NUM_LEDS, CRGB(255, 255, 0));
+  fill_solid(leds, NUM_LEDS, CRGB(216, 216, 0));
   FastLED.show();
 }
 
@@ -150,17 +163,11 @@ void setLEDRed() {
 void startHeater() {
   digitalWrite(RELAY_PIN, HIGH);
   digitalWrite(BUILTIN_LED_PIN, HIGH);
-  #ifdef DEBUG
-  Serial.println("Heater started");
-  #endif
 }
 
 void stopHeater() {
   digitalWrite(RELAY_PIN, LOW);
   digitalWrite(BUILTIN_LED_PIN, LOW);
-  #ifdef DEBUG
-  Serial.println("Heater stopped");
-  #endif
 }
 
 // Function to enter Settings menu
@@ -195,18 +202,6 @@ const char* getStateName(SystemState state) {
 
 // New function to handle state changes
 void changeState(SystemState newState, unsigned long currentTime = 0) {
-  #ifdef DEBUG
-  if(newState != previousSystemState){
-    Serial.print("State changed from ");
-    Serial.print(getStateName(previousSystemState));
-    Serial.print(" to ");
-    Serial.println(getStateName(newState));
-  } else {
-    Serial.print("Current state ");
-    Serial.println(getStateName(newState));
-  }
-  #endif
-  
   previousSystemState = currentSystemState;
   currentSystemState = newState;
   stateStartTime = currentTime == 0 ? millis() : currentTime;
@@ -531,7 +526,6 @@ void setup() {
   // Initialize LED strip
   initializeLEDStrip();
 
-  // Init if debug
   #ifdef DEBUG
   Serial.begin(115200);  // Initialize serial communication
   
@@ -578,11 +572,69 @@ void setup() {
 
   // Initialize state
   changeState(STARTUP, millis());
+
+  // Set up Access Point
+  WiFi.mode(WIFI_AP);
+  WiFi.softAP(ap_ssid, ap_password);
+
+  // Configure DNS server to redirect all domains to the ESP's IP
+  dnsServer.start(DNS_PORT, "*", WiFi.softAPIP());
+
+  #ifdef DEBUG
+  Serial.println("Access Point Started");
+  Serial.print("AP IP address: ");
+  Serial.println(WiFi.softAPIP());
+  #endif
+
+  // Configure OTA
+  ArduinoOTA.setHostname("Skumfidus-OTA");
+  ArduinoOTA.setPassword(ota_password);
+
+  ArduinoOTA
+    .onStart([]() {
+      String type;
+      if (ArduinoOTA.getCommand() == U_FLASH)
+        type = "sketch";
+      else // U_SPIFFS
+        type = "filesystem";
+
+      #ifdef DEBUG
+      Serial.println("Start updating " + type);
+      #endif
+    })
+    .onEnd([]() {
+      #ifdef DEBUG
+      Serial.println("\nEnd");
+      #endif
+    })
+    .onProgress([](unsigned int progress, unsigned int total) {
+      #ifdef DEBUG
+      Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+      #endif
+    })
+    .onError([](ota_error_t error) {
+      #ifdef DEBUG
+      Serial.printf("Error[%u]: ", error);
+      if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+      else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+      #endif
+    });
+
+  ArduinoOTA.begin();
+
+  #ifdef DEBUG
+  Serial.println("OTA Ready");
+  #endif
 }
 
 void loop() {
-  unsigned long currentTime = millis();
+  ArduinoOTA.handle();
+  dnsServer.processNextRequest();
 
+  unsigned long currentTime = millis();
 
   // Debug
   #ifdef DEBUG
